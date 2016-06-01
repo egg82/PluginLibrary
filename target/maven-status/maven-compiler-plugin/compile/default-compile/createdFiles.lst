@@ -1,0 +1,15 @@
+com\egg82\plugin\utils\interfaces\ITickHandler.class
+com\egg82\plugin\utils\interfaces\ILogger.class
+com\egg82\plugin\utils\interfaces\IEventListener.class
+com\egg82\plugin\commands\PluginCommand.class
+com\egg82\plugin\utils\interfaces\ICommandHandler.class
+com\egg82\plugin\utils\interfaces\IPermissionsManager.class
+com\egg82\plugin\utils\PermissionsManager.class
+com\egg82\plugin\utils\TickHandler$1.class
+com\egg82\plugin\utils\EventListener.class
+com\egg82\plugin\utils\Logger.class
+com\egg82\plugin\commands\EventCommand.class
+com\egg82\plugin\BasePlugin.class
+com\egg82\plugin\enums\CustomServiceType.class
+com\egg82\plugin\utils\CommandHandler.class
+com\egg82\plugin\utils\TickHandler.class
