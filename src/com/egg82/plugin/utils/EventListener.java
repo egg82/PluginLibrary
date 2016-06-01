@@ -401,6 +401,196 @@ public class EventListener implements IEventListener, Listener {
 	}
 	
 	//player events
+	@EventHandler
+	public void onAsyncPlayerChat(AsyncPlayerChatEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onAsyncPlayerPreLogin(AsyncPlayerPreLoginEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerAchievementAwarded(PlayerAchievementAwardedEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerAnimation(PlayerAnimationEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerBedEnter(PlayerBedEnterEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerBedLeave(PlayerBedLeaveEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerBucketEmpty(PlayerBucketEmptyEvent e) {
+		onAnyEvent(e);
+	}
+	/*@EventHandler
+	public void onPlayerBucket(PlayerBucketEvent e) {
+		onAnyEvent(e);
+	}*/
+	@EventHandler
+	public void onPlayerBucketFill(PlayerBucketFillEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerChangedWorld(PlayerChangedWorldEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerChannel(PlayerChannelEvent e) {
+		onAnyEvent(e);
+	}
+	/*@EventHandler
+	public void onPlayerChat(PlayerChatEvent e) {
+		onAnyEvent(e);
+	}*/
+	@EventHandler
+	public void onPlayerChatTabComplete(PlayerChatTabCompleteEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerDropItem(PlayerDropItemEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerEditBook(PlayerEditBookEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerEggThrow(PlayerEggThrowEvent e) {
+		onAnyEvent(e);
+	}
+	/*@EventHandler
+	public void onPlayerEvent(PlayerEvent e) {
+		onAnyEvent(e);
+	}*/
+	@EventHandler
+	public void onPlayerExpChange(PlayerExpChangeEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerFish(PlayerFishEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerGameModeChange(PlayerGameModeChangeEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerInteractEntity(PlayerInteractEntityEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerInteract(PlayerInteractEvent e) {
+		onAnyEvent(e);
+	}
+	/*@EventHandler
+	public void onPlayerInventory(PlayerInventoryEvent e) {
+		onAnyEvent(e);
+	}*/
+	@EventHandler
+	public void onPlayerItemBreak(PlayerItemBreakEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerItemConsume(PlayerItemConsumeEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerItemHeld(PlayerItemHeldEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerJoin(PlayerJoinEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerKick(PlayerKickEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerLevelChange(PlayerLevelChangeEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerLogin(PlayerLoginEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerMove(PlayerMoveEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerPickupItem(PlayerPickupItemEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerPortal(PlayerPortalEvent e) {
+		onAnyEvent(e);
+	}
+	/*@EventHandler
+	public void onPlayerPreLogin(PlayerPreLoginEvent e) {
+		onAnyEvent(e);
+	}*/
+	@EventHandler
+	public void onPlayerQuit(PlayerQuitEvent e) {
+		onAnyEvent(e);
+	}
+	/*@EventHandler
+	public void onPlayerRegisterChannel(PlayerRegisterChannelEvent e) {
+		onAnyEvent(e);
+	}*/
+	@EventHandler
+	public void onPlayerRespawn(PlayerRespawnEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerShearEntity(PlayerShearEntityEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerStatisticIncrement(PlayerStatisticIncrementEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerTeleport(PlayerTeleportEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerToggleFlight(PlayerToggleFlightEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerToggleSneak(PlayerToggleSneakEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPlayerToggleSprint(PlayerToggleSprintEvent e) {
+		onAnyEvent(e);
+	}
+	/*@EventHandler
+	public void onPlayerUnleashEntity(PlayerUnleashEntityEvent e) {
+		onAnyEvent(e);
+	}*/
+	/*@EventHandler
+	public void onPlayerUnregisterChannel(PlayerUnregisterChannelEvent e) {
+		onAnyEvent(e);
+	}*/
+	@EventHandler
+	public void onPlayerVelocity(PlayerVelocityEvent e) {
+		onAnyEvent(e);
+	}
+	
+	//server events
 	
 	
 	//private
@@ -410,9 +600,10 @@ public class EventListener implements IEventListener, Listener {
 		EventCommand run = null;
 		
 		if (get == null) {
-			get = events.get(c.getSuperclass());
+			Class<?> p = c.getSuperclass();
+			get = events.get(p);
 			if (get == null) {
-				get = events.get(c.getSuperclass().getSuperclass());
+				get = events.get(p.getSuperclass());
 				if (get == null) {
 					return;
 				}
