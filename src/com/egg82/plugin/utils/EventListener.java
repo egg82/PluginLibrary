@@ -669,10 +669,10 @@ public class EventListener implements IEventListener, Listener {
 	public void onVehicleEntityCollision(VehicleEntityCollisionEvent e) {
 		onAnyEvent(e);
 	}
-	@EventHandler
+	/*@EventHandler
 	public void onVehicleEvent(VehicleEvent e) {
 		onAnyEvent(e);
-	}
+	}*/
 	@EventHandler
 	public void onVehicleExit(VehicleExitEvent e) {
 		onAnyEvent(e);
