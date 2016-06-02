@@ -11,6 +11,10 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.hanging.*;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
+import org.bukkit.event.server.*;
+import org.bukkit.event.vehicle.*;
+import org.bukkit.event.weather.*;
+import org.bukkit.event.world.*;
 
 import com.egg82.plugin.commands.EventCommand;
 import com.egg82.plugin.utils.interfaces.IEventListener;
@@ -591,7 +595,164 @@ public class EventListener implements IEventListener, Listener {
 	}
 	
 	//server events
+	@EventHandler
+	public void onMapInitialize(MapInitializeEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPluginDisable(PluginDisableEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPluginEnable(PluginEnableEvent e) {
+		onAnyEvent(e);
+	}
+	/*@EventHandler
+	public void onPluginEvent(PluginEvent e) {
+		onAnyEvent(e);
+	}*/
+	@EventHandler
+	public void onRemoteServerCommand(RemoteServerCommandEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onServerCommand(ServerCommandEvent e) {
+		onAnyEvent(e);
+	}
+	/*@EventHandler
+	public void onServerEvent(ServerEvent e) {
+		onAnyEvent(e);
+	}*/
+	@EventHandler
+	public void onServerListPing(ServerListPingEvent e) {
+		onAnyEvent(e);
+	}
+	/*@EventHandler
+	public void onServiceEvent(ServiceEvent e) {
+		onAnyEvent(e);
+	}*/
+	@EventHandler
+	public void onServiceRegister(ServiceRegisterEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onServiceUnregister(ServiceUnregisterEvent e) {
+		onAnyEvent(e);
+	}
 	
+	//vehicle events
+	@EventHandler
+	public void onVehicleBlockCollision(VehicleBlockCollisionEvent e) {
+		onAnyEvent(e);
+	}
+	/*@EventHandler
+	public void onVehicleCollision(VehicleCollisionEvent e) {
+		onAnyEvent(e);
+	}*/
+	@EventHandler
+	public void onVehicleCreate(VehicleCreateEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onVehicleDamage(VehicleDamageEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onVehicleDestroy(VehicleDestroyEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onVehicleEnter(VehicleEnterEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onVehicleEntityCollision(VehicleEntityCollisionEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onVehicleEvent(VehicleEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onVehicleExit(VehicleExitEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onVehicleMove(VehicleMoveEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onVehicleUpdate(VehicleUpdateEvent e) {
+		onAnyEvent(e);
+	}
+	
+	//weather events
+	@EventHandler
+	public void onLightningStrike(LightningStrikeEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onThunderChange(ThunderChangeEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onWeatherChange(WeatherChangeEvent e) {
+		onAnyEvent(e);
+	}
+	/*@EventHandler
+	public void onWeatherEvent(WeatherEvent e) {
+		onAnyEvent(e);
+	}*/
+	
+	//world events
+	/*@EventHandler
+	public void onChunkEvent(ChunkEvent e) {
+		onAnyEvent(e);
+	}*/
+	@EventHandler
+	public void onChunkLoad(ChunkLoadEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onChunkPopulate(ChunkPopulateEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onChunkUnload(ChunkUnloadEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onPortalCreate(PortalCreateEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onSpawnChange(SpawnChangeEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onStructureGrow(StructureGrowEvent e) {
+		onAnyEvent(e);
+	}
+	/*@EventHandler
+	public void onWorldEvent(WorldEvent e) {
+		onAnyEvent(e);
+	}*/
+	@EventHandler
+	public void onWorldInit(WorldInitEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onWorldLoad(WorldLoadEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onWorldSave(WorldSaveEvent e) {
+		onAnyEvent(e);
+	}
+	@EventHandler
+	public void onWorldUnload(WorldUnloadEvent e) {
+		onAnyEvent(e);
+	}
 	
 	//private
 	private void onAnyEvent(Event e) {
