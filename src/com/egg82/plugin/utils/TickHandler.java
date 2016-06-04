@@ -56,6 +56,25 @@ public class TickHandler implements ITickHandler {
 			}
 		}, ticks, ticks));
 	}
+	public void addDelayedTickCommand(String name, Class<? extends Command> commandToRun, long delay) {
+		if (commands.containsKey(name)) {
+			removeTickCommand(name);
+		}
+		
+		final Command cmd = getCommand(commandToRun);
+		if (cmd == null ) {
+			return;
+		}
+		
+		commands.put(name, cmd);
+		tasks.put(name, scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
+			public void run() {
+				cmd.start();
+				tasks.remove(name);
+				commands.remove(name);
+			}
+		}, delay));
+	}
 	public void removeTickCommand(String name) {
 		if (!commands.containsKey(name)) {
 			return;
