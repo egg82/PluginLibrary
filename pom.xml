@@ -1,10 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>PluginLibrary</groupId>
-  <artifactId>PluginLibrary</artifactId>
-  <version>1.0.0</version>
-  <name>PluginLibrary</name>
-  <description>egg82 plugin library</description>
+  <groupId>ninja.egg82.lib</groupId>
+  <artifactId>spigot-lib</artifactId>
+  <version>1.0</version>
+  <name>egg82-spigot-lib</name>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <plugins>
@@ -17,11 +16,22 @@
         </configuration>
       </plugin>
     </plugins>
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.wagon</groupId>
+        <artifactId>wagon-ssh</artifactId>
+        <version>2.10</version>
+      </extension>
+    </extensions>
   </build>
   <repositories>
     <repository>
       <id>spigot-repo</id>
       <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+    </repository>
+    <repository>
+      <id>egg82-ninja</id>
+      <url>https://www.egg82.ninja/repo/</url>
     </repository>
   </repositories>
   <dependencies>
@@ -38,9 +48,17 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-    	<groupId>Library</groupId>
-    	<artifactId>Library</artifactId>
-    	<version>1.0.0</version>
+    	<groupId>ninja.egg82.lib</groupId>
+    	<artifactId>egg82-lib</artifactId>
+    	<version>1.0</version>
     </dependency>
   </dependencies>
+  <description>Library for Spigot plugins</description>
+  <url>https://egg82.ninja</url>
+  <distributionManagement>
+    <repository>
+      <id>egg82-ninja</id>
+      <url>scp://egg82.ninja/var/www/egg82.ninja/public_html/repo</url>
+    </repository>
+  </distributionManagement>
 </project>
