@@ -1,4 +1,4 @@
-package com.egg82.plugin.utils;
+package ninja.egg82.plugin.utils;
 
 import java.util.HashMap;
 
@@ -16,8 +16,8 @@ import org.bukkit.event.vehicle.*;
 import org.bukkit.event.weather.*;
 import org.bukkit.event.world.*;
 
-import com.egg82.plugin.commands.EventCommand;
-import com.egg82.plugin.utils.interfaces.IEventListener;
+import ninja.egg82.plugin.commands.EventCommand;
+import ninja.egg82.plugin.utils.interfaces.IEventListener;
 
 public class EventListener implements IEventListener, Listener {
 	//vars

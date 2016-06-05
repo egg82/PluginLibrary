@@ -1,11 +1,11 @@
-package com.egg82.plugin.utils;
+package ninja.egg82.plugin.utils;
 
 import java.util.HashMap;
 
 import org.bukkit.command.CommandSender;
 
-import com.egg82.plugin.commands.PluginCommand;
-import com.egg82.plugin.utils.interfaces.ICommandHandler;
+import ninja.egg82.plugin.commands.PluginCommand;
+import ninja.egg82.plugin.utils.interfaces.ICommandHandler;
 
 public class CommandHandler implements ICommandHandler {
 	//vars

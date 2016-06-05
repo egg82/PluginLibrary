@@ -1,9 +1,9 @@
-package com.egg82.plugin.utils.interfaces;
+package ninja.egg82.plugin.utils.interfaces;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.Listener;
 
-import com.egg82.plugin.commands.EventCommand;
+import ninja.egg82.plugin.commands.EventCommand;
 
 public interface IEventListener extends Listener {
 	void initialize();

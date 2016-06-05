@@ -1,6 +1,6 @@
-package com.egg82.plugin.utils;
+package ninja.egg82.plugin.utils;
 
-import com.egg82.plugin.utils.interfaces.ILogger;
+import ninja.egg82.plugin.utils.interfaces.ILogger;
 
 public class Logger implements ILogger {
 	//vars

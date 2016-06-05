@@ -1,4 +1,4 @@
-package com.egg82.plugin.utils;
+package ninja.egg82.plugin.utils;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -8,8 +8,8 @@ import java.util.Map.Entry;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
-import com.egg82.patterns.command.Command;
-import com.egg82.plugin.utils.interfaces.ITickHandler;
+import ninja.egg82.patterns.command.Command;
+import ninja.egg82.plugin.utils.interfaces.ITickHandler;
 
 public class TickHandler implements ITickHandler {
 	//vars

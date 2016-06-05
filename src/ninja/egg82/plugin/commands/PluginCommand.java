@@ -1,11 +1,11 @@
-package com.egg82.plugin.commands;
+package ninja.egg82.plugin.commands;
 
 import org.bukkit.command.CommandSender;
 
-import com.egg82.patterns.ServiceLocator;
-import com.egg82.patterns.command.Command;
-import com.egg82.plugin.enums.CustomServiceType;
-import com.egg82.plugin.utils.interfaces.IPermissionsManager;
+import ninja.egg82.patterns.ServiceLocator;
+import ninja.egg82.patterns.command.Command;
+import ninja.egg82.plugin.enums.CustomServiceType;
+import ninja.egg82.plugin.utils.interfaces.IPermissionsManager;
 
 public class PluginCommand extends Command {
 	//vars

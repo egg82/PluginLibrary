@@ -1,4 +1,4 @@
-package com.egg82.plugin.enums;
+package ninja.egg82.plugin.enums;
 
 public class CustomServiceType {
 	//vars

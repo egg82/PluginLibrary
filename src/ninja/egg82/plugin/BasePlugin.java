@@ -1,22 +1,22 @@
-package com.egg82.plugin;
+package ninja.egg82.plugin;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.egg82.patterns.ServiceLocator;
-import com.egg82.plugin.enums.CustomServiceType;
-import com.egg82.plugin.utils.CommandHandler;
-import com.egg82.plugin.utils.EventListener;
-import com.egg82.plugin.utils.Logger;
-import com.egg82.plugin.utils.PermissionsManager;
-import com.egg82.plugin.utils.TickHandler;
-import com.egg82.plugin.utils.interfaces.ICommandHandler;
-import com.egg82.plugin.utils.interfaces.IEventListener;
-import com.egg82.plugin.utils.interfaces.ILogger;
-import com.egg82.plugin.utils.interfaces.IPermissionsManager;
-import com.egg82.plugin.utils.interfaces.ITickHandler;
-import com.egg82.startup.Start;
+import ninja.egg82.patterns.ServiceLocator;
+import ninja.egg82.plugin.enums.CustomServiceType;
+import ninja.egg82.plugin.utils.CommandHandler;
+import ninja.egg82.plugin.utils.EventListener;
+import ninja.egg82.plugin.utils.Logger;
+import ninja.egg82.plugin.utils.PermissionsManager;
+import ninja.egg82.plugin.utils.TickHandler;
+import ninja.egg82.plugin.utils.interfaces.ICommandHandler;
+import ninja.egg82.plugin.utils.interfaces.IEventListener;
+import ninja.egg82.plugin.utils.interfaces.ILogger;
+import ninja.egg82.plugin.utils.interfaces.IPermissionsManager;
+import ninja.egg82.plugin.utils.interfaces.ITickHandler;
+import ninja.egg82.startup.Start;
 
 public class BasePlugin extends JavaPlugin {
 	//vars

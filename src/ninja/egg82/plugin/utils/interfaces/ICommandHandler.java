@@ -1,8 +1,8 @@
-package com.egg82.plugin.utils.interfaces;
+package ninja.egg82.plugin.utils.interfaces;
 
 import org.bukkit.command.CommandSender;
 
-import com.egg82.plugin.commands.PluginCommand;
+import ninja.egg82.plugin.commands.PluginCommand;
 
 public interface ICommandHandler {
 	void initialize();

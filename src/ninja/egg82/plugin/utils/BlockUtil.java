@@ -1,4 +1,4 @@
-package com.egg82.plugin.utils;
+package ninja.egg82.plugin.utils;
 
 import org.bukkit.Location;
 import org.bukkit.Material;

@@ -1,4 +1,4 @@
-package com.egg82.plugin.utils.interfaces;
+package ninja.egg82.plugin.utils.interfaces;
 
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;

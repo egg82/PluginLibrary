@@ -1,4 +1,4 @@
-package com.egg82.plugin.utils;
+package ninja.egg82.plugin.utils;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.PluginManager;
 
-import com.egg82.plugin.utils.interfaces.IPermissionsManager;
+import ninja.egg82.plugin.utils.interfaces.IPermissionsManager;
 
 public class PermissionsManager implements IPermissionsManager {
 	//vars

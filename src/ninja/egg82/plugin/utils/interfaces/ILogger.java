@@ -1,4 +1,4 @@
-package com.egg82.plugin.utils.interfaces;
+package ninja.egg82.plugin.utils.interfaces;
 
 public interface ILogger {
 	void initialize(java.util.logging.Logger logger);
