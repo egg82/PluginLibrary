@@ -26,13 +26,21 @@ public class BasePlugin extends JavaPlugin {
 	protected IPermissionsManager permissionsManager = null;
 	protected ITickHandler tickHandler = null;
 	
+	private static BasePlugin self = null;
+	
 	//constructor
 	public BasePlugin() {
-		
+		self = this;
 	}
 	
 	//public
+	public static BasePlugin getInstance() {
+		return self;
+	}
+	
 	public void onLoad() {
+		self = this;
+		
 		ServiceLocator.provideService(CustomServiceType.LOGGER, Logger.class, false);
 		logger = (ILogger) ServiceLocator.getService(CustomServiceType.LOGGER);
 		logger.initialize(getLogger());
