@@ -9,7 +9,9 @@ public interface ITickHandler {
 	void initialize(Plugin plugin, BukkitScheduler scheduler);
 	void destroy();
 	void addTickCommand(String name, Class<? extends Command> commandToRun, long ticks);
+	void addAsyncTickCommand(String name, Class<? extends Command> commandToRun, long ticks);
 	void addDelayedTickCommand(String name, Class<? extends Command> commandToRun, long delay);
+	void addAsyncDelayedTickCommand(String name, Class<? extends Command> commandToRun, long delay);
 	void removeTickCommand(String name);
 	void clearTickCommands();
 	boolean hasTickCommand(String name);

@@ -56,6 +56,24 @@ public class TickHandler implements ITickHandler {
 			}
 		}, ticks, ticks));
 	}
+	@SuppressWarnings("deprecation")
+	public void addAsyncTickCommand(String name, Class<? extends Command> commandToRun, long ticks) {
+		if (commands.containsKey(name)) {
+			removeTickCommand(name);
+		}
+		
+		final Command cmd = getCommand(commandToRun);
+		if (cmd == null ) {
+			return;
+		}
+		
+		commands.put(name, cmd);
+		tasks.put(name, scheduler.scheduleAsyncRepeatingTask(plugin, new Runnable() {
+			public void run() {
+				cmd.start();
+			}
+		}, ticks, ticks));
+	}
 	public void addDelayedTickCommand(String name, Class<? extends Command> commandToRun, long delay) {
 		if (commands.containsKey(name)) {
 			removeTickCommand(name);
@@ -68,6 +86,26 @@ public class TickHandler implements ITickHandler {
 		
 		commands.put(name, cmd);
 		tasks.put(name, scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
+			public void run() {
+				cmd.start();
+				tasks.remove(name);
+				commands.remove(name);
+			}
+		}, delay));
+	}
+	@SuppressWarnings("deprecation")
+	public void addAsyncDelayedTickCommand(String name, Class<? extends Command> commandToRun, long delay) {
+		if (commands.containsKey(name)) {
+			removeTickCommand(name);
+		}
+		
+		final Command cmd = getCommand(commandToRun);
+		if (cmd == null ) {
+			return;
+		}
+		
+		commands.put(name, cmd);
+		tasks.put(name, scheduler.scheduleAsyncDelayedTask(plugin, new Runnable() {
 			public void run() {
 				cmd.start();
 				tasks.remove(name);
