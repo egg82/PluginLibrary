@@ -12,4 +12,5 @@ public interface ICommandHandler {
 	void clearCommands();
 	void runCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args);
 	boolean hasCommand(String command);
+	PluginCommand[] getInitializedCommands();
 }

@@ -37,15 +37,15 @@ public class PermissionsManager implements IPermissionsManager {
 	}
 	
 	public void addPermission(String permission) {
-		if (permissions.containsKey(permission)) {
-			return;
-		}
-		permissions.put(permission, new Permission(permission));
-		manager.addPermission(permissions.get(permission));
+		manager.addPermission(permissions.computeIfAbsent(permission, (k) -> {
+			return new Permission(permission);
+		}));
 	}
 	public void removePermission(String permission) {
-		manager.removePermission(permissions.get(permission));
-		permissions.remove(permission);
+		permissions.computeIfPresent(permission, (k,v) -> {
+			manager.removePermission(v);
+			return null;
+		});
 	}
 	
 	public void clearPermissions() {
@@ -61,10 +61,12 @@ public class PermissionsManager implements IPermissionsManager {
 	}
 	
 	public boolean playerHasPermission(Player player, String permission) {
-		if (player == null || !permissions.containsKey(permission)) {
+		Permission p = permissions.get(permission);
+		
+		if (player == null || p == null) {
 			return false;
 		}
-		return player.hasPermission(permissions.get(permission));
+		return player.hasPermission(p);
 	}
 	
 	//private

@@ -22,6 +22,7 @@ import ninja.egg82.plugin.utils.interfaces.IEventListener;
 public class EventListener implements IEventListener, Listener {
 	//vars
 	private HashMap<Class<? extends Event>, Class<? extends EventCommand>> events = new HashMap<Class<? extends Event>, Class<? extends EventCommand>>();
+	private HashMap<Class<? extends Event>, EventCommand> initializedEvents = new HashMap<Class<? extends Event>, EventCommand>();
 	
 	//constructor
 	public EventListener() {
@@ -55,10 +56,10 @@ public class EventListener implements IEventListener, Listener {
 	}
 	
 	//block events
-	/*@EventHandler
+	@EventHandler
 	public void onBlockBreak(BlockBreakEvent e) {
 		onAnyEvent(e);
-	}*/
+	}
 	@EventHandler
 	public void onBlockBurn(BlockBurnEvent e) {
 		onAnyEvent(e);
@@ -103,10 +104,10 @@ public class EventListener implements IEventListener, Listener {
 	public void onBlockIgnite(BlockIgniteEvent e) {
 		onAnyEvent(e);
 	}
-	/*@EventHandler
+	@EventHandler
 	public void onBlockMultiPlace(BlockMultiPlaceEvent e) {
 		onAnyEvent(e);
-	}*/
+	}
 	@EventHandler
 	public void onBlockPhysics(BlockPhysicsEvent e) {
 		onAnyEvent(e);
@@ -135,10 +136,10 @@ public class EventListener implements IEventListener, Listener {
 	public void onBlockSpread(BlockSpreadEvent e) {
 		onAnyEvent(e);
 	}
-	/*@EventHandler
+	@EventHandler
 	public void onEntityBlockForm(EntityBlockFormEvent e) {
 		onAnyEvent(e);
-	}*/
+	}
 	@EventHandler
 	public void onLeavesDecay(LeavesDecayEvent e) {
 		onAnyEvent(e);
@@ -163,30 +164,30 @@ public class EventListener implements IEventListener, Listener {
 	}
 	
 	//entity events
-	/*@EventHandler
+	@EventHandler
 	public void onCreatureSpawn(CreatureSpawnEvent e) {
 		onAnyEvent(e);
-	}*/
+	}
 	@EventHandler
 	public void onCreeperPower(CreeperPowerEvent e) {
 		onAnyEvent(e);
 	}
-	/*@EventHandler
+	@EventHandler
 	public void onEntityBreakDoor(EntityBreakDoorEvent e) {
 		onAnyEvent(e);
-	}*/
+	}
 	@EventHandler
 	public void onEntityChangeBlock(EntityChangeBlockEvent e) {
 		onAnyEvent(e);
 	}
-	/*@EventHandler
+	@EventHandler
 	public void onEntityCombustByBlock(EntityCombustByBlockEvent e) {
 		onAnyEvent(e);
-	}*/
-	/*@EventHandler
+	}
+	@EventHandler
 	public void onEntityCombustByEntity(EntityCombustByEntityEvent e) {
 		onAnyEvent(e);
-	}*/
+	}
 	@EventHandler
 	public void onEntityCombust(EntityCombustEvent e) {
 		onAnyEvent(e);
@@ -195,14 +196,14 @@ public class EventListener implements IEventListener, Listener {
 	public void onEntityCreatePortal(EntityCreatePortalEvent e) {
 		onAnyEvent(e);
 	}
-	/*@EventHandler
+	@EventHandler
 	public void onEntityDamageByBlock(EntityDamageByBlockEvent e) {
 		onAnyEvent(e);
-	}*/
-	/*@EventHandler
+	}
+	@EventHandler
 	public void onEntityDamageByEntity(EntityDamageByEntityEvent e) {
 		onAnyEvent(e);
-	}*/
+	}
 	@EventHandler
 	public void onEntityDamage(EntityDamageEvent e) {
 		onAnyEvent(e);
@@ -251,10 +252,10 @@ public class EventListener implements IEventListener, Listener {
 	public void onEntityTarget(EntityTargetEvent e) {
 		onAnyEvent(e);
 	}
-	/*@EventHandler
+	@EventHandler
 	public void onEntityTargetLivingEntity(EntityTargetLivingEntityEvent e) {
 		onAnyEvent(e);
-	}*/
+	}
 	@EventHandler
 	public void onEntityTeleport(EntityTeleportEvent e) {
 		onAnyEvent(e);
@@ -283,18 +284,18 @@ public class EventListener implements IEventListener, Listener {
 	public void onItemDespawn(ItemDespawnEvent e) {
 		onAnyEvent(e);
 	}
-	/*@EventHandler
+	@EventHandler
 	public void onItemSpawn(ItemSpawnEvent e) {
 		onAnyEvent(e);
-	}*/
+	}
 	@EventHandler
 	public void onPigZap(PigZapEvent e) {
 		onAnyEvent(e);
 	}
-	/*@EventHandler
+	@EventHandler
 	public void onPlayerDeath(PlayerDeathEvent e) {
 		onAnyEvent(e);
-	}*/
+	}
 	@EventHandler
 	public void onPlayerLeashEntity(PlayerLeashEntityEvent e) {
 		onAnyEvent(e);
@@ -325,10 +326,10 @@ public class EventListener implements IEventListener, Listener {
 	}
 	
 	//hanging events
-	/*@EventHandler
+	@EventHandler
 	public void onHangingBreakByEntity(HangingBreakByEntityEvent e) {
 		onAnyEvent(e);
-	}*/
+	}
 	@EventHandler
 	public void onHangingBreak(HangingBreakEvent e) {
 		onAnyEvent(e);
@@ -347,18 +348,18 @@ public class EventListener implements IEventListener, Listener {
 	public void onBrew(BrewEvent e) {
 		onAnyEvent(e);
 	}
-	/*@EventHandler
+	@EventHandler
 	public void onCraftItem(CraftItemEvent e) {
 		onAnyEvent(e);
-	}*/
+	}
 	@EventHandler
 	public void onFurnaceBurn(FurnaceBurnEvent e) {
 		onAnyEvent(e);
 	}
-	/*@EventHandler
+	@EventHandler
 	public void onFurnaceExtract(FurnaceExtractEvent e) {
 		onAnyEvent(e);
-	}*/
+	}
 	@EventHandler
 	public void onFurnaceSmelt(FurnaceSmeltEvent e) {
 		onAnyEvent(e);
@@ -371,10 +372,10 @@ public class EventListener implements IEventListener, Listener {
 	public void onInventoryClose(InventoryCloseEvent e) {
 		onAnyEvent(e);
 	}
-	/*@EventHandler
+	@EventHandler
 	public void onInventoryCreative(InventoryCreativeEvent e) {
 		onAnyEvent(e);
-	}*/
+	}
 	@EventHandler
 	public void onInventoryDrag(InventoryDragEvent e) {
 		onAnyEvent(e);
@@ -383,10 +384,10 @@ public class EventListener implements IEventListener, Listener {
 	public void onInventoryEvent(InventoryEvent e) {
 		onAnyEvent(e);
 	}
-	/*@EventHandler
+	@EventHandler
 	public void onInventoryInteract(InventoryInteractEvent e) {
 		onAnyEvent(e);
-	}*/
+	}
 	@EventHandler
 	public void onInventoryMoveItem(InventoryMoveItemEvent e) {
 		onAnyEvent(e);
@@ -549,10 +550,10 @@ public class EventListener implements IEventListener, Listener {
 	public void onPlayerQuit(PlayerQuitEvent e) {
 		onAnyEvent(e);
 	}
-	/*@EventHandler
+	@EventHandler
 	public void onPlayerRegisterChannel(PlayerRegisterChannelEvent e) {
 		onAnyEvent(e);
-	}*/
+	}
 	@EventHandler
 	public void onPlayerRespawn(PlayerRespawnEvent e) {
 		onAnyEvent(e);
@@ -581,14 +582,14 @@ public class EventListener implements IEventListener, Listener {
 	public void onPlayerToggleSprint(PlayerToggleSprintEvent e) {
 		onAnyEvent(e);
 	}
-	/*@EventHandler
+	@EventHandler
 	public void onPlayerUnleashEntity(PlayerUnleashEntityEvent e) {
 		onAnyEvent(e);
-	}*/
-	/*@EventHandler
+	}
+	@EventHandler
 	public void onPlayerUnregisterChannel(PlayerUnregisterChannelEvent e) {
 		onAnyEvent(e);
-	}*/
+	}
 	@EventHandler
 	public void onPlayerVelocity(PlayerVelocityEvent e) {
 		onAnyEvent(e);
@@ -756,11 +757,18 @@ public class EventListener implements IEventListener, Listener {
 	
 	//private
 	private void onAnyEvent(Event e) {
-		Class<? extends Event> c = e.getClass();
-		Class<? extends EventCommand> get = events.get(c);
-		EventCommand run = null;
+		EventCommand ev = initializedEvents.computeIfAbsent(e.getClass(), (k) -> {
+			return initializeEvent(k, events.get(k));
+		});
 		
-		if (get == null) {
+		if (ev == null) {
+			return;
+		}
+		
+		ev.setEvent(e);
+		ev.start();
+		
+		/*if (get == null) {
 			Class<?> p = c.getSuperclass();
 			get = events.get(p);
 			if (get == null) {
@@ -769,15 +777,23 @@ public class EventListener implements IEventListener, Listener {
 					return;
 				}
 			}
+		}*/
+	}
+	
+	private EventCommand initializeEvent(Class<? extends Event> event, Class<? extends EventCommand> command) {
+		if (command == null) {
+			return null;
 		}
+		
+		EventCommand run = null;
 		
 		try {
-			run = get.getDeclaredConstructor(Event.class).newInstance(e);
+			run = command.newInstance();
 		} catch (Exception ex) {
-			System.out.println(ex.getMessage());
-			return;
+			return null;
 		}
 		
-		run.start();
+		initializedEvents.put(event, run);
+		return run;
 	}
 }

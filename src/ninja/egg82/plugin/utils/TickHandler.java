@@ -8,12 +8,12 @@ import java.util.Map.Entry;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
-import ninja.egg82.patterns.command.Command;
+import ninja.egg82.plugin.commands.TickCommand;
 import ninja.egg82.plugin.utils.interfaces.ITickHandler;
 
 public class TickHandler implements ITickHandler {
 	//vars
-	private HashMap<String, Command> commands = new HashMap<String, Command>();
+	private HashMap<String, TickCommand> commands = new HashMap<String, TickCommand>();
 	private HashMap<String, Integer> tasks = new HashMap<String, Integer>();
 	
 	private Plugin plugin = null;
@@ -39,13 +39,17 @@ public class TickHandler implements ITickHandler {
 		
 	}
 	
-	public void addTickCommand(String name, Class<? extends Command> commandToRun, long ticks) {
+	public void addTickCommand(String name, Class<? extends TickCommand> commandToRun) {
 		if (commands.containsKey(name)) {
 			removeTickCommand(name);
 		}
 		
-		final Command cmd = getCommand(commandToRun);
-		if (cmd == null ) {
+		final TickCommand cmd = getCommand(commandToRun);
+		if (cmd == null) {
+			return;
+		}
+		
+		if (cmd.getTicks() <= 0l) {
 			return;
 		}
 		
@@ -54,16 +58,20 @@ public class TickHandler implements ITickHandler {
 			public void run() {
 				cmd.start();
 			}
-		}, ticks, ticks));
+		}, cmd.getTicks(), cmd.getTicks()));
 	}
 	@SuppressWarnings("deprecation")
-	public void addAsyncTickCommand(String name, Class<? extends Command> commandToRun, long ticks) {
+	public void addAsyncTickCommand(String name, Class<? extends TickCommand> commandToRun) {
 		if (commands.containsKey(name)) {
 			removeTickCommand(name);
 		}
 		
-		final Command cmd = getCommand(commandToRun);
-		if (cmd == null ) {
+		final TickCommand cmd = getCommand(commandToRun);
+		if (cmd == null) {
+			return;
+		}
+		
+		if (cmd.getTicks() <= 0l) {
 			return;
 		}
 		
@@ -72,15 +80,19 @@ public class TickHandler implements ITickHandler {
 			public void run() {
 				cmd.start();
 			}
-		}, ticks, ticks));
+		}, cmd.getTicks(), cmd.getTicks()));
 	}
-	public void addDelayedTickCommand(String name, Class<? extends Command> commandToRun, long delay) {
+	public void addDelayedTickCommand(String name, Class<? extends TickCommand> commandToRun, long delay) {
+		if (delay <= 0l) {
+			return;
+		}
+		
 		if (commands.containsKey(name)) {
 			removeTickCommand(name);
 		}
 		
-		final Command cmd = getCommand(commandToRun);
-		if (cmd == null ) {
+		final TickCommand cmd = getCommand(commandToRun);
+		if (cmd == null) {
 			return;
 		}
 		
@@ -94,13 +106,17 @@ public class TickHandler implements ITickHandler {
 		}, delay));
 	}
 	@SuppressWarnings("deprecation")
-	public void addAsyncDelayedTickCommand(String name, Class<? extends Command> commandToRun, long delay) {
+	public void addAsyncDelayedTickCommand(String name, Class<? extends TickCommand> commandToRun, long delay) {
+		if (delay <= 0l) {
+			return;
+		}
+		
 		if (commands.containsKey(name)) {
 			removeTickCommand(name);
 		}
 		
-		final Command cmd = getCommand(commandToRun);
-		if (cmd == null ) {
+		final TickCommand cmd = getCommand(commandToRun);
+		if (cmd == null) {
 			return;
 		}
 		
@@ -114,13 +130,11 @@ public class TickHandler implements ITickHandler {
 		}, delay));
 	}
 	public void removeTickCommand(String name) {
-		if (!commands.containsKey(name)) {
-			return;
-		}
-		
-		scheduler.cancelTask(tasks.get(name));
-		tasks.remove(name);
-		commands.remove(name);
+		commands.computeIfPresent(name, (k,v) -> {
+			scheduler.cancelTask(tasks.get(k));
+			tasks.remove(k);
+			return null;
+		});
 	}
 	
 	public void clearTickCommands() {
@@ -137,8 +151,8 @@ public class TickHandler implements ITickHandler {
 	}
 	
 	//private
-	private Command getCommand(Class<? extends Command> command) {
-		Command run = null;
+	private TickCommand getCommand(Class<? extends TickCommand> command) {
+		TickCommand run = null;
 		
 		if (command == null) {
 			return null;

@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ninja.egg82.lib</groupId>
   <artifactId>spigot-lib</artifactId>
-  <version>1.0</version>
+  <version>1.1.1</version>
   <name>egg82-spigot-lib</name>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -28,7 +28,18 @@
             <configuration>
               <minimizeJar>true</minimizeJar>
               <relocations>
-                
+                <relocation>
+                  <pattern>org.bukkit.craftbukkit.v1_10_R1</pattern>
+                  <shadedPattern>me.egg82.spigot.org.bukkit.craftbukkit.v1_10_R1</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.bukkit.craftbukkit.v1_9_R2</pattern>
+                  <shadedPattern>me.egg82.spigot.org.bukkit.craftbukkit.v1_9_R2</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.bukkit.craftbukkit.v1_8_R1</pattern>
+                  <shadedPattern>me.egg82.spigot.org.bukkit.craftbukkit.v1_8_R1</shadedPattern>
+                </relocation>
               </relocations>
             </configuration>
           </execution>
@@ -54,22 +65,22 @@
     </repository>
   </repositories>
   <dependencies>
-  	<dependency>
+    <dependency>
       <groupId>org.spigotmc</groupId>
-      <artifactId>spigot-api</artifactId>
-      <version>1.9.4-R0.1-SNAPSHOT</version>
+      <artifactId>spigot</artifactId>
+      <version>1.10-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.bukkit</groupId>
       <artifactId>bukkit</artifactId>
-      <version>1.9.4-R0.1-SNAPSHOT</version>
+      <version>1.10-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
     	<groupId>ninja.egg82.lib</groupId>
     	<artifactId>egg82-lib</artifactId>
-    	<version>1.0</version>
+    	<version>1.0.1</version>
     </dependency>
   </dependencies>
   <description>Library for Spigot plugins</description>
