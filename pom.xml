@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ninja.egg82.lib</groupId>
   <artifactId>spigot-lib</artifactId>
-  <version>1.1.1</version>
+  <version>1.1.2</version>
   <name>egg82-spigot-lib</name>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -67,14 +67,14 @@
   <dependencies>
     <dependency>
       <groupId>org.spigotmc</groupId>
-      <artifactId>spigot</artifactId>
-      <version>1.10-R0.1-SNAPSHOT</version>
+      <artifactId>spigot-api</artifactId>
+      <version>1.11.2-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.bukkit</groupId>
       <artifactId>bukkit</artifactId>
-      <version>1.10-R0.1-SNAPSHOT</version>
+      <version>1.11.2-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -88,7 +88,7 @@
   <distributionManagement>
     <repository>
       <id>egg82-ninja</id>
-      <url>scp://egg82.ninja/var/www/egg82.ninja/public_html/repo</url>
+      <url>scp://egg82-ninja/home/egg82/</url>
     </repository>
   </distributionManagement>
 </project>

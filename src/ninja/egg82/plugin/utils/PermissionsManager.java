@@ -37,13 +37,21 @@ public class PermissionsManager implements IPermissionsManager {
 	}
 	
 	public void addPermission(String permission) {
-		manager.addPermission(permissions.computeIfAbsent(permission, (k) -> {
-			return new Permission(permission);
-		}));
+		try {
+			manager.addPermission(permissions.computeIfAbsent(permission, (k) -> {
+				return new Permission(permission);
+			}));
+		} catch (Exception ex) {
+			
+		}
 	}
 	public void removePermission(String permission) {
 		permissions.computeIfPresent(permission, (k,v) -> {
-			manager.removePermission(v);
+			try {
+				manager.removePermission(v);
+			} catch (Exception ex) {
+				
+			}
 			return null;
 		});
 	}
@@ -52,7 +60,11 @@ public class PermissionsManager implements IPermissionsManager {
 		Iterator<Entry<String, Permission>> i = permissions.entrySet().iterator();
 		while (i.hasNext()) {
 			Map.Entry<String, Permission> pair = (Map.Entry<String, Permission>) i.next();
-			manager.removePermission(pair.getValue());
+			try {
+				manager.removePermission(pair.getValue());
+			} catch (Exception ex) {
+				
+			}
 		}
 		permissions.clear();
 	}
