@@ -212,7 +212,7 @@ public class BlockUtil {
 		} else if (type == Material.MOB_SPAWNER) {
 			CreatureSpawner b1 = (CreatureSpawner) block;
 			CreatureSpawner b2 = (CreatureSpawner) data;
-			b1.setCreatureTypeByName(b2.getCreatureTypeName());
+			b1.setSpawnedType(b2.getSpawnedType());
 			b1.setDelay(b2.getDelay());
 			b1.setSpawnedType(b2.getSpawnedType());
 		} else if (type == Material.DISPENSER) {

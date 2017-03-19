@@ -59,6 +59,7 @@ public class BasePlugin extends JavaPlugin {
 		IRegistry reflectReg = (IRegistry) ServiceLocator.getService(SpigotServiceType.REFLECT_REGISTRY);
 		reflectReg.setRegister(SpigotReflectType.SOUND, new SoundUtil());
 		ref(reflectReg, SpigotReflectType.PLAYER, (String) initReg.getRegister(SpigotRegType.GAME_VERSION), "ninja.egg82.plugin.reflection.player");
+		ref(reflectReg, SpigotReflectType.ENTITY, (String) initReg.getRegister(SpigotRegType.GAME_VERSION), "ninja.egg82.plugin.reflection.entity");
 		
 		ServiceLocator.provideService(SpigotServiceType.LOGGER, Logger.class, false);
 		logger = (ILogger) ServiceLocator.getService(SpigotServiceType.LOGGER);
