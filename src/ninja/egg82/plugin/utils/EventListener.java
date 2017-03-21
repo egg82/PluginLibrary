@@ -757,8 +757,15 @@ public class EventListener implements IEventListener, Listener {
 	
 	//private
 	private void onAnyEvent(Event e) {
-		EventCommand ev = initializedEvents.computeIfAbsent(e.getClass(), (k) -> {
-			return initializeEvent(k, events.get(k));
+		Class<? extends Event> eventClass = e.getClass();
+		Class<? extends EventCommand> get = events.get(eventClass);
+		
+		if (get == null) {
+			return;
+		}
+		
+		EventCommand ev = initializedEvents.computeIfAbsent(eventClass, (k) -> {
+			return initializeEvent(k, get);
 		});
 		
 		if (ev == null) {
@@ -767,24 +774,9 @@ public class EventListener implements IEventListener, Listener {
 		
 		ev.setEvent(e);
 		ev.start();
-		
-		/*if (get == null) {
-			Class<?> p = c.getSuperclass();
-			get = events.get(p);
-			if (get == null) {
-				get = events.get(p.getSuperclass());
-				if (get == null) {
-					return;
-				}
-			}
-		}*/
 	}
 	
 	private EventCommand initializeEvent(Class<? extends Event> event, Class<? extends EventCommand> command) {
-		if (command == null) {
-			return null;
-		}
-		
 		EventCommand run = null;
 		
 		try {
@@ -793,7 +785,6 @@ public class EventListener implements IEventListener, Listener {
 			return null;
 		}
 		
-		initializedEvents.put(event, run);
 		return run;
 	}
 }
