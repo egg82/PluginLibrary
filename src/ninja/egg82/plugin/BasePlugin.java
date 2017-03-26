@@ -7,26 +7,23 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import ninja.egg82.enums.ServiceType;
+import ninja.egg82.patterns.IRegistry;
 import ninja.egg82.patterns.ServiceLocator;
-import ninja.egg82.plugin.enums.SpigotReflectType;
-import ninja.egg82.plugin.enums.SpigotRegType;
-import ninja.egg82.plugin.enums.SpigotServiceType;
 import ninja.egg82.plugin.reflection.sound.SoundUtil;
 import ninja.egg82.plugin.utils.CommandHandler;
 import ninja.egg82.plugin.utils.EventListener;
+import ninja.egg82.plugin.utils.ICommandHandler;
+import ninja.egg82.plugin.utils.IEventListener;
+import ninja.egg82.plugin.utils.ILogger;
+import ninja.egg82.plugin.utils.IPermissionsManager;
+import ninja.egg82.plugin.utils.ITickHandler;
 import ninja.egg82.plugin.utils.Logger;
 import ninja.egg82.plugin.utils.PermissionsManager;
 import ninja.egg82.plugin.utils.TickHandler;
-import ninja.egg82.plugin.utils.interfaces.ICommandHandler;
-import ninja.egg82.plugin.utils.interfaces.IEventListener;
-import ninja.egg82.plugin.utils.interfaces.ILogger;
-import ninja.egg82.plugin.utils.interfaces.IPermissionsManager;
-import ninja.egg82.plugin.utils.interfaces.ITickHandler;
-import ninja.egg82.registry.Registry;
-import ninja.egg82.registry.interfaces.IRegistry;
+import ninja.egg82.plugin.utils.VersionUtil;
+import ninja.egg82.startup.InitRegistry;
 import ninja.egg82.startup.Start;
-import ninja.egg82.utils.Util;
+import ninja.egg82.utils.ReflectUtil;
 
 public class BasePlugin extends JavaPlugin {
 	//vars
@@ -46,36 +43,35 @@ public class BasePlugin extends JavaPlugin {
 	public void onLoad() {
 		Start.init();
 		
-		initReg = (IRegistry) ServiceLocator.getService(ServiceType.INIT_REGISTRY);
-		try {
-			initReg.setRegister(SpigotRegType.GAME_VERSION, Bukkit.getServer().getClass().getPackage().getName().replace(".",  ",").split(",")[3]);
-		} catch (Exception ex) {
-			
-		}
-		initReg.setRegister(SpigotRegType.PLUGIN_VERSION, getDescription().getVersion());
-		initReg.setRegister(SpigotRegType.PLUGIN, this);
+		String gameVersion = Bukkit.getVersion();
+		gameVersion = gameVersion.substring(gameVersion.indexOf('('));
+		gameVersion = gameVersion.substring(gameVersion.indexOf(' ') + 1, gameVersion.length() - 1);
 		
-		ServiceLocator.provideService(SpigotServiceType.REFLECT_REGISTRY, Registry.class, false);
-		IRegistry reflectReg = (IRegistry) ServiceLocator.getService(SpigotServiceType.REFLECT_REGISTRY);
-		reflectReg.setRegister(SpigotReflectType.SOUND, new SoundUtil());
-		ref(reflectReg, SpigotReflectType.PLAYER, (String) initReg.getRegister(SpigotRegType.GAME_VERSION), "ninja.egg82.plugin.reflection.player");
-		ref(reflectReg, SpigotReflectType.ENTITY, (String) initReg.getRegister(SpigotRegType.GAME_VERSION), "ninja.egg82.plugin.reflection.entity");
+		initReg = (IRegistry) ServiceLocator.getService(InitRegistry.class);
+		//initReg.setRegister("game.version", String.class, Bukkit.getServer().getClass().getPackage().getName().replace(".",  ",").split(",")[3]);
+		initReg.setRegister("game.version", String.class, gameVersion);
+		initReg.setRegister("plugin.version", String.class, getDescription().getVersion());
+		initReg.setRegister("plugin", JavaPlugin.class, this);
 		
-		ServiceLocator.provideService(SpigotServiceType.LOGGER, Logger.class, false);
-		logger = (ILogger) ServiceLocator.getService(SpigotServiceType.LOGGER);
+		ServiceLocator.provideService(SoundUtil.class);
+		reflect(gameVersion, "ninja.egg82.plugin.reflection.player");
+		reflect(gameVersion, "ninja.egg82.plugin.reflection.entity");
+		
+		ServiceLocator.provideService(Logger.class, false);
+		logger = (ILogger) ServiceLocator.getService(Logger.class);
 		logger.initialize(getLogger());
 		
-		ServiceLocator.provideService(SpigotServiceType.PERMISSIONS_MANAGER, PermissionsManager.class, false);
-		permissionsManager = (IPermissionsManager) ServiceLocator.getService(SpigotServiceType.PERMISSIONS_MANAGER);
+		ServiceLocator.provideService(PermissionsManager.class, false);
+		permissionsManager = (IPermissionsManager) ServiceLocator.getService(IPermissionsManager.class);
 		
-		ServiceLocator.provideService(SpigotServiceType.COMMAND_HANDLER, CommandHandler.class, false);
-		commandHandler = (ICommandHandler) ServiceLocator.getService(SpigotServiceType.COMMAND_HANDLER);
+		ServiceLocator.provideService(CommandHandler.class, false);
+		commandHandler = (ICommandHandler) ServiceLocator.getService(ICommandHandler.class);
 		
-		ServiceLocator.provideService(SpigotServiceType.EVENT_LISTENER, EventListener.class, false);
-		eventListener = (IEventListener) ServiceLocator.getService(SpigotServiceType.EVENT_LISTENER);
+		ServiceLocator.provideService(EventListener.class, false);
+		eventListener = (IEventListener) ServiceLocator.getService(IEventListener.class);
 		
-		ServiceLocator.provideService(SpigotServiceType.TICK_HANDLER, TickHandler.class, false);
-		tickHandler = (ITickHandler) ServiceLocator.getService(SpigotServiceType.TICK_HANDLER);
+		ServiceLocator.provideService(TickHandler.class, false);
+		tickHandler = (ITickHandler) ServiceLocator.getService(ITickHandler.class);
 		tickHandler.initialize(this, getServer().getScheduler());
 	}
 	
@@ -93,8 +89,13 @@ public class BasePlugin extends JavaPlugin {
 	}
 	
 	//private
-	private void ref(IRegistry reflectReg, String regType, String version, String pkg) {
-		ArrayList<Class<?>> enums = Util.getClasses(Object.class, pkg);
+	private void reflect(String version, String pkg) {
+		ArrayList<Class<?>> enums = ReflectUtil.getClasses(Object.class, pkg);
+		
+		int[] currentVersion = VersionUtil.parseVersion(version, '.');
+		
+		Class<?> bestMatch = null;
+		
 		for (Class<?> c : enums) {
 			String name = c.getSimpleName();
 			String pkg2 = c.getName();
@@ -103,21 +104,19 @@ public class BasePlugin extends JavaPlugin {
 			if (!pkg2.equalsIgnoreCase(pkg)) {
 				continue;
 			}
-			
-			String vers = null;
-			if (name.substring(name.length() - 4).charAt(0) == '_') {
-				vers = name.substring(name.length() - 3);
-			} else {
-				vers = name.substring(name.length() - 4);
-			}
-			
-			if (version.contains(vers)) {
-				try {
-					reflectReg.setRegister(regType, c.newInstance());
-				} catch (Exception ex) {
-					
-				}
-			}
+		    
+		    int[] reflectVersion = VersionUtil.parseVersion(name, '_');
+		    
+		    for (int i = 0; i < Math.min(currentVersion.length, reflectVersion.length); i++) {
+		    	if (currentVersion[i] > reflectVersion[i]) {
+		    		bestMatch = c;
+		    		break;
+		    	}
+		    }
+		}
+		
+		if (bestMatch != null) {
+			ServiceLocator.provideService(bestMatch);
 		}
 	}
 }

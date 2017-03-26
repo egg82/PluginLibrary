@@ -1,6 +1,6 @@
 package ninja.egg82.plugin.utils;
 
-import ninja.egg82.plugin.utils.interfaces.ILogger;
+import java.util.logging.Level;
 
 public class Logger implements ILogger {
 	//vars
@@ -21,12 +21,12 @@ public class Logger implements ILogger {
 		this.logger = logger;
 		initialized = true;
 	}
-	public void destroy() {
-		
-	}
 	
-	public java.util.logging.Logger getLogger() {
-		return logger;
+	public void log(String message) {
+		log(message, Level.INFO);
+	}
+	public void log(String message, Level level) {
+		logger.log(level, message);
 	}
 	
 	//private

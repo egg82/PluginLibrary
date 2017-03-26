@@ -1,9 +1,10 @@
-package ninja.egg82.plugin.reflection.player.interfaces;
+package ninja.egg82.plugin.reflection.player;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public interface IPlayerUtil {
+	//functions
 	ItemStack getItemInMainHand(Player player);
 	void setItemInMainHand(Player player, ItemStack item);
 }

@@ -1,17 +1,16 @@
 package ninja.egg82.plugin.utils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.bukkit.command.CommandSender;
 
+import gnu.trove.map.hash.THashMap;
 import ninja.egg82.plugin.commands.PluginCommand;
-import ninja.egg82.plugin.utils.interfaces.ICommandHandler;
 
 public class CommandHandler implements ICommandHandler {
 	//vars
-	private HashMap<String, Class<? extends PluginCommand>> commands = new HashMap<String, Class<? extends PluginCommand>>();
-	private HashMap<String, PluginCommand> initializedCommands = new HashMap<String, PluginCommand>();
+	private THashMap<String, Class<? extends PluginCommand>> commands = new THashMap<String, Class<? extends PluginCommand>>();
+	private THashMap<String, PluginCommand> initializedCommands = new THashMap<String, PluginCommand>();
 	private ArrayList<PluginCommand> initializedCommandsList = new ArrayList<PluginCommand>();
 	
 	//constructor
@@ -20,13 +19,6 @@ public class CommandHandler implements ICommandHandler {
 	}
 	
 	//public
-	public void initialize() {
-		
-	}
-	public void destroy() {
-		
-	}
-	
 	public void addCommand(String command, Class<? extends PluginCommand> commandToRun) {
 		if (command == null || command.isEmpty() || commandToRun == null) {
 			return;

@@ -1,6 +1,5 @@
 package ninja.egg82.plugin.utils;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -8,13 +7,13 @@ import java.util.Map.Entry;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
+import gnu.trove.map.hash.THashMap;
 import ninja.egg82.plugin.commands.TickCommand;
-import ninja.egg82.plugin.utils.interfaces.ITickHandler;
 
 public class TickHandler implements ITickHandler {
 	//vars
-	private HashMap<String, TickCommand> commands = new HashMap<String, TickCommand>();
-	private HashMap<String, Integer> tasks = new HashMap<String, Integer>();
+	private THashMap<String, TickCommand> commands = new THashMap<String, TickCommand>();
+	private THashMap<String, Integer> tasks = new THashMap<String, Integer>();
 	
 	private Plugin plugin = null;
 	private BukkitScheduler scheduler = null;

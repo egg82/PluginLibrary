@@ -1,6 +1,5 @@
 package ninja.egg82.plugin.utils;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -9,11 +8,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.PluginManager;
 
-import ninja.egg82.plugin.utils.interfaces.IPermissionsManager;
+import gnu.trove.map.hash.THashMap;
 
 public class PermissionsManager implements IPermissionsManager {
 	//vars
-	private HashMap<String, Permission> permissions = new HashMap<String, Permission>();
+	private THashMap<String, Permission> permissions = new THashMap<String, Permission>();
 	private PluginManager manager = null;
 	
 	private boolean initialized = false;
@@ -31,9 +30,6 @@ public class PermissionsManager implements IPermissionsManager {
 		
 		this.manager = manager;
 		initialized = true;
-	}
-	public void destroy() {
-		
 	}
 	
 	public void addPermission(String permission) {

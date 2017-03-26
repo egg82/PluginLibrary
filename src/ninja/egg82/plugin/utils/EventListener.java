@@ -1,7 +1,5 @@
 package ninja.egg82.plugin.utils;
 
-import java.util.HashMap;
-
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,13 +14,13 @@ import org.bukkit.event.vehicle.*;
 import org.bukkit.event.weather.*;
 import org.bukkit.event.world.*;
 
+import gnu.trove.map.hash.THashMap;
 import ninja.egg82.plugin.commands.EventCommand;
-import ninja.egg82.plugin.utils.interfaces.IEventListener;
 
 public class EventListener implements IEventListener, Listener {
 	//vars
-	private HashMap<Class<? extends Event>, Class<? extends EventCommand>> events = new HashMap<Class<? extends Event>, Class<? extends EventCommand>>();
-	private HashMap<Class<? extends Event>, EventCommand> initializedEvents = new HashMap<Class<? extends Event>, EventCommand>();
+	private THashMap<Class<? extends Event>, Class<? extends EventCommand>> events = new THashMap<Class<? extends Event>, Class<? extends EventCommand>>();
+	private THashMap<Class<? extends Event>, EventCommand> initializedEvents = new THashMap<Class<? extends Event>, EventCommand>();
 	
 	//constructor
 	public EventListener() {
@@ -30,13 +28,6 @@ public class EventListener implements IEventListener, Listener {
 	}
 	
 	//public
-	public void initialize() {
-		
-	}
-	public void destroy() {
-		
-	}
-	
 	public void addEvent(Class<? extends Event> event, Class<? extends EventCommand> command) {
 		if (event == null || command == null) {
 			return;

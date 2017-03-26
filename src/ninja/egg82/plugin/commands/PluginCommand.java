@@ -5,22 +5,21 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import ninja.egg82.events.patterns.command.CommandEvent;
+import ninja.egg82.events.CommandEvent;
+import ninja.egg82.patterns.Command;
 import ninja.egg82.patterns.ServiceLocator;
-import ninja.egg82.patterns.command.Command;
 import ninja.egg82.plugin.enums.SpigotCommandErrorType;
 import ninja.egg82.plugin.enums.SpigotMessageType;
-import ninja.egg82.plugin.enums.SpigotServiceType;
-import ninja.egg82.plugin.utils.interfaces.IPermissionsManager;
+import ninja.egg82.plugin.utils.IPermissionsManager;
 
-public class PluginCommand extends Command {
+public abstract class PluginCommand extends Command {
 	//vars
 	protected CommandSender sender = null;
 	protected org.bukkit.command.Command command = null;
 	protected String label = null;
 	protected String[] args = null;
 	
-	protected IPermissionsManager permissionsManager = (IPermissionsManager) ServiceLocator.getService(SpigotServiceType.PERMISSIONS_MANAGER);
+	protected IPermissionsManager permissionsManager = (IPermissionsManager) ServiceLocator.getService(IPermissionsManager.class);
 	
 	//constructor
 	public PluginCommand() {

@@ -1,12 +1,11 @@
-package ninja.egg82.plugin.utils.interfaces;
+package ninja.egg82.plugin.utils;
 
 import org.bukkit.command.CommandSender;
 
 import ninja.egg82.plugin.commands.PluginCommand;
 
 public interface ICommandHandler {
-	void initialize();
-	void destroy();
+	//functions
 	void addCommand(String command, Class<? extends PluginCommand> commandToRun);
 	void removeCommand(String command);
 	void clearCommands();

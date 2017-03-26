@@ -1,4 +1,4 @@
-package ninja.egg82.plugin.utils.interfaces;
+package ninja.egg82.plugin.utils;
 
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitScheduler;
@@ -6,6 +6,7 @@ import org.bukkit.scheduler.BukkitScheduler;
 import ninja.egg82.plugin.commands.TickCommand;
 
 public interface ITickHandler {
+	//functions
 	void initialize(Plugin plugin, BukkitScheduler scheduler);
 	void destroy();
 	void addTickCommand(String name, Class<? extends TickCommand> commandToRun);

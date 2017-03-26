@@ -1,11 +1,11 @@
-package ninja.egg82.plugin.utils.interfaces;
+package ninja.egg82.plugin.utils;
 
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 
 public interface IPermissionsManager {
+	//functions
 	void initialize(PluginManager manager);
-	void destroy();
 	void addPermission(String permission);
 	void removePermission(String permission);
 	void clearPermissions();

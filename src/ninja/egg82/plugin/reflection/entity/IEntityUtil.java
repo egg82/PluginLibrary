@@ -1,7 +1,8 @@
-package ninja.egg82.plugin.reflection.entity.interfaces;
+package ninja.egg82.plugin.reflection.entity;
 
 import org.bukkit.entity.Entity;
 
 public interface IEntityUtil {
+	//functions
 	void addPassenger(Entity bottom, Entity top);
 }

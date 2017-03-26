@@ -2,9 +2,9 @@ package ninja.egg82.plugin.commands;
 
 import org.bukkit.event.Event;
 
-import ninja.egg82.patterns.command.Command;
+import ninja.egg82.patterns.Command;
 
-public class EventCommand extends Command {
+public abstract class EventCommand extends Command {
 	//vars
 	protected Event event = null;
 	

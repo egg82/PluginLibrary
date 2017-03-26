@@ -5,8 +5,7 @@ import java.util.Arrays;
 
 import org.bukkit.Sound;
 
-import ninja.egg82.plugin.reflection.sound.interfaces.ISoundUtil;
-import ninja.egg82.utils.Util;
+import ninja.egg82.utils.ReflectUtil;
 
 public class SoundUtil implements ISoundUtil {
 	//vars
@@ -14,7 +13,7 @@ public class SoundUtil implements ISoundUtil {
 	
 	//constructor
 	public SoundUtil() {
-		Object[] enums = Util.getStaticFields(Sound.class);
+		Object[] enums = ReflectUtil.getStaticFields(Sound.class);
 		sounds = Arrays.copyOf(enums, enums.length, Sound[].class);
 	}
 	
