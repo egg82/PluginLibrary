@@ -76,7 +76,6 @@ public class CommandHandler implements ICommandHandler {
 			return null;
 		}
 		
-		initializedCommands.put(name, run);
 		initializedCommandsList.add(run);
 		return run;
 	}
