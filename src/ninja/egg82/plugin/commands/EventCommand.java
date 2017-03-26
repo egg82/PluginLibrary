@@ -9,14 +9,12 @@ public abstract class EventCommand extends Command {
 	protected Event event = null;
 	
 	//constructor
-	public EventCommand() {
-		super(0);
+	public EventCommand(Event event) {
+		super();
+		this.event = event;
 	}
 	
 	//public
-	public void setEvent(Event event) {
-		this.event = event;
-	}
 	
 	//private
 	

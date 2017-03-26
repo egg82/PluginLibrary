@@ -1,4 +1,4 @@
-package ninja.egg82.plugin.utils;
+package ninja.egg82.plugin.handlers;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -13,37 +13,42 @@ import org.bukkit.event.server.*;
 import org.bukkit.event.vehicle.*;
 import org.bukkit.event.weather.*;
 import org.bukkit.event.world.*;
+import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.java.JavaPlugin;
 
-import gnu.trove.map.hash.THashMap;
+import com.koloboke.collect.map.hash.HashObjObjMap;
+import com.koloboke.collect.map.hash.HashObjObjMaps;
+
+import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.commands.EventCommand;
 
-public class EventListener implements IEventListener, Listener {
+public class EventListener implements Listener {
 	//vars
-	private THashMap<Class<? extends Event>, Class<? extends EventCommand>> events = new THashMap<Class<? extends Event>, Class<? extends EventCommand>>();
-	private THashMap<Class<? extends Event>, EventCommand> initializedEvents = new THashMap<Class<? extends Event>, EventCommand>();
+	private HashObjObjMap<String, Class<? extends EventCommand>> events = HashObjObjMaps.<String, Class<? extends EventCommand>> newMutableMap();
 	
 	//constructor
 	public EventListener() {
-		
+		PluginManager pluginManager = (PluginManager) ServiceLocator.getService(PluginManager.class);
+		pluginManager.registerEvents(this, (JavaPlugin) ServiceLocator.getService(JavaPlugin.class));
 	}
 	
 	//public
-	public void addEvent(Class<? extends Event> event, Class<? extends EventCommand> command) {
-		if (event == null || command == null) {
-			return;
+	public synchronized void setEvent(Class<? extends Event> event, Class<? extends EventCommand> clazz) {
+		if (event == null) {
+			throw new IllegalArgumentException("event cannot be null.");
 		}
 		
-		events.put(event, command);
+		if (clazz == null) {
+			events.remove(event.getName());
+		} else {
+			events.put(event.getName(), clazz);
+		}
 	}
-	public void removeEvent(Class<? extends Event> event) {
-		events.remove(event);
+	public synchronized boolean hasEvent(Class<? extends Event> event) {
+		return events.containsKey(event.getName());
 	}
-	
-	public void clearEvents() {
+	public synchronized void clear() {
 		events.clear();
-	}
-	public boolean hasEvent(Class<? extends Event> event) {
-		return events.containsKey(event);
 	}
 	
 	//block events
@@ -747,35 +752,19 @@ public class EventListener implements IEventListener, Listener {
 	}
 	
 	//private
-	private void onAnyEvent(Event e) {
-		Class<? extends Event> eventClass = e.getClass();
-		Class<? extends EventCommand> get = events.get(eventClass);
+	private synchronized void onAnyEvent(Event e) {
+		Class<? extends EventCommand> c = events.get(e.getClass().getName());
 		
-		if (get == null) {
+		if (c == null) {
 			return;
 		}
 		
-		EventCommand ev = initializedEvents.computeIfAbsent(eventClass, (k) -> {
-			return initializeEvent(k, get);
-		});
-		
-		if (ev == null) {
-			return;
-		}
-		
-		ev.setEvent(e);
-		ev.start();
-	}
-	
-	private EventCommand initializeEvent(Class<? extends Event> event, Class<? extends EventCommand> command) {
 		EventCommand run = null;
-		
 		try {
-			run = command.newInstance();
+			run = c.getDeclaredConstructor(Event.class).newInstance(e);
 		} catch (Exception ex) {
-			return null;
+			return;
 		}
-		
-		return run;
+		run.start();
 	}
 }

@@ -9,10 +9,18 @@ import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.commands.EventCommand;
 import ninja.egg82.plugin.commands.PluginCommand;
 import ninja.egg82.plugin.commands.TickCommand;
+import ninja.egg82.plugin.handlers.CommandHandler;
+import ninja.egg82.plugin.handlers.EventListener;
+import ninja.egg82.plugin.handlers.PermissionsManager;
+import ninja.egg82.plugin.handlers.TickHandler;
 import ninja.egg82.utils.ReflectUtil;
 
 public class SpigotReflectUtil {
 	//vars
+	private static CommandHandler commandHandler = null;
+	private static EventListener eventListener = null;
+	private static PermissionsManager permissionsManager = null;
+	private static TickHandler tickHandler = null;
 	
 	//constructor
 	public SpigotReflectUtil() {
@@ -28,8 +36,12 @@ public class SpigotReflectUtil {
 		return services.size();
 	}
 	
-	public static int addCommandsFromPackage(ICommandHandler commandHandler, String packageName) {
+	public static int addCommandsFromPackage(String packageName) {
 		int numCommands = 0;
+		
+		if (commandHandler == null) {
+			commandHandler = (CommandHandler) ServiceLocator.getService(CommandHandler.class);
+		}
 		
 		ArrayList<Class<? extends PluginCommand>> enums = ReflectUtil.getClasses(PluginCommand.class, packageName);
 		for (Class<? extends PluginCommand> c : enums) {
@@ -42,15 +54,19 @@ public class SpigotReflectUtil {
 			}
 			
 			numCommands++;
-			commandHandler.addCommand(name.substring(0, name.length() - 7).toLowerCase(), c);
+			commandHandler.setCommand(name.substring(0, name.length() - 7).toLowerCase(), c);
 		}
 		
 		return numCommands;
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static int addEventsFromPackage(IEventListener eventListener, String packageName) {
+	public static int addEventsFromPackage(String packageName) {
 		int numEvents = 0;
+		
+		if (eventListener == null) {
+			eventListener = (EventListener) ServiceLocator.getService(EventListener.class);
+		}
 		
 		ArrayList<Class<? extends EventCommand>> enums = ReflectUtil.getClasses(EventCommand.class, packageName);
 		Class<? extends Event> c2 = null;
@@ -99,14 +115,18 @@ public class SpigotReflectUtil {
 			}
 			
 			numEvents++;
-			eventListener.addEvent(c2, c);
+			eventListener.setEvent(c2, c);
 		}
 		
 		return numEvents;
 	}
 	
-	public static int addPermissionsFromClass(IPermissionsManager permissionsManager, Class<?> clazz) {
+	public static int addPermissionsFromClass(Class<?> clazz) {
 		int numPermissions = 0;
+		
+		if (permissionsManager == null) {
+			permissionsManager = (PermissionsManager) ServiceLocator.getService(PermissionsManager.class);
+		}
 		
 		Object[] enums = ReflectUtil.getStaticFields(clazz);
 		String[] permissions = Arrays.copyOf(enums, enums.length, String[].class);
@@ -118,12 +138,15 @@ public class SpigotReflectUtil {
 		return numPermissions;
 	}
 	
-	public static int addTicksFromPackage(ITickHandler tickHandler, String packageName) {
+	public static int addTicksFromPackage(String packageName) {
 		int numTicks = 0;
+		
+		if (tickHandler == null) {
+			tickHandler = (TickHandler) ServiceLocator.getService(TickHandler.class);
+		}
 		
 		ArrayList<Class<? extends TickCommand>> enums = ReflectUtil.getClasses(TickCommand.class, packageName);
 		for (Class<? extends TickCommand> t : enums) {
-			String name = t.getSimpleName();
 			String pkg = t.getName();
 			pkg = pkg.substring(0, pkg.lastIndexOf('.'));
 			
@@ -132,7 +155,7 @@ public class SpigotReflectUtil {
 			}
 			
 			numTicks++;
-			tickHandler.addTickCommand(name.substring(0, name.length() - 11).toLowerCase(), t);
+			tickHandler.addTickCommand(t);
 		}
 		
 		return numTicks;

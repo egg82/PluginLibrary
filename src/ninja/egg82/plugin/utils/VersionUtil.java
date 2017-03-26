@@ -1,6 +1,6 @@
 package ninja.egg82.plugin.utils;
 
-import gnu.trove.list.array.TIntArrayList;
+import java.util.ArrayList;
 
 public class VersionUtil {
 	//vars
@@ -12,7 +12,7 @@ public class VersionUtil {
 	
 	//public
 	public static int[] parseVersion(String version, char separator) {
-		TIntArrayList ints = new TIntArrayList();
+		ArrayList<Integer> ints = new ArrayList<Integer>();
 		
 		int lastIndex = 0;
 	    int currentIndex = version.indexOf(separator);
@@ -31,7 +31,7 @@ public class VersionUtil {
 	    	ints.add(current);
 	    }
 		
-		return ints.toArray();
+		return ints.stream().mapToInt(i -> i).toArray();
 	}
 	
 	//private
