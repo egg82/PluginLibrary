@@ -161,6 +161,13 @@ public class SpigotReflectUtil {
 		return numTicks;
 	}
 	
+	public static void clearAll() {
+		commandHandler.clear();
+		eventListener.clear();
+		permissionsManager.clear();
+		tickHandler.clear();
+	}
+	
 	//private
 	
 }
