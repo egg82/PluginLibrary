@@ -1,11 +1,14 @@
 package ninja.egg82.plugin;
 
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitScheduler;
 
 import ninja.egg82.patterns.IRegistry;
 import ninja.egg82.patterns.ServiceLocator;
@@ -21,8 +24,6 @@ import ninja.egg82.utils.ReflectUtil;
 
 public class BasePlugin extends JavaPlugin {
 	//vars
-	protected IRegistry initReg = null;
-	
 	private CommandHandler commandHandler = null;
 	
 	//constructor
@@ -38,14 +39,13 @@ public class BasePlugin extends JavaPlugin {
 		gameVersion = gameVersion.substring(gameVersion.indexOf('('));
 		gameVersion = gameVersion.substring(gameVersion.indexOf(' ') + 1, gameVersion.length() - 1);
 		
-		initReg = (IRegistry) ServiceLocator.getService(InitRegistry.class);
-		initReg.setRegister("game.version", String.class, gameVersion);
-		initReg.setRegister("plugin.version", String.class, getDescription().getVersion());
-		
-		ServiceLocator.provideService(getClass());
-		ServiceLocator.provideService(getServer().getPluginManager().getClass());
-		ServiceLocator.provideService(getServer().getScheduler().getClass());
-		ServiceLocator.provideService(getLogger().getClass());
+		IRegistry initRegistry = (IRegistry) ServiceLocator.getService(InitRegistry.class);
+		initRegistry.setRegister("game.version", String.class, gameVersion);
+		initRegistry.setRegister("plugin", JavaPlugin.class, this);
+		initRegistry.setRegister("plugin.version", String.class, getDescription().getVersion());
+		initRegistry.setRegister("plugin.manager", PluginManager.class, getServer().getPluginManager());
+		initRegistry.setRegister("plugin.scheduler", BukkitScheduler.class, getServer().getScheduler());
+		initRegistry.setRegister("plugin.logger", Logger.class, getLogger());
 		
 		ServiceLocator.provideService(SoundUtil.class);
 		reflect(gameVersion, "ninja.egg82.plugin.reflection.player");
@@ -53,20 +53,19 @@ public class BasePlugin extends JavaPlugin {
 		
 		ServiceLocator.provideService(PermissionsManager.class, false);
 		ServiceLocator.provideService(CommandHandler.class, false);
-		ServiceLocator.provideService(EventListener.class, false);
 		ServiceLocator.provideService(TickHandler.class, false);
 		
 		commandHandler = (CommandHandler) ServiceLocator.getService(CommandHandler.class);
 	}
 	
 	public void onEnable() {
-		
+		ServiceLocator.provideService(EventListener.class, false);
 	}
 	public void onDisable() {
 		
 	}
 	
-	public boolean onCommand(CommandSender sender, Command event, String label, String[] args) {
+	public final boolean onCommand(CommandSender sender, Command event, String label, String[] args) {
 		if (commandHandler.hasCommand(event.getName())) {
 			commandHandler.runCommand(sender, event, label, args);
 			return true;

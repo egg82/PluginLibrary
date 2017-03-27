@@ -26,7 +26,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 
-public class BlockUtil {
+public final class BlockUtil {
 	//vars
 	
 	//constructor
@@ -36,6 +36,10 @@ public class BlockUtil {
 	
 	//public
 	public static Location getTopAirBlock(Location l) {
+		if (l == null) {
+			throw new IllegalArgumentException("l cannot be null.");
+		}
+		
 		l = l.clone();
 		
 		do {
@@ -60,6 +64,10 @@ public class BlockUtil {
 	}
 	
 	public static ArrayList<ItemStack[]> getYLineBlockInventory(Location top, int endY) {
+		if (top == null) {
+			throw new IllegalArgumentException("top cannot be null.");
+		}
+		
 		ArrayList<ItemStack[]> s = new ArrayList<ItemStack[]>();
 		BlockState state = null;
 		Material type = null;
@@ -93,6 +101,13 @@ public class BlockUtil {
 		return s;
 	}
 	public static void setYLineBlockInventory(Location top, ArrayList<ItemStack[]> inv) {
+		if (top == null) {
+			throw new IllegalArgumentException("top cannot be null.");
+		}
+		if (inv == null) {
+			return;
+		}
+		
 		BlockState state = null;
 		Material type = null;
 		ItemStack[] stack = null;
@@ -121,6 +136,10 @@ public class BlockUtil {
 	}
 	
 	public static BlockState[] getYLineBlockState(Location top, int endY) {
+		if (top == null) {
+			throw new IllegalArgumentException("top cannot be null.");
+		}
+		
 		BlockState[] d = new BlockState[top.getBlockY() - endY + 1];
 		int i = 0;
 		
@@ -132,6 +151,13 @@ public class BlockUtil {
 		return d;
 	}
 	public static void setYLineBlockState(Location top, BlockState[] data) {
+		if (top == null) {
+			throw new IllegalArgumentException("top cannot be null.");
+		}
+		if (data == null) {
+			return;
+		}
+		
 		for (int i = 0; i < data.length; i++) {
 			setBlockData(top.getBlock().getState(), data[i]);
 			top.subtract(0.0d, 1.0d, 0.0d);
@@ -139,6 +165,10 @@ public class BlockUtil {
 	}
 	
 	public static Material[] removeYLineBlocks(Location top, int endY) {
+		if (top == null) {
+			throw new IllegalArgumentException("top cannot be null.");
+		}
+		
 		Material[] b = new Material[top.getBlockY() - endY + 1];
 		int i = 0;
 		Block block = null;
@@ -154,6 +184,13 @@ public class BlockUtil {
 		return b;
 	}
 	public static void addYLineBlocks(Location top, Material[] blocks) {
+		if (top == null) {
+			throw new IllegalArgumentException("top cannot be null.");
+		}
+		if (blocks == null) {
+			throw new IllegalArgumentException("blocks cannot be null.");
+		}
+		
 		for (int i = 0; i < blocks.length; i++) {
 			top.getBlock().setType(blocks[i]);
 			top.subtract(0.0d, 1.0d, 0.0d);
@@ -161,6 +198,10 @@ public class BlockUtil {
 	}
 	
 	public static void clearBlockInventory(BlockState block) {
+		if (block == null) {
+			throw new IllegalArgumentException("block cannot be null.");
+		}
+		
 		Material type = block.getType();
 		
 		if (block instanceof InventoryHolder) {
@@ -179,6 +220,13 @@ public class BlockUtil {
 	
 	//private
 	private static void setBlockData(BlockState block, BlockState data) {
+		if (block == null) {
+			throw new IllegalArgumentException("block cannot be null.");
+		}
+		if (data == null) {
+			throw new IllegalArgumentException("data cannot be null.");
+		}
+		
 		Material type = block.getType();
 		
 		block.setData(data.getData());

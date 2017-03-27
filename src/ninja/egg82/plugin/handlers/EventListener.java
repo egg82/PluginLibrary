@@ -15,21 +15,21 @@ import org.bukkit.event.weather.*;
 import org.bukkit.event.world.*;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 
-import com.koloboke.collect.map.hash.HashObjObjMap;
-import com.koloboke.collect.map.hash.HashObjObjMaps;
-
+import ninja.egg82.patterns.IRegistry;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.commands.EventCommand;
+import ninja.egg82.startup.InitRegistry;
 
-public class EventListener implements Listener {
+public final class EventListener implements Listener {
 	//vars
-	private HashObjObjMap<String, Class<? extends EventCommand>> events = HashObjObjMaps.<String, Class<? extends EventCommand>> newMutableMap();
+	private UnifiedMap<String, Class<? extends EventCommand>> events = new UnifiedMap<String, Class<? extends EventCommand>>();
 	
 	//constructor
 	public EventListener() {
-		PluginManager pluginManager = (PluginManager) ServiceLocator.getService(PluginManager.class);
-		pluginManager.registerEvents(this, (JavaPlugin) ServiceLocator.getService(JavaPlugin.class));
+		PluginManager pluginManager = (PluginManager) ((IRegistry) ServiceLocator.getService(InitRegistry.class)).getRegister("plugin.manager");
+		pluginManager.registerEvents(this, (JavaPlugin) ((IRegistry) ServiceLocator.getService(InitRegistry.class)).getRegister("plugin"));
 	}
 	
 	//public

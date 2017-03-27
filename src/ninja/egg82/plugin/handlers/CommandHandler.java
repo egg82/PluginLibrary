@@ -2,15 +2,13 @@ package ninja.egg82.plugin.handlers;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-
-import com.koloboke.collect.map.hash.HashObjObjMap;
-import com.koloboke.collect.map.hash.HashObjObjMaps;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 
 import ninja.egg82.plugin.commands.PluginCommand;
 
-public class CommandHandler {
+public final class CommandHandler {
 	//vars
-	private HashObjObjMap<String, Class<? extends PluginCommand>> commands = HashObjObjMaps.<String, Class<? extends PluginCommand>> newMutableMap();
+	private UnifiedMap<String, Class<? extends PluginCommand>> commands = new UnifiedMap<String, Class<? extends PluginCommand>>();
 	
 	//constructor
 	public CommandHandler() {

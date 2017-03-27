@@ -33,14 +33,20 @@
                     <exclude>META-INF/*.SF</exclude>
                     <exclude>META-INF/*.DSA</exclude>
                     <exclude>META-INF/*.RSA</exclude>
+                    <exclude>**/*.html</exclude>
+                    <exclude>**/*.txt</exclude>
                   </excludes>
                 </filter>
               </filters>
               <minimizeJar>true</minimizeJar>
               <relocations>
                 <relocation>
-                  <pattern>com.koloboke</pattern>
-                  <shadedPattern>ninja.egg82.lib.com.koloboke</shadedPattern>
+                  <pattern>org.eclipse</pattern>
+                  <shadedPattern>ninja.egg82.lib.org.eclipse</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>net.jcip</pattern>
+                  <shadedPattern>ninja.egg82.lib.net.jcip</shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>org.apache</pattern>
@@ -94,15 +100,9 @@
       <version>1.1.2</version>
     </dependency>
     <dependency>
-      <groupId>com.koloboke</groupId>
-      <artifactId>koloboke-compile</artifactId>
-      <version>0.5.1</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.koloboke</groupId>
-      <artifactId>koloboke-impl-common-jdk8</artifactId>
-      <version>1.0.0</version>
+      <groupId>org.eclipse.collections</groupId>
+      <artifactId>eclipse-collections</artifactId>
+      <version>8.1.0</version>
     </dependency>
   </dependencies>
   <description>Library for Spigot plugins</description>

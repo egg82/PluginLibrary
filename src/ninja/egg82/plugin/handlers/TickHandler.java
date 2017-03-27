@@ -1,22 +1,20 @@
 package ninja.egg82.plugin.handlers;
 
-import java.util.function.ObjIntConsumer;
-
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
+import org.eclipse.collections.impl.map.mutable.primitive.ObjectIntHashMap;
 
-import com.koloboke.collect.map.hash.HashObjIntMap;
-import com.koloboke.collect.map.hash.HashObjIntMaps;
-
+import ninja.egg82.patterns.IRegistry;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.commands.TickCommand;
+import ninja.egg82.startup.InitRegistry;
 
-public class TickHandler {
+public final class TickHandler {
 	//vars
-	private HashObjIntMap<Class<? extends TickCommand>> tasks = HashObjIntMaps.<Class<? extends TickCommand>> newMutableMap();
+	private ObjectIntHashMap<Class<? extends TickCommand>> tasks = new ObjectIntHashMap<Class<? extends TickCommand>>();
 	
-	private JavaPlugin plugin = (JavaPlugin) ServiceLocator.getService(JavaPlugin.class);
-	private BukkitScheduler scheduler = (BukkitScheduler) ServiceLocator.getService(BukkitScheduler.class);
+	private JavaPlugin plugin = (JavaPlugin) ((IRegistry) ServiceLocator.getService(InitRegistry.class)).getRegister("plugin");
+	private BukkitScheduler scheduler = (BukkitScheduler) ((IRegistry) ServiceLocator.getService(InitRegistry.class)).getRegister("plugin.scheduler");
 	
 	//constructor
 	public TickHandler() {
@@ -92,7 +90,7 @@ public class TickHandler {
 			delay = 1L;
 		}
 		
-		int taskId = scheduler.scheduleSyncDelayedTask(plugin, new DelayedTickRunner(c, v -> tasks.removeAsInt(v)), delay);
+		int taskId = scheduler.scheduleSyncDelayedTask(plugin, new DelayedTickRunner(c, v -> tasks.remove(v)), delay);
 		if (taskId > -1) {
 			tasks.put(clazz, taskId);
 		}
@@ -117,7 +115,7 @@ public class TickHandler {
 		}
 		
 		// Not deprecated. @Deprecated was used as a warning.
-		int taskId = scheduler.scheduleAsyncDelayedTask(plugin, new DelayedTickRunner(c, v -> tasks.removeAsInt(v)), delay);
+		int taskId = scheduler.scheduleAsyncDelayedTask(plugin, new DelayedTickRunner(c, v -> tasks.remove(v)), delay);
 		if (taskId > -1) {
 			tasks.put(clazz, taskId);
 		}
@@ -127,7 +125,8 @@ public class TickHandler {
 			throw new IllegalArgumentException("clazz cannot be null.");
 		}
 		
-		int taskId = tasks.removeAsInt(clazz);
+		int taskId = tasks.get(clazz);
+		tasks.remove(clazz);
 		if (taskId > -1) {
 			scheduler.cancelTask(taskId);
 		}
@@ -139,7 +138,7 @@ public class TickHandler {
 		return tasks.containsKey(clazz);
 	}
 	public synchronized void clear() {
-		tasks.forEach((ObjIntConsumer<? super Class<? extends TickCommand>>) (k, v) -> {
+		tasks.forEachKeyValue((k, v) -> {
 			scheduler.cancelTask(v);
 		});
 		tasks.clear();
