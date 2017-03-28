@@ -1,6 +1,6 @@
 package ninja.egg82.plugin.utils;
 
-import org.eclipse.collections.impl.list.mutable.FastList;
+import java.util.ArrayList;
 
 public final class VersionUtil {
 	//vars
@@ -12,7 +12,7 @@ public final class VersionUtil {
 	
 	//public
 	public static int[] parseVersion(String version, char separator) {
-		FastList<Integer> ints = new FastList<Integer>();
+		ArrayList<Integer> ints = new ArrayList<Integer>();
 		
 		int lastIndex = 0;
 	    int currentIndex = version.indexOf(separator);

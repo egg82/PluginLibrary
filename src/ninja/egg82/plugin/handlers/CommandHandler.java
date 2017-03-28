@@ -1,14 +1,15 @@
 package ninja.egg82.plugin.handlers;
 
+import java.util.HashMap;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 
 import ninja.egg82.plugin.commands.PluginCommand;
 
 public final class CommandHandler {
 	//vars
-	private UnifiedMap<String, Class<? extends PluginCommand>> commands = new UnifiedMap<String, Class<? extends PluginCommand>>();
+	private HashMap<String, Class<? extends PluginCommand>> commands = new HashMap<String, Class<? extends PluginCommand>>();
 	
 	//constructor
 	public CommandHandler() {

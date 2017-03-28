@@ -1,5 +1,7 @@
 package ninja.egg82.plugin.handlers;
 
+import java.util.HashMap;
+
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,7 +17,6 @@ import org.bukkit.event.weather.*;
 import org.bukkit.event.world.*;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 
 import ninja.egg82.patterns.IRegistry;
 import ninja.egg82.patterns.ServiceLocator;
@@ -24,7 +25,7 @@ import ninja.egg82.startup.InitRegistry;
 
 public final class EventListener implements Listener {
 	//vars
-	private UnifiedMap<String, Class<? extends EventCommand>> events = new UnifiedMap<String, Class<? extends EventCommand>>();
+	private HashMap<String, Class<? extends EventCommand>> events = new HashMap<String, Class<? extends EventCommand>>();
 	
 	//constructor
 	public EventListener() {

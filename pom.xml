@@ -39,20 +39,6 @@
                 </filter>
               </filters>
               <minimizeJar>true</minimizeJar>
-              <relocations>
-                <relocation>
-                  <pattern>org.eclipse</pattern>
-                  <shadedPattern>ninja.egg82.lib.org.eclipse</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>net.jcip</pattern>
-                  <shadedPattern>ninja.egg82.lib.net.jcip</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>org.apache</pattern>
-                  <shadedPattern>ninja.egg82.lib.org.apache</shadedPattern>
-                </relocation>
-              </relocations>
             </configuration>
           </execution>
         </executions>
@@ -98,11 +84,6 @@
       <groupId>ninja.egg82.lib</groupId>
       <artifactId>egg82-lib</artifactId>
       <version>1.1.2</version>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.collections</groupId>
-      <artifactId>eclipse-collections</artifactId>
-      <version>8.1.0</version>
     </dependency>
   </dependencies>
   <description>Library for Spigot plugins</description>

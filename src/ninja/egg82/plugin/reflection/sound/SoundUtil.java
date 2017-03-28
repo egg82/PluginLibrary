@@ -1,9 +1,9 @@
 package ninja.egg82.plugin.reflection.sound;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.bukkit.Sound;
-import org.eclipse.collections.impl.list.mutable.FastList;
 
 import ninja.egg82.utils.ReflectUtil;
 
@@ -30,7 +30,7 @@ public final class SoundUtil {
 			throw new IllegalArgumentException("filter cannot be null.");
 		}
 		
-		FastList<Sound> filteredSounds = new FastList<Sound>();
+		ArrayList<Sound> filteredSounds = new ArrayList<Sound>();
 		
 		for (Sound s : list) {
 			String name = s.toString().toLowerCase();

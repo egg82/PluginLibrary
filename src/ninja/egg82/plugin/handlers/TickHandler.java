@@ -1,8 +1,9 @@
 package ninja.egg82.plugin.handlers;
 
+import java.util.HashMap;
+
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
-import org.eclipse.collections.impl.map.mutable.primitive.ObjectIntHashMap;
 
 import ninja.egg82.patterns.IRegistry;
 import ninja.egg82.patterns.ServiceLocator;
@@ -11,7 +12,7 @@ import ninja.egg82.startup.InitRegistry;
 
 public final class TickHandler {
 	//vars
-	private ObjectIntHashMap<Class<? extends TickCommand>> tasks = new ObjectIntHashMap<Class<? extends TickCommand>>();
+	private HashMap<Class<? extends TickCommand>, Integer> tasks = new HashMap<Class<? extends TickCommand>, Integer>();
 	
 	private JavaPlugin plugin = (JavaPlugin) ((IRegistry) ServiceLocator.getService(InitRegistry.class)).getRegister("plugin");
 	private BukkitScheduler scheduler = (BukkitScheduler) ((IRegistry) ServiceLocator.getService(InitRegistry.class)).getRegister("plugin.scheduler");
@@ -138,7 +139,7 @@ public final class TickHandler {
 		return tasks.containsKey(clazz);
 	}
 	public synchronized void clear() {
-		tasks.forEachKeyValue((k, v) -> {
+		tasks.forEach((k, v) -> {
 			scheduler.cancelTask(v);
 		});
 		tasks.clear();

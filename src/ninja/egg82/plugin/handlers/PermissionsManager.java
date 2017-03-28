@@ -1,9 +1,10 @@
 package ninja.egg82.plugin.handlers;
 
+import java.util.HashMap;
+
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.PluginManager;
-import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 
 import ninja.egg82.patterns.IRegistry;
 import ninja.egg82.patterns.ServiceLocator;
@@ -11,7 +12,7 @@ import ninja.egg82.startup.InitRegistry;
 
 public final class PermissionsManager {
 	//vars
-	private UnifiedMap<String, Permission> permissions = new UnifiedMap<String, Permission>();
+	private HashMap<String, Permission> permissions = new HashMap<String, Permission>();
 	private PluginManager manager = (PluginManager) ((IRegistry) ServiceLocator.getService(InitRegistry.class)).getRegister("plugin.manager");
 	
 	//constructor
