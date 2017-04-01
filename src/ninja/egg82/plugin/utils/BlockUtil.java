@@ -1,6 +1,7 @@
 package ninja.egg82.plugin.utils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -63,7 +64,7 @@ public final class BlockUtil {
 		return l;
 	}
 	
-	public static ArrayList<ItemStack[]> getYLineBlockInventory(Location top, int endY) {
+	public static List<ItemStack[]> getYLineBlockInventory(Location top, int endY) {
 		if (top == null) {
 			throw new IllegalArgumentException("top cannot be null.");
 		}
@@ -100,7 +101,7 @@ public final class BlockUtil {
 		
 		return s;
 	}
-	public static void setYLineBlockInventory(Location top, ArrayList<ItemStack[]> inv) {
+	public static void setYLineBlockInventory(Location top, List<ItemStack[]> inv) {
 		if (top == null) {
 			throw new IllegalArgumentException("top cannot be null.");
 		}

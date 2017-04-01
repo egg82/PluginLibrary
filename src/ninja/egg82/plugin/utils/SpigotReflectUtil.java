@@ -1,7 +1,7 @@
 package ninja.egg82.plugin.utils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.bukkit.event.Event;
 
@@ -25,7 +25,7 @@ public final class SpigotReflectUtil {
 	
 	//public
 	public static int addServicesFromPackage(String packageName) {
-		ArrayList<Class<?>> services = ReflectUtil.getClasses(Object.class, packageName);
+		List<Class<?>> services = ReflectUtil.getClasses(Object.class, packageName);
 		for (Class<?> service : services) {
 			ServiceLocator.provideService(service);
 		}
@@ -37,7 +37,7 @@ public final class SpigotReflectUtil {
 		
 		CommandHandler commandHandler = (CommandHandler) ServiceLocator.getService(CommandHandler.class);
 		
-		ArrayList<Class<? extends PluginCommand>> enums = ReflectUtil.getClasses(PluginCommand.class, packageName);
+		List<Class<? extends PluginCommand>> enums = ReflectUtil.getClasses(PluginCommand.class, packageName);
 		for (Class<? extends PluginCommand> c : enums) {
 			String name = c.getSimpleName();
 			String pkg = c.getName();
@@ -60,7 +60,7 @@ public final class SpigotReflectUtil {
 		
 		EventListener eventListener = (EventListener) ServiceLocator.getService(EventListener.class);
 		
-		ArrayList<Class<? extends EventCommand>> enums = ReflectUtil.getClasses(EventCommand.class, packageName);
+		List<Class<? extends EventCommand>> enums = ReflectUtil.getClasses(EventCommand.class, packageName);
 		Class<? extends Event> c2 = null;
 		for (Class<? extends EventCommand> c : enums) {
 			String name = c.getSimpleName();
@@ -133,7 +133,7 @@ public final class SpigotReflectUtil {
 		
 		TickHandler tickHandler = (TickHandler) ServiceLocator.getService(TickHandler.class);
 		
-		ArrayList<Class<? extends TickCommand>> enums = ReflectUtil.getClasses(TickCommand.class, packageName);
+		List<Class<? extends TickCommand>> enums = ReflectUtil.getClasses(TickCommand.class, packageName);
 		for (Class<? extends TickCommand> t : enums) {
 			String pkg = t.getName();
 			pkg = pkg.substring(0, pkg.lastIndexOf('.'));

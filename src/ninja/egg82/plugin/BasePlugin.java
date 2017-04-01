@@ -1,6 +1,6 @@
 package ninja.egg82.plugin;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
@@ -75,7 +75,7 @@ public class BasePlugin extends JavaPlugin {
 	
 	//private
 	private void reflect(String version, String pkg) {
-		ArrayList<Class<?>> enums = ReflectUtil.getClasses(Object.class, pkg);
+		List<Class<?>> enums = ReflectUtil.getClasses(Object.class, pkg);
 		
 		int[] currentVersion = VersionUtil.parseVersion(version, '.');
 		

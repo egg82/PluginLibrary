@@ -411,6 +411,7 @@ public final class EventListener implements Listener {
 	public void onAsyncPlayerPreLogin(AsyncPlayerPreLoginEvent e) {
 		onAnyEvent(e);
 	}
+	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onPlayerAchievementAwarded(PlayerAchievementAwardedEvent e) {
 		onAnyEvent(e);
