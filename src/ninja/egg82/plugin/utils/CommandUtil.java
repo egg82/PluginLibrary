@@ -3,6 +3,7 @@ package ninja.egg82.plugin.utils;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -75,6 +76,19 @@ public final class CommandUtil {
 			return null;
 		}
 		return Bukkit.getPlayer(UUID.fromString(uuid));
+	}
+	
+	public static OfflinePlayer getOfflinePlayerByUuid(UUID uuid) {
+		if (uuid == null) {
+			return null;
+		}
+		return Bukkit.getOfflinePlayer(uuid);
+	}
+	public static OfflinePlayer getOfflinePlayerByUuid(String uuid) {
+		if (uuid == null) {
+			return null;
+		}
+		return Bukkit.getOfflinePlayer(UUID.fromString(uuid));
 	}
 	
 	//private
