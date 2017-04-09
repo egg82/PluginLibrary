@@ -7,7 +7,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Banner;
 import org.bukkit.block.Beacon;
-import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.block.Chest;
@@ -26,6 +25,8 @@ import org.bukkit.block.Skull;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
+
+import ninja.egg82.plugin.core.BlockData;
 
 public final class BlockUtil {
 	//vars
@@ -64,141 +65,147 @@ public final class BlockUtil {
 		return l;
 	}
 	
-	public static List<ItemStack[]> getYLineBlockInventory(Location top, int endY) {
-		if (top == null) {
-			throw new IllegalArgumentException("top cannot be null.");
+	public static List<BlockData> getBlocks(Location center, int xRadius, int yRadius, int zRadius) {
+		if (center == null) {
+			throw new IllegalArgumentException("center cannot be null.");
 		}
 		
-		ArrayList<ItemStack[]> s = new ArrayList<ItemStack[]>();
-		BlockState state = null;
-		Material type = null;
+		int minX = center.getBlockX() - xRadius;
+		int maxX = center.getBlockX() + xRadius;
+		int minY = center.getBlockY() - yRadius;
+		int maxY = center.getBlockY() + yRadius;
+		int minZ = center.getBlockZ() - zRadius;
+		int maxZ = center.getBlockZ() + zRadius;
 		
-		do {
-			state = top.getBlock().getState();
-			type = state.getType();
-			
-			if (state instanceof InventoryHolder) {
-				InventoryHolder holder = (InventoryHolder) state;
-				s.add(holder.getInventory().getContents());
-			} else if (type == Material.FLOWER_POT) {
-				MaterialData contents = ((FlowerPot) state).getContents();
-				if (contents != null) {
-					s.add(new ItemStack[]{contents.toItemStack()});
-				} else {
-					s.add(null);
-				}
-			} else if (type == Material.JUKEBOX) {
-				Material playing = ((Jukebox) state).getPlaying();
-				if (playing != null) {
-					s.add(new ItemStack[]{new ItemStack(playing, 1)});
-				} else {
-					s.add(null);
-				}
-			} else {
-				s.add(null);
-			}
-		} while (top.subtract(0.0d, 1.0d, 0.0d).getBlockY() >= endY);
+		Location currentLocation = new Location(center.getWorld(), 0.0d, 0.0d, 0.0d);
+		ArrayList<BlockData> blocks = new ArrayList<BlockData>();
 		
-		return s;
-	}
-	public static void setYLineBlockInventory(Location top, List<ItemStack[]> inv) {
-		if (top == null) {
-			throw new IllegalArgumentException("top cannot be null.");
-		}
-		if (inv == null) {
-			return;
-		}
+		BlockState blockState = null;
+		Material blockType = null;
 		
-		BlockState state = null;
-		Material type = null;
-		ItemStack[] stack = null;
-		
-		for (int i = 0; i < inv.size(); i++) {
-			state = top.getBlock().getState();
-			type = state.getType();
-			
-			if (state instanceof InventoryHolder) {
-				InventoryHolder holder = (InventoryHolder) state;
-				holder.getInventory().setContents(inv.get(i));
-			} else if (type == Material.FLOWER_POT) {
-				stack = inv.get(i);
-				if (stack != null) {
-					((FlowerPot) state).setContents(stack[0].getData());
-				}
-			} else if (type == Material.JUKEBOX) {
-				stack = inv.get(i);
-				if (stack != null) {
-					((Jukebox) state).setPlaying(stack[0].getType());
+		for (int x = minX; x <= maxX; x++) {
+			currentLocation.setX(x);
+			for (int z = minZ; z <= maxZ; z++) {
+				currentLocation.setZ(z);
+				for (int y = minY; y <= maxY; y++) {
+					currentLocation.setY(y);
+					
+					blockState = currentLocation.getBlock().getState();
+					blockType = blockState.getType();
+					
+					if (blockState instanceof InventoryHolder) {
+						blocks.add(new BlockData(((InventoryHolder) blockState).getInventory().getContents(), blockState, blockType));
+					} else if (blockType == Material.FLOWER_POT) {
+						MaterialData currentItem = ((FlowerPot) blockState).getContents();
+						blocks.add(new BlockData((currentItem != null) ? new ItemStack[] {currentItem.toItemStack()} : null, blockState, blockType));
+					} else if (blockType == Material.JUKEBOX) {
+						Material currentItem = ((Jukebox) blockState).getPlaying();
+						blocks.add(new BlockData((currentItem != Material.AIR && currentItem != null) ? new ItemStack[] {new ItemStack(currentItem)} : null, blockState, blockType));
+					} else {
+						blocks.add(new BlockData(null, blockState, blockType));
+					}
 				}
 			}
-			
-			top.subtract(0.0d, 1.0d, 0.0d);
 		}
+		
+		return blocks;
 	}
-	
-	public static BlockState[] getYLineBlockState(Location top, int endY) {
-		if (top == null) {
-			throw new IllegalArgumentException("top cannot be null.");
-		}
-		
-		BlockState[] d = new BlockState[top.getBlockY() - endY + 1];
-		int i = 0;
-		
-		do {
-			d[i] = top.getBlock().getState();
-			i++;
-		} while (top.subtract(0.0d, 1.0d, 0.0d).getBlockY() >= endY);
-		
-		return d;
-	}
-	public static void setYLineBlockState(Location top, BlockState[] data) {
-		if (top == null) {
-			throw new IllegalArgumentException("top cannot be null.");
-		}
-		if (data == null) {
-			return;
-		}
-		
-		for (int i = 0; i < data.length; i++) {
-			setBlockData(top.getBlock().getState(), data[i]);
-			top.subtract(0.0d, 1.0d, 0.0d);
-		}
-	}
-	
-	public static Material[] removeYLineBlocks(Location top, int endY) {
-		if (top == null) {
-			throw new IllegalArgumentException("top cannot be null.");
-		}
-		
-		Material[] b = new Material[top.getBlockY() - endY + 1];
-		int i = 0;
-		Block block = null;
-		
-		do {
-			block = top.getBlock();
-			b[i] = block.getType();
-			clearBlockInventory(block.getState());
-			block.setType(Material.AIR);
-			i++;
-		} while (top.subtract(0.0d, 1.0d, 0.0d).getBlockY() >= endY);
-		
-		return b;
-	}
-	public static void addYLineBlocks(Location top, Material[] blocks) {
-		if (top == null) {
-			throw new IllegalArgumentException("top cannot be null.");
-		}
+	public static void setBlocks(List<BlockData> blocks, Location center, int xRadius, int yRadius, int zRadius) {
 		if (blocks == null) {
 			throw new IllegalArgumentException("blocks cannot be null.");
 		}
+		if (blocks.size() != (xRadius * 2) * (yRadius * 2) * (zRadius * 2)) {
+			throw new RuntimeException("blocks is not the correct length.");
+		}
+		if (center == null) {
+			throw new IllegalArgumentException("center cannot be null.");
+		}
 		
-		for (int i = 0; i < blocks.length; i++) {
-			top.getBlock().setType(blocks[i]);
-			top.subtract(0.0d, 1.0d, 0.0d);
+		int minX = center.getBlockX() - xRadius;
+		int maxX = center.getBlockX() + xRadius;
+		int minY = center.getBlockY() - yRadius;
+		int maxY = center.getBlockY() + yRadius;
+		int minZ = center.getBlockZ() - zRadius;
+		int maxZ = center.getBlockZ() + zRadius;
+		
+		Location currentLocation = new Location(center.getWorld(), 0.0d, 0.0d, 0.0d);
+		
+		int i = 0;
+		BlockState blockState = null;
+		Material blockType = null;
+		BlockData blockData = null;
+		
+		for (int x = minX; x <= maxX; x++) {
+			currentLocation.setX(x);
+			for (int z = minZ; z <= maxZ; z++) {
+				currentLocation.setZ(z);
+				for (int y = minY; y <= maxY; y++) {
+					currentLocation.setY(y);
+					
+					blockState = currentLocation.getBlock().getState();
+					blockType = blockState.getType();
+					blockData = blocks.get(i);
+					
+					clearInventory(blockState);
+					blockState.setType(blockData.getMaterial());
+					setBlockData(blockState, blockData.getState());
+					
+					if (blockData.getInventory() != null) {
+						if (blockState instanceof InventoryHolder) {
+							((InventoryHolder) blockState).getInventory().setContents(blockData.getInventory());
+						} else if (blockType == Material.FLOWER_POT) {
+							((FlowerPot) blockState).setContents(blockData.getInventory()[0].getData());
+						} else if (blockType == Material.JUKEBOX) {
+							((Jukebox) blockState).setPlaying(blockData.getInventory()[0].getType());
+						}
+					}
+					
+					blockState.update(true, true);
+					
+					i++;
+				}
+			}
+		}
+	}
+	public static void clearBlocks(Location center, Material clearMaterial, int xRadius, int yRadius, int zRadius) {
+		if (center == null) {
+			throw new IllegalArgumentException("center cannot be null.");
+		}
+		if (clearMaterial == null) {
+			clearMaterial = Material.AIR;
+		}
+		
+		int minX = center.getBlockX() - xRadius;
+		int maxX = center.getBlockX() + xRadius;
+		int minY = center.getBlockY() - yRadius;
+		int maxY = center.getBlockY() + yRadius;
+		int minZ = center.getBlockZ() - zRadius;
+		int maxZ = center.getBlockZ() + zRadius;
+		
+		Location currentLocation = new Location(center.getWorld(), 0.0d, 0.0d, 0.0d);
+		
+		BlockState blockState = null;
+		
+		for (int x = minX; x <= maxX; x++) {
+			currentLocation.setX(x);
+			for (int z = minZ; z <= maxZ; z++) {
+				currentLocation.setZ(z);
+				for (int y = minY; y <= maxY; y++) {
+					currentLocation.setY(y);
+					
+					blockState = currentLocation.getBlock().getState();
+					
+					clearInventory(blockState);
+					blockState.setType(clearMaterial);
+					
+					blockState.update(true, true);
+				}
+			}
 		}
 	}
 	
-	public static void clearBlockInventory(BlockState block) {
+	//private
+	private static void clearInventory(BlockState block) {
 		if (block == null) {
 			throw new IllegalArgumentException("block cannot be null.");
 		}
@@ -215,11 +222,8 @@ public final class BlockUtil {
 		} else if (type == Material.JUKEBOX) {
 			((Jukebox) block).setPlaying(null);
 		}
-		
-		block.update(true);
 	}
 	
-	//private
 	private static void setBlockData(BlockState block, BlockState data) {
 		if (block == null) {
 			throw new IllegalArgumentException("block cannot be null.");
@@ -294,7 +298,5 @@ public final class BlockUtil {
 			b1.setRotation(b2.getRotation());
 			b1.setSkullType(b2.getSkullType());
 		}
-		
-		block.update(true);
 	}
 }
