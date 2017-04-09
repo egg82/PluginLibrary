@@ -46,6 +46,9 @@ public final class SpigotReflectUtil {
 			if (!pkg.equalsIgnoreCase(packageName)) {
 				continue;
 			}
+			if (name.length() < 7) {
+				continue;
+			}
 			
 			numCommands++;
 			commandHandler.setCommand(name.substring(0, name.length() - 7).toLowerCase(), c);
@@ -68,6 +71,9 @@ public final class SpigotReflectUtil {
 			pkg = pkg.substring(0, pkg.lastIndexOf('.'));
 			
 			if (!pkg.equalsIgnoreCase(packageName)) {
+				continue;
+			}
+			if (name.length() < 7) {
 				continue;
 			}
 			
