@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Banner;
 import org.bukkit.block.Beacon;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.block.Chest;
@@ -65,6 +66,48 @@ public final class BlockUtil {
 		return l;
 	}
 	
+	public static BlockData getBlock(Location location) {
+		return getBlock(location.getBlock());
+	}
+	public static BlockData getBlock(Block block) {
+		return getBlock(block.getState());
+	}
+	public static BlockData getBlock(BlockState blockState) {
+		Material blockType = blockState.getType();
+		
+		if (blockState instanceof InventoryHolder) {
+			return new BlockData(((InventoryHolder) blockState).getInventory().getContents(), blockState, blockType);
+		} else if (blockType == Material.FLOWER_POT) {
+			MaterialData currentItem = ((FlowerPot) blockState).getContents();
+			return new BlockData((currentItem != null) ? new ItemStack[] {currentItem.toItemStack()} : null, blockState, blockType);
+		} else if (blockType == Material.JUKEBOX) {
+			Material currentItem = ((Jukebox) blockState).getPlaying();
+			return new BlockData((currentItem != Material.AIR && currentItem != null) ? new ItemStack[] {new ItemStack(currentItem)} : null, blockState, blockType);
+		}
+		
+		return new BlockData(null, blockState, blockType);
+	}
+	public static void setBlock(Location location, BlockData data) {
+		BlockState blockState = location.getBlock().getState();
+		Material blockType = blockState.getType();
+		
+		clearInventory(blockState);
+		blockState.setType(data.getMaterial());
+		setBlockData(blockState, data.getState());
+		
+		if (data.getInventory() != null) {
+			if (blockState instanceof InventoryHolder) {
+				((InventoryHolder) blockState).getInventory().setContents(data.getInventory());
+			} else if (blockType == Material.FLOWER_POT) {
+				((FlowerPot) blockState).setContents(data.getInventory()[0].getData());
+			} else if (blockType == Material.JUKEBOX) {
+				((Jukebox) blockState).setPlaying(data.getInventory()[0].getType());
+			}
+		}
+		
+		blockState.update(true, true);
+	}
+	
 	public static List<BlockData> getBlocks(Location center, int xRadius, int yRadius, int zRadius) {
 		if (center == null) {
 			throw new IllegalArgumentException("center cannot be null.");
@@ -80,30 +123,13 @@ public final class BlockUtil {
 		Location currentLocation = new Location(center.getWorld(), 0.0d, 0.0d, 0.0d);
 		ArrayList<BlockData> blocks = new ArrayList<BlockData>();
 		
-		BlockState blockState = null;
-		Material blockType = null;
-		
 		for (int x = minX; x <= maxX; x++) {
 			currentLocation.setX(x);
 			for (int z = minZ; z <= maxZ; z++) {
 				currentLocation.setZ(z);
 				for (int y = minY; y <= maxY; y++) {
 					currentLocation.setY(y);
-					
-					blockState = currentLocation.getBlock().getState();
-					blockType = blockState.getType();
-					
-					if (blockState instanceof InventoryHolder) {
-						blocks.add(new BlockData(((InventoryHolder) blockState).getInventory().getContents(), blockState, blockType));
-					} else if (blockType == Material.FLOWER_POT) {
-						MaterialData currentItem = ((FlowerPot) blockState).getContents();
-						blocks.add(new BlockData((currentItem != null) ? new ItemStack[] {currentItem.toItemStack()} : null, blockState, blockType));
-					} else if (blockType == Material.JUKEBOX) {
-						Material currentItem = ((Jukebox) blockState).getPlaying();
-						blocks.add(new BlockData((currentItem != Material.AIR && currentItem != null) ? new ItemStack[] {new ItemStack(currentItem)} : null, blockState, blockType));
-					} else {
-						blocks.add(new BlockData(null, blockState, blockType));
-					}
+					blocks.add(getBlock(currentLocation));
 				}
 			}
 		}
@@ -131,9 +157,6 @@ public final class BlockUtil {
 		Location currentLocation = new Location(center.getWorld(), 0.0d, 0.0d, 0.0d);
 		
 		int i = 0;
-		BlockState blockState = null;
-		Material blockType = null;
-		BlockData blockData = null;
 		
 		for (int x = minX; x <= maxX; x++) {
 			currentLocation.setX(x);
@@ -141,27 +164,7 @@ public final class BlockUtil {
 				currentLocation.setZ(z);
 				for (int y = minY; y <= maxY; y++) {
 					currentLocation.setY(y);
-					
-					blockState = currentLocation.getBlock().getState();
-					blockType = blockState.getType();
-					blockData = blocks.get(i);
-					
-					clearInventory(blockState);
-					blockState.setType(blockData.getMaterial());
-					setBlockData(blockState, blockData.getState());
-					
-					if (blockData.getInventory() != null) {
-						if (blockState instanceof InventoryHolder) {
-							((InventoryHolder) blockState).getInventory().setContents(blockData.getInventory());
-						} else if (blockType == Material.FLOWER_POT) {
-							((FlowerPot) blockState).setContents(blockData.getInventory()[0].getData());
-						} else if (blockType == Material.JUKEBOX) {
-							((Jukebox) blockState).setPlaying(blockData.getInventory()[0].getType());
-						}
-					}
-					
-					blockState.update(true, true);
-					
+					setBlock(currentLocation, blocks.get(i));
 					i++;
 				}
 			}
