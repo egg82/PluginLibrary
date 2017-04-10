@@ -2,9 +2,9 @@ package ninja.egg82.plugin.commands;
 
 import org.bukkit.command.CommandSender;
 
-import ninja.egg82.patterns.Command;
+import ninja.egg82.patterns.SynchronousCommand;
 
-public abstract class PluginCommand extends Command {
+public abstract class PluginCommand extends SynchronousCommand {
 	//vars
 	protected CommandSender sender = null;
 	protected org.bukkit.command.Command command = null;

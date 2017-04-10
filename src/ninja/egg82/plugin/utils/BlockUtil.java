@@ -140,7 +140,7 @@ public final class BlockUtil {
 		if (blocks == null) {
 			throw new IllegalArgumentException("blocks cannot be null.");
 		}
-		if (blocks.size() != (xRadius * 2) * (yRadius * 2) * (zRadius * 2)) {
+		if (blocks.size() != (xRadius * 2 + 1) * (yRadius * 2 + 1) * (zRadius * 2 + 1)) {
 			throw new RuntimeException("blocks is not the correct length.");
 		}
 		if (center == null) {

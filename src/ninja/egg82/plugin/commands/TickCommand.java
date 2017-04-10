@@ -1,8 +1,8 @@
 package ninja.egg82.plugin.commands;
 
-import ninja.egg82.patterns.Command;
+import ninja.egg82.patterns.SynchronousCommand;
 
-public abstract class TickCommand extends Command {
+public abstract class TickCommand extends SynchronousCommand {
 	//vars
 	protected long ticks = 0;
 	
