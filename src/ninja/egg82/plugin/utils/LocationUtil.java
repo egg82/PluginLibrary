@@ -1,6 +1,7 @@
 package ninja.egg82.plugin.utils;
 
 import org.bukkit.Location;
+import org.bukkit.util.Vector;
 
 public class LocationUtil {
 	//vars
@@ -33,6 +34,13 @@ public class LocationUtil {
 		}
 		
 		return retVal;
+	}
+	
+	public static Vector moveSmoothly(Location from, Location to) {
+		return moveSmoothly(from, to, 1.0d);
+	}
+	public static Vector moveSmoothly(Location from, Location to, double speed) {
+		return to.clone().subtract(from).toVector().normalize().multiply(speed);
 	}
 	
 	//private
