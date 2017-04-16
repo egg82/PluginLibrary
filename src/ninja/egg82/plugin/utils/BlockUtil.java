@@ -3,8 +3,10 @@ package ninja.egg82.plugin.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Banner;
 import org.bukkit.block.Beacon;
 import org.bukkit.block.Block;
@@ -67,12 +69,24 @@ public final class BlockUtil {
 	}
 	
 	public static BlockData getBlock(Location location) {
+		if (location == null) {
+			throw new IllegalArgumentException("location cannot be null.");
+		}
+		
 		return getBlock(location.getBlock());
 	}
 	public static BlockData getBlock(Block block) {
+		if (block == null) {
+			throw new IllegalArgumentException("block cannot be null.");
+		}
+		
 		return getBlock(block.getState());
 	}
 	public static BlockData getBlock(BlockState blockState) {
+		if (blockState == null) {
+			throw new IllegalArgumentException("blockState cannot be null.");
+		}
+		
 		Material blockType = blockState.getType();
 		
 		if (blockState instanceof InventoryHolder) {
@@ -87,13 +101,31 @@ public final class BlockUtil {
 		
 		return new BlockData(null, blockState, blockType);
 	}
+	
+	public static void setBlock(Block block, BlockData data) {
+		if (block == null) {
+			throw new IllegalArgumentException("block cannot be null.");
+		}
+		
+		setBlock(block.getLocation(), data);
+	}
 	public static void setBlock(Location location, BlockData data) {
+		if (location == null) {
+			throw new IllegalArgumentException("location cannot be null.");
+		}
+		if (data == null) {
+			throw new IllegalArgumentException("data cannot be null.");
+		}
+		
 		BlockState blockState = location.getBlock().getState();
 		Material blockType = blockState.getType();
 		
 		clearInventory(blockState);
 		blockState.setType(data.getMaterial());
-		setBlockData(blockState, data.getState());
+		
+		if (data.getState() != null) {
+			setBlockData(blockState, data.getState());
+		}
 		
 		if (data.getInventory() != null) {
 			if (blockState instanceof InventoryHolder) {
@@ -204,6 +236,46 @@ public final class BlockUtil {
 					blockState.update(true, true);
 				}
 			}
+		}
+	}
+	
+	public static void breakNaturally(BlockState state, Location location, GameMode gameMode, ItemStack tool) {
+		if (state == null) {
+			throw new IllegalArgumentException("state cannot be null.");
+		}
+		if (location == null) {
+			throw new IllegalArgumentException("location cannot be null.");
+		}
+		if (gameMode == null) {
+			throw new IllegalArgumentException("gameMode cannot be null.");
+		}
+		
+		Material blockType = state.getType();
+		ItemStack[] items = null;
+		
+		if (state instanceof InventoryHolder) {
+			items = ((InventoryHolder) state).getInventory().getContents();
+		} else if (blockType == Material.FLOWER_POT) {
+			MaterialData currentItem = ((FlowerPot) state).getContents();
+			items = (currentItem != null) ? new ItemStack[] {currentItem.toItemStack()} : null;
+		} else if (blockType == Material.JUKEBOX) {
+			Material currentItem = ((Jukebox) state).getPlaying();
+			items = (currentItem != Material.AIR && currentItem != null) ? new ItemStack[] {new ItemStack(currentItem)} : null;
+		}
+		
+		if (gameMode == GameMode.CREATIVE) {
+			World blockWorld = location.getWorld();
+			
+			if (items != null) {
+				for (int i = 0; i < items.length; i++) {
+					blockWorld.dropItemNaturally(location, items[i]);
+				}
+			}
+			
+			setBlock(location, new BlockData(null, null, Material.AIR));
+		} else {
+			setBlock(location, new BlockData(items, state, blockType));
+			location.getBlock().breakNaturally(tool);
 		}
 	}
 	
