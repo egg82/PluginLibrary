@@ -15,6 +15,9 @@ public abstract class TickCommand extends SynchronousCommand {
 	public long getTicks() {
 		return ticks;
 	}
+	public void setTicks(long ticks) {
+		this.ticks = ticks;
+	}
 	
 	//private
 	

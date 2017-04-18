@@ -15,6 +15,12 @@ public abstract class EventCommand extends SynchronousCommand {
 	}
 	
 	//public
+	public Event getEvent() {
+		return event;
+	}
+	public void setEvent(Event event) {
+		this.event = event;
+	}
 	
 	//private
 	

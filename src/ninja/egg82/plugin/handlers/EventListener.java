@@ -26,6 +26,7 @@ import ninja.egg82.startup.InitRegistry;
 public final class EventListener implements Listener {
 	//vars
 	private HashMap<String, Class<? extends EventCommand>> events = new HashMap<String, Class<? extends EventCommand>>();
+	private HashMap<String, EventCommand> initializedEvents = new HashMap<String, EventCommand>();
 	
 	//constructor
 	public EventListener() {
@@ -39,16 +40,23 @@ public final class EventListener implements Listener {
 			throw new IllegalArgumentException("event cannot be null.");
 		}
 		
+		String key = event.getName();
+		
 		if (clazz == null) {
-			events.remove(event.getName());
+			// Remove event
+			initializedEvents.remove(key);
+			events.remove(key);
 		} else {
-			events.put(event.getName(), clazz);
+			// Add/Replace event
+			initializedEvents.remove(key);
+			events.put(key, clazz);
 		}
 	}
 	public synchronized boolean hasEvent(Class<? extends Event> event) {
 		return events.containsKey(event.getName());
 	}
 	public synchronized void clear() {
+		initializedEvents.clear();
 		events.clear();
 	}
 	
@@ -754,19 +762,31 @@ public final class EventListener implements Listener {
 	}
 	
 	//private
-	private synchronized void onAnyEvent(Event e) {
-		Class<? extends EventCommand> c = events.get(e.getClass().getName());
+	private synchronized void onAnyEvent(Event event) {
+		String key = event.getClass().getName();
 		
+		EventCommand run = initializedEvents.get(key);
+		Class<? extends EventCommand> c = events.get(key);
+		
+		// run might be null, but c will never be as long as the event actually exists
 		if (c == null) {
 			return;
 		}
 		
-		EventCommand run = null;
-		try {
-			run = c.getDeclaredConstructor(Event.class).newInstance(e);
-		} catch (Exception ex) {
-			return;
+		// Lazy initialize. No need to create an event that's never been used
+		if (run == null) {
+			// Create a new event and store it
+			try {
+				run = c.getDeclaredConstructor(Event.class).newInstance(event);
+			} catch (Exception ex) {
+				return;
+			}
+			initializedEvents.put(key, run);
+		} else {
+			// We already have the event initialized, no need to create a new one
+			run.setEvent(event);
 		}
+		
 		run.start();
 	}
 }
