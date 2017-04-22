@@ -19,9 +19,9 @@ public final class EntityUtil_1_8 implements IEntityUtil {
 		if (top == null) {
 			throw new IllegalArgumentException("top cannot be null.");
 		}
+		
 		bottom.setPassenger(top);
 	}
-	@SuppressWarnings("deprecation")
 	public void removePassenger(Entity bottom, Entity top) {
 		if (bottom == null) {
 			throw new IllegalArgumentException("bottom cannot be null.");
@@ -29,14 +29,15 @@ public final class EntityUtil_1_8 implements IEntityUtil {
 		if (top == null) {
 			throw new IllegalArgumentException("top cannot be null.");
 		}
-		bottom.setPassenger(null);
+		
+		bottom.eject();
 	}
-	@SuppressWarnings("deprecation")
 	public void removeAllPassengers(Entity bottom) {
 		if (bottom == null) {
 			throw new IllegalArgumentException("bottom cannot be null.");
 		}
-		bottom.setPassenger(null);
+		
+		bottom.eject();
 	}
 	
 	//private

@@ -3,6 +3,7 @@ package ninja.egg82.plugin.utils;
 import java.util.Arrays;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 
 import ninja.egg82.patterns.ServiceLocator;
@@ -17,6 +18,7 @@ import ninja.egg82.utils.ReflectUtil;
 
 public final class SpigotReflectUtil {
 	//vars
+	private static String serverVersion = null;
 	
 	//constructor
 	public SpigotReflectUtil() {
@@ -160,6 +162,18 @@ public final class SpigotReflectUtil {
 		((EventListener) ServiceLocator.getService(EventListener.class)).clear();
 		((PermissionsManager) ServiceLocator.getService(PermissionsManager.class)).clear();
 		((TickHandler) ServiceLocator.getService(TickHandler.class)).clear();
+	}
+	
+	public static Class<?> getNms(String className) {
+		if (serverVersion == null) {
+			serverVersion = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
+		}
+		
+		try {
+			return Class.forName("net.minecraft.server." + serverVersion + "." + className);
+		} catch (Exception ex) {
+			return null;
+		}
 	}
 	
 	//private

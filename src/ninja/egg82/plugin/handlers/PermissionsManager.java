@@ -49,6 +49,10 @@ public final class PermissionsManager {
 		manager.removePermission(p);
 	}
 	public synchronized boolean hasPermission(String permission) {
+		if (permission == null) {
+			return false;
+		}
+		
 		return permissions.containsKey(permission);
 	}
 	public synchronized void clear() {
@@ -60,7 +64,7 @@ public final class PermissionsManager {
 	
 	public synchronized boolean playerHasPermission(Player player, String permission) {
 		if (player == null) {
-			throw new IllegalArgumentException("player cannot be null.");
+			return false;
 		}
 		if (permission == null) {
 			return false;
