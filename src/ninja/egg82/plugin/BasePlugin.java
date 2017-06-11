@@ -13,7 +13,6 @@ import org.bukkit.scheduler.BukkitScheduler;
 import ninja.egg82.patterns.IRegistry;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.handlers.CommandHandler;
-import ninja.egg82.plugin.handlers.EventListener;
 import ninja.egg82.plugin.handlers.PermissionsManager;
 import ninja.egg82.plugin.handlers.TickHandler;
 import ninja.egg82.plugin.reflection.sound.SoundUtil;
@@ -25,6 +24,7 @@ import ninja.egg82.utils.ReflectUtil;
 public class BasePlugin extends JavaPlugin {
 	//vars
 	private CommandHandler commandHandler = null;
+	private String gameVersion = Bukkit.getVersion();
 	
 	//constructor
 	public BasePlugin() {
@@ -35,7 +35,6 @@ public class BasePlugin extends JavaPlugin {
 	public void onLoad() {
 		Start.init();
 		
-		String gameVersion = Bukkit.getVersion();
 		gameVersion = gameVersion.substring(gameVersion.indexOf('('));
 		gameVersion = gameVersion.substring(gameVersion.indexOf(' ') + 1, gameVersion.length() - 1);
 		
@@ -59,7 +58,7 @@ public class BasePlugin extends JavaPlugin {
 	}
 	
 	public void onEnable() {
-		ServiceLocator.provideService(EventListener.class, false);
+		reflect(gameVersion, "ninja.egg82.plugin.reflection.event", false);
 	}
 	public void onDisable() {
 		
@@ -75,6 +74,9 @@ public class BasePlugin extends JavaPlugin {
 	
 	//private
 	private void reflect(String version, String pkg) {
+		reflect(version, pkg, true);
+	}
+	private void reflect(String version, String pkg, boolean lazyInitialize) {
 		List<Class<?>> enums = ReflectUtil.getClasses(Object.class, pkg);
 		
 		// Sort by version, ascending
@@ -128,7 +130,7 @@ public class BasePlugin extends JavaPlugin {
 		}
 		
 		if (bestMatch != null) {
-			ServiceLocator.provideService(bestMatch);
+			ServiceLocator.provideService(bestMatch, lazyInitialize);
 		}
 	}
 }

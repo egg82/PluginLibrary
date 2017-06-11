@@ -11,9 +11,9 @@ import ninja.egg82.plugin.commands.EventCommand;
 import ninja.egg82.plugin.commands.PluginCommand;
 import ninja.egg82.plugin.commands.TickCommand;
 import ninja.egg82.plugin.handlers.CommandHandler;
-import ninja.egg82.plugin.handlers.EventListener;
 import ninja.egg82.plugin.handlers.PermissionsManager;
 import ninja.egg82.plugin.handlers.TickHandler;
+import ninja.egg82.plugin.reflection.event.IEventListener;
 import ninja.egg82.utils.ReflectUtil;
 
 public final class SpigotReflectUtil {
@@ -63,7 +63,7 @@ public final class SpigotReflectUtil {
 	public static int addEventsFromPackage(String packageName) {
 		int numEvents = 0;
 		
-		EventListener eventListener = (EventListener) ServiceLocator.getService(EventListener.class);
+		IEventListener eventListener = (IEventListener) ServiceLocator.getService(IEventListener.class);
 		
 		List<Class<? extends EventCommand>> enums = ReflectUtil.getClasses(EventCommand.class, packageName);
 		Class<? extends Event> c2 = null;
@@ -159,7 +159,7 @@ public final class SpigotReflectUtil {
 	
 	public static void clearAll() {
 		((CommandHandler) ServiceLocator.getService(CommandHandler.class)).clear();
-		((EventListener) ServiceLocator.getService(EventListener.class)).clear();
+		((IEventListener) ServiceLocator.getService(IEventListener.class)).clear();
 		((PermissionsManager) ServiceLocator.getService(PermissionsManager.class)).clear();
 		((TickHandler) ServiceLocator.getService(TickHandler.class)).clear();
 	}

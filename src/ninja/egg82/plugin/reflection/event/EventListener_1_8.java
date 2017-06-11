@@ -1,4 +1,4 @@
-package ninja.egg82.plugin.handlers;
+package ninja.egg82.plugin.reflection.event;
 
 import java.util.HashMap;
 
@@ -23,13 +23,13 @@ import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.commands.EventCommand;
 import ninja.egg82.startup.InitRegistry;
 
-public final class EventListener implements Listener {
+public final class EventListener_1_8 implements IEventListener, Listener {
 	//vars
 	private HashMap<String, Class<? extends EventCommand>> events = new HashMap<String, Class<? extends EventCommand>>();
 	private HashMap<String, EventCommand> initializedEvents = new HashMap<String, EventCommand>();
 	
 	//constructor
-	public EventListener() {
+	public EventListener_1_8() {
 		PluginManager pluginManager = (PluginManager) ((IRegistry) ServiceLocator.getService(InitRegistry.class)).getRegister("plugin.manager");
 		pluginManager.registerEvents(this, (JavaPlugin) ((IRegistry) ServiceLocator.getService(InitRegistry.class)).getRegister("plugin"));
 	}
