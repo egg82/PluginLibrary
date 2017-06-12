@@ -26,6 +26,7 @@ public final class PermissionsManager {
 			throw new IllegalArgumentException("permission cannot be null.");
 		}
 		
+		permission = permission.toLowerCase();
 		if (permissions.containsKey(permission)) {
 			return;
 		}
@@ -39,6 +40,7 @@ public final class PermissionsManager {
 			throw new IllegalArgumentException("permission cannot be null.");
 		}
 		
+		permission = permission.toLowerCase();
 		Permission p = permissions.get(permission);
 		
 		if (p == null) {
@@ -53,6 +55,7 @@ public final class PermissionsManager {
 			return false;
 		}
 		
+		permission = permission.toLowerCase();
 		return permissions.containsKey(permission);
 	}
 	public synchronized void clear() {
@@ -70,6 +73,7 @@ public final class PermissionsManager {
 			return false;
 		}
 		
+		permission = permission.toLowerCase();
 		Permission p = permissions.get(permission);
 		
 		if (p == null) {
