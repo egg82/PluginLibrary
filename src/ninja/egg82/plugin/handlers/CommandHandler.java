@@ -54,7 +54,7 @@ public final class CommandHandler {
 			return;
 		}
 		
-		// Lazy initialize. No need to create a command that's never been used
+		// Lazy initialize. No need to create a command until it's actually going to be used
 		if (run == null) {
 			// Create a new command and store it
 			try {
