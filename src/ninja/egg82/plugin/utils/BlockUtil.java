@@ -347,7 +347,7 @@ public final class BlockUtil {
 			((Dispenser) block).getInventory().setContents(((Dispenser) data).getInventory().getContents());
 		} else if (type == Material.DROPPER) {
 			((Dropper) block).getInventory().setContents(((Dropper) data).getInventory().getContents());
-		} else if (type == Material.END_GATEWAY) {
+		} else if (type.toString().equalsIgnoreCase("end_gateway")) {
 			EndGateway b1 = (EndGateway) block;
 			EndGateway b2 = (EndGateway) data;
 			b1.setExactTeleport(b2.isExactTeleport());
