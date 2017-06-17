@@ -109,8 +109,6 @@ public class BasePlugin extends JavaPlugin {
 		// Ascending order means it will naturally try to get the highest possible value (lowest->highest)
 		for (Class<?> c : enums) {
 			String name = c.getSimpleName();
-			String pkg2 = c.getName();
-			pkg2 = pkg2.substring(0, pkg2.lastIndexOf('.'));
 		    
 		    int[] reflectVersion = VersionUtil.parseVersion(name, '_');
 		    
@@ -118,9 +116,19 @@ public class BasePlugin extends JavaPlugin {
 		    // True makes the initial assumption that the current reflected version is correct
 		    boolean equalToOrLessThan = true;
 		    for (int i = 0; i < reflectVersion.length; i++) {
-		    	if (currentVersion.length <= i || reflectVersion[i] > currentVersion[i]) {
-		    		// We do not, in fact, have the correct version
+		    	if (currentVersion.length > i) {
+		    		if(reflectVersion[i] > currentVersion[i]) {
+		    			// We do not, in fact, have the correct version
+		    			equalToOrLessThan = false;
+		    			break;
+		    		} else if (currentVersion[i] > reflectVersion[i]) {
+		    			// We definitely have the correct version. At least until a better one comes along
+		    			break;
+		    		}
+		    	} else {
+		    		// Nope, this isn't the correct version
 		    		equalToOrLessThan = false;
+		    		break;
 		    	}
 		    }
 		    if (equalToOrLessThan) {
