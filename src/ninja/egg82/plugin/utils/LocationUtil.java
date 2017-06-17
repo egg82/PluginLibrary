@@ -13,13 +13,25 @@ public class LocationUtil {
 	}
 	
 	//public
+	public static Location getLocationInFront(Location loc, double distance) {
+		double angle = loc.getYaw();
+		
+		while (angle < 0.0d) {
+			angle += 360.0d;
+		}
+		while (angle > 360.0d) {
+			angle -= 360.0d;
+		}
+		
+		return new Location(loc.getWorld(), loc.getX() + (distance * Math.cos(angle)), loc.getY(), loc.getZ() + distance * (Math.sin(angle)));
+	}
 	public static Location getLocationBehind(Location loc, double distance) {
 		double angle = loc.getYaw() + 180.0d;
 		
 		while (angle < 0.0d) {
 			angle += 360.0d;
 		}
-		while (angle > 36.0d) {
+		while (angle > 360.0d) {
 			angle -= 360.0d;
 		}
 		
