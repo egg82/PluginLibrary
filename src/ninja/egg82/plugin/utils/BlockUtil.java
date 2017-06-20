@@ -102,14 +102,14 @@ public final class BlockUtil {
 		return new BlockData(null, blockState, blockType);
 	}
 	
-	public static void setBlock(Block block, BlockData data) {
+	public static void setBlock(Block block, BlockData data, boolean updateBlock) {
 		if (block == null) {
 			throw new IllegalArgumentException("block cannot be null.");
 		}
 		
-		setBlock(block.getLocation(), data);
+		setBlock(block.getLocation(), data, updateBlock);
 	}
-	public static void setBlock(Location location, BlockData data) {
+	public static void setBlock(Location location, BlockData data, boolean updateBlock) {
 		if (location == null) {
 			throw new IllegalArgumentException("location cannot be null.");
 		}
@@ -137,7 +137,7 @@ public final class BlockUtil {
 			}
 		}
 		
-		blockState.update(true, true);
+		blockState.update(true, updateBlock);
 	}
 	
 	public static List<BlockData> getBlocks(Location center, int xRadius, int yRadius, int zRadius) {
@@ -168,7 +168,7 @@ public final class BlockUtil {
 		
 		return blocks;
 	}
-	public static void setBlocks(List<BlockData> blocks, Location center, int xRadius, int yRadius, int zRadius) {
+	public static void setBlocks(List<BlockData> blocks, Location center, int xRadius, int yRadius, int zRadius, boolean updateBlocks) {
 		if (blocks == null) {
 			throw new IllegalArgumentException("blocks cannot be null.");
 		}
@@ -196,13 +196,13 @@ public final class BlockUtil {
 				currentLocation.setZ(z);
 				for (int y = minY; y <= maxY; y++) {
 					currentLocation.setY(y);
-					setBlock(currentLocation, blocks.get(i));
+					setBlock(currentLocation, blocks.get(i), updateBlocks);
 					i++;
 				}
 			}
 		}
 	}
-	public static void clearBlocks(Location center, Material clearMaterial, int xRadius, int yRadius, int zRadius) {
+	public static void clearBlocks(Location center, Material clearMaterial, int xRadius, int yRadius, int zRadius, boolean updateBlocks) {
 		if (center == null) {
 			throw new IllegalArgumentException("center cannot be null.");
 		}
@@ -233,13 +233,13 @@ public final class BlockUtil {
 					clearInventory(blockState);
 					blockState.setType(clearMaterial);
 					
-					blockState.update(true, true);
+					blockState.update(true, updateBlocks);
 				}
 			}
 		}
 	}
 	
-	public static void breakNaturally(BlockState state, Location location, GameMode gameMode, ItemStack tool) {
+	public static void breakNaturally(BlockState state, Location location, GameMode gameMode, ItemStack tool, boolean updateBlock) {
 		if (state == null) {
 			throw new IllegalArgumentException("state cannot be null.");
 		}
@@ -272,9 +272,9 @@ public final class BlockUtil {
 				}
 			}
 			
-			setBlock(location, new BlockData(null, null, Material.AIR));
+			setBlock(location, new BlockData(null, null, Material.AIR), updateBlock);
 		} else {
-			setBlock(location, new BlockData(items, state, blockType));
+			setBlock(location, new BlockData(items, state, blockType), updateBlock);
 			location.getBlock().breakNaturally(tool);
 		}
 	}
