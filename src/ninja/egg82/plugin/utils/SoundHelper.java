@@ -1,4 +1,4 @@
-package ninja.egg82.plugin.reflection.sound;
+package ninja.egg82.plugin.utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,12 +7,12 @@ import org.bukkit.Sound;
 
 import ninja.egg82.utils.ReflectUtil;
 
-public final class SoundUtil {
+public final class SoundHelper {
 	//vars
-	Sound[] sounds = null;
+	private Sound[] sounds = null;
 	
 	//constructor
-	public SoundUtil() {
+	public SoundHelper() {
 		Object[] enums = ReflectUtil.getStaticFields(Sound.class);
 		sounds = Arrays.copyOf(enums, enums.length, Sound[].class);
 	}
@@ -29,6 +29,8 @@ public final class SoundUtil {
 		if (filter == null) {
 			throw new IllegalArgumentException("filter cannot be null.");
 		}
+		
+		filter = filter.toLowerCase();
 		
 		ArrayList<Sound> filteredSounds = new ArrayList<Sound>();
 		
