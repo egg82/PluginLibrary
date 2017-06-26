@@ -21,34 +21,38 @@ public abstract class PluginCommand extends SynchronousCommand {
 	}
 	
 	//public
-	public CommandSender getSender() {
+	public final CommandSender getSender() {
 		return sender;
 	}
-	public void setSender(CommandSender sender) {
+	public final void setSender(CommandSender sender) {
 		this.sender = sender;
 	}
 	
-	public org.bukkit.command.Command getCommand() {
+	public final org.bukkit.command.Command getCommand() {
 		return command;
 	}
-	public void setCommand(org.bukkit.command.Command command) {
+	public final void setCommand(org.bukkit.command.Command command) {
 		this.command = command;
 	}
 	
-	public String getLabel() {
+	public final String getLabel() {
 		return label;
 	}
-	public void setLabel(String label) {
+	public final void setLabel(String label) {
 		this.label = label;
 	}
 	
-	public String[] getArgs() {
+	public final String[] getArgs() {
 		return args;
 	}
-	public void setArgs(String[] args) {
+	public final void setArgs(String[] args) {
 		this.args = args;
 	}
 	
-	//private
+	public final void undo() {
+		onUndo();
+	}
 	
+	//private
+	protected abstract void onUndo();
 }
