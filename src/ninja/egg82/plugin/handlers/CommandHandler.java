@@ -73,6 +73,13 @@ public final class CommandHandler {
 		
 		run.start();
 	}
+	public synchronized void undoInitializedCommands(CommandSender sender, String[] args) {
+		initializedCommands.forEach((k, run) -> {
+			run.setSender(sender);
+			run.setArgs(args);
+			run.undo();
+		});
+	}
 	
 	//private
 	
