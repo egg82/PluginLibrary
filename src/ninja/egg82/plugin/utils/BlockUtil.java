@@ -46,6 +46,7 @@ public final class BlockUtil {
 		}
 		
 		l = l.clone();
+		l.setY(l.getBlockY());
 		
 		do {
 			while (l.getBlock().getType() != Material.AIR) {
@@ -60,6 +61,34 @@ public final class BlockUtil {
 		l.subtract(0.0d, 1.0d, 0.0d);
 		
 		while (l.subtract(0.0d, 1.0d, 0.0d).getBlock().getType() == Material.AIR) {
+			
+		}
+		
+		l.add(0.0d, 1.0d, 0.0d);
+		
+		return l;
+	}
+	public static Location getTopWalkableBlock(Location l) {
+		if (l == null) {
+			throw new IllegalArgumentException("l cannot be null.");
+		}
+		
+		l = l.clone();
+		l.setY(l.getBlockY());
+		
+		do {
+			while (l.getBlock().getType().isSolid()) {
+				l = l.add(0.0d, 1.0d, 0.0d);
+			}
+			while (l.add(0.0d, 1.0d, 0.0d).getBlock().getType().isSolid()) {
+				
+			} 
+			l.subtract(0.0d, 1.0d, 0.0d);
+		} while (l.getBlock().getType().isSolid() || l.add(0.0d, 1.0d, 0.0d).getBlock().getType().isSolid());
+		
+		l.subtract(0.0d, 1.0d, 0.0d);
+		
+		while (!l.subtract(0.0d, 1.0d, 0.0d).getBlock().getType().isSolid()) {
 			
 		}
 		

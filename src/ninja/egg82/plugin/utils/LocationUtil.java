@@ -37,6 +37,10 @@ public class LocationUtil {
 		
 		return new Location(loc.getWorld(), loc.getX() + (distance * Math.cos(angle)), loc.getY(), loc.getZ() + distance * (Math.sin(angle)));
 	}
+	public static Location getRandomPointAround(Location loc, double radius) {
+		double angle = Math.random() * Math.PI * 2.0d;
+		return new Location(loc.getWorld(), loc.getX() + radius * Math.cos(angle), loc.getY(), loc.getZ() + radius * Math.sin(angle));
+	}
 	public static Location[] getCircleAround(Location loc, double radius, int numPoints) {
 		Location[] retVal = new Location[numPoints];
 		double piSlice = 2.0d * Math.PI / numPoints;

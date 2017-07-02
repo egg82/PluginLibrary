@@ -1,6 +1,9 @@
 package ninja.egg82.plugin.reflection.entity;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Damageable;
@@ -13,11 +16,12 @@ import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableMap;
 
-public final class EntityUtil_1_11_2 implements IEntityUtil {
+@SuppressWarnings("deprecation")
+public final class EntityHelper_1_8 implements IEntityHelper {
 	//vars
-
+	
 	//constructor
-	public EntityUtil_1_11_2() {
+	public EntityHelper_1_8() {
 		
 	}
 	
@@ -30,7 +34,7 @@ public final class EntityUtil_1_11_2 implements IEntityUtil {
 			throw new IllegalArgumentException("top cannot be null.");
 		}
 		
-		bottom.addPassenger(top);
+		bottom.setPassenger(top);
 	}
 	public void removePassenger(Entity bottom, Entity top) {
 		if (bottom == null) {
@@ -40,7 +44,7 @@ public final class EntityUtil_1_11_2 implements IEntityUtil {
 			throw new IllegalArgumentException("top cannot be null.");
 		}
 		
-		bottom.removePassenger(top);
+		bottom.eject();
 	}
 	public void removeAllPassengers(Entity bottom) {
 		if (bottom == null) {
@@ -49,9 +53,10 @@ public final class EntityUtil_1_11_2 implements IEntityUtil {
 		
 		bottom.eject();
 	}
+	public List<Entity> getPassengers(Entity bottom) {
+		return new ArrayList<Entity>(Arrays.asList(bottom.getPassenger()));
+	}
 	
-	// There is literally no other way to do this right now. Everything is deprecated.
-	// When a future version of Bukkit comes out and has a non-deprecated way, a new class will be made for that version
 	public void damage(Damageable to, DamageCause cause, double damage) {
 		EntityDamageEvent damageEvent = new EntityDamageEvent(to, cause, new EnumMap<DamageModifier, Double>(ImmutableMap.of(DamageModifier.BASE, damage)), new EnumMap<DamageModifier, Function<? super Double, Double>>(ImmutableMap.of(DamageModifier.BASE, Functions.constant(damage))));
 		Bukkit.getPluginManager().callEvent(damageEvent);
@@ -66,5 +71,4 @@ public final class EntityUtil_1_11_2 implements IEntityUtil {
 	}
 	
 	//private
-	
 }

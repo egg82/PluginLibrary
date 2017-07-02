@@ -15,6 +15,10 @@ import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.handlers.CommandHandler;
 import ninja.egg82.plugin.handlers.PermissionsManager;
 import ninja.egg82.plugin.handlers.TickHandler;
+import ninja.egg82.plugin.reflection.protocol.NullFakeBlockHelper;
+import ninja.egg82.plugin.reflection.protocol.NullFakeEntityHelper;
+import ninja.egg82.plugin.reflection.protocol.ProtocolLibFakeBlockHelper;
+import ninja.egg82.plugin.reflection.protocol.ProtocolLibFakeEntityHelper;
 import ninja.egg82.plugin.utils.EntityTypeHelper;
 import ninja.egg82.plugin.utils.MaterialHelper;
 import ninja.egg82.plugin.utils.PotionEffectTypeHelper;
@@ -55,6 +59,16 @@ public class BasePlugin extends JavaPlugin {
 		ServiceLocator.provideService(PotionEffectTypeHelper.class);
 		reflect(gameVersion, "ninja.egg82.plugin.reflection.player");
 		reflect(gameVersion, "ninja.egg82.plugin.reflection.entity");
+		reflect(gameVersion, "ninja.egg82.plugin.reflection.protocol.wrappers.entityLiving");
+		reflect(gameVersion, "ninja.egg82.plugin.reflection.protocol.wrappers.block");
+		
+		if (getServer().getPluginManager().getPlugin("ProtocolLib") != null) {
+			ServiceLocator.provideService(ProtocolLibFakeEntityHelper.class);
+			ServiceLocator.provideService(ProtocolLibFakeBlockHelper.class);
+		} else {
+			ServiceLocator.provideService(NullFakeEntityHelper.class);
+			ServiceLocator.provideService(NullFakeBlockHelper.class);
+		}
 		
 		ServiceLocator.provideService(PermissionsManager.class, false);
 		ServiceLocator.provideService(CommandHandler.class, false);
