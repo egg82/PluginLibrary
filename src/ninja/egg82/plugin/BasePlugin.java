@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginManager;
@@ -15,6 +16,9 @@ import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.handlers.CommandHandler;
 import ninja.egg82.plugin.handlers.PermissionsManager;
 import ninja.egg82.plugin.handlers.TickHandler;
+import ninja.egg82.plugin.reflection.nbt.NBTAPIHelper;
+import ninja.egg82.plugin.reflection.nbt.NullNBTHelper;
+import ninja.egg82.plugin.reflection.nbt.PowerNBTHelper;
 import ninja.egg82.plugin.reflection.protocol.NullFakeBlockHelper;
 import ninja.egg82.plugin.reflection.protocol.NullFakeEntityHelper;
 import ninja.egg82.plugin.reflection.protocol.ProtocolLibFakeBlockHelper;
@@ -32,6 +36,8 @@ public class BasePlugin extends JavaPlugin {
 	//vars
 	private CommandHandler commandHandler = null;
 	private String gameVersion = Bukkit.getVersion();
+	private Logger logger = null;
+	private CommandSender consoleSender = null;
 	
 	//constructor
 	public BasePlugin() {
@@ -40,10 +46,16 @@ public class BasePlugin extends JavaPlugin {
 	
 	//public
 	public void onLoad() {
+		logger = getLogger();
+		consoleSender = this.getServer().getConsoleSender();
+		
 		Start.init();
+		
+		PluginManager manager = getServer().getPluginManager();
 		
 		gameVersion = gameVersion.substring(gameVersion.indexOf('('));
 		gameVersion = gameVersion.substring(gameVersion.indexOf(' ') + 1, gameVersion.length() - 1);
+		gameVersion = gameVersion.trim().replace('_', '.');
 		
 		IRegistry initRegistry = (IRegistry) ServiceLocator.getService(InitRegistry.class);
 		initRegistry.setRegister("game.version", String.class, gameVersion);
@@ -62,12 +74,20 @@ public class BasePlugin extends JavaPlugin {
 		reflect(gameVersion, "ninja.egg82.plugin.reflection.protocol.wrappers.entityLiving");
 		reflect(gameVersion, "ninja.egg82.plugin.reflection.protocol.wrappers.block");
 		
-		if (getServer().getPluginManager().getPlugin("ProtocolLib") != null) {
+		if (manager.getPlugin("ProtocolLib") != null) {
 			ServiceLocator.provideService(ProtocolLibFakeEntityHelper.class);
 			ServiceLocator.provideService(ProtocolLibFakeBlockHelper.class);
 		} else {
 			ServiceLocator.provideService(NullFakeEntityHelper.class);
 			ServiceLocator.provideService(NullFakeBlockHelper.class);
+		}
+		
+		if (manager.getPlugin("PowerNBT") != null) {
+			ServiceLocator.provideService(PowerNBTHelper.class);
+		} else if (manager.getPlugin("ItemNBTAPI") != null) {
+			ServiceLocator.provideService(NBTAPIHelper.class);
+		} else {
+			ServiceLocator.provideService(NullNBTHelper.class);
 		}
 		
 		ServiceLocator.provideService(PermissionsManager.class, false);
@@ -93,6 +113,40 @@ public class BasePlugin extends JavaPlugin {
 	}
 	
 	//private
+	protected final void info(String message) {
+		if (consoleSender == null) {
+			consoleSender = getServer().getConsoleSender();
+		}
+		
+		if (consoleSender != null) {
+			consoleSender.sendMessage(ChatColor.GRAY + "[INFO] " + ChatColor.RESET + message);
+		} else {
+			logger.info(message);
+		}
+	}
+	protected final void warning(String message) {
+		if (consoleSender == null) {
+			consoleSender = getServer().getConsoleSender();
+		}
+		
+		if (consoleSender != null) {
+			consoleSender.sendMessage(ChatColor.YELLOW + "[WARN] " + ChatColor.RESET + message);
+		} else {
+			logger.warning(message);
+		}
+	}
+	protected final void error(String message) {
+		if (consoleSender == null) {
+			consoleSender = getServer().getConsoleSender();
+		}
+		
+		if (consoleSender != null) {
+			consoleSender.sendMessage(ChatColor.RED + "[ERROR] " + ChatColor.RESET + message);
+		} else {
+			logger.severe(message);
+		}
+	}
+	
 	private void reflect(String version, String pkg) {
 		reflect(version, pkg, true);
 	}

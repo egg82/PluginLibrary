@@ -75,7 +75,7 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 		if (!players.contains(uuid)) {
 			packetHelper.send(spawnPacket, player);
 			// Bit of a hack since the spawn packet for 1.8 seems to always spawn at 0,0,0 regardless of input
-			if (gameVersion == "1.8" || gameVersion == "1.8.3" || gameVersion == "1.8.8") {
+			if (gameVersion == "1.8" || gameVersion == "1.8.1" || gameVersion == "1.8.3" || gameVersion == "1.8.8") {
 				packetHelper.send(teleportSpawnPacket, player);
 			}
 			players.add(uuid);
