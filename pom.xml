@@ -27,6 +27,12 @@
             </goals>
             <configuration>
               <minimizeJar>true</minimizeJar>
+              <relocations>
+                <relocation>
+                  <pattern>org.apache</pattern>
+                  <shadedPattern>ninja.egg82.lib.org.apache</shadedPattern>
+                </relocation>
+              </relocations>
               <filters>
                 <filter>
                   <artifact>*:*</artifact>
@@ -57,10 +63,10 @@
       <id>spigot-repo</id>
       <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
     </repository>
-    <!--<repository>
+    <repository>
       <id>egg82-ninja</id>
-      <url>https://www.egg82.ninja/repo/minecraft/libs/</url>
-    </repository>-->
+      <url>https://www.myget.org/F/egg82-java/maven/</url>
+    </repository>
     <repository>
       <id>dmulloy2-repo</id>
       <url>http://repo.dmulloy2.net/content/groups/public/</url>

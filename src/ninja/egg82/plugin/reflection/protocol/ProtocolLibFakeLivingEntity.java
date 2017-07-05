@@ -173,14 +173,14 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 	
 	public void collide(List<IFakeLivingEntity> entities) {
 		for (IFakeLivingEntity e : entities) {
-			if (currentLocation.distance(e.getLocation()) < 0.75d) {
+			if (currentLocation.distanceSquared(e.getLocation()) < 0.5625d) { //0.75^2
 				moveTo(currentLocation.clone().subtract(e.getLocation().toVector().subtract(currentLocation.toVector()).multiply(0.25d)));
 				e.moveTo(e.getLocation().subtract(currentLocation.toVector().subtract(e.getLocation().toVector()).multiply(0.25d)));
 			}
 		}
 	}
 	public void collide(IFakeLivingEntity entity) {
-		if (currentLocation.distance(entity.getLocation()) < 0.75d) {
+		if (currentLocation.distanceSquared(entity.getLocation()) < 0.5625d) { //0.75^2
 			moveTo(currentLocation.clone().subtract(entity.getLocation().toVector().subtract(currentLocation.toVector()).multiply(0.25d)));
 			entity.moveTo(entity.getLocation().subtract(currentLocation.toVector().subtract(entity.getLocation().toVector()).multiply(0.25d)));
 		}

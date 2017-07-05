@@ -65,16 +65,10 @@ public class LocationUtil {
 	}
 	
 	public static boolean areEqualXYZ(Location from, Location to) {
-		if (from.getX() != to.getX()) {
-			return false;
-		}
-		if (from.getY() != to.getY()) {
-			return false;
-		}
-		if (from.getZ() != to.getZ()) {
-			return false;
-		}
-		return true;
+		return areEqualXYZ(from, to, 0.0d);
+	}
+	public static boolean areEqualXYZ(Location from, Location to, double epsilon) {
+		return (from.distanceSquared(to) > epsilon * epsilon) ? false : true;
 	}
 	public static Location makeEqualXYZ(Location from, Location to) {
 		to = to.clone();
