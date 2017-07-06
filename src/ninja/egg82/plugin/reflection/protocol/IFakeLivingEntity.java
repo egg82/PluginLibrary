@@ -1,6 +1,6 @@
 package ninja.egg82.plugin.reflection.protocol;
 
-import java.util.List;
+import java.util.ArrayDeque;
 import java.util.UUID;
 
 import org.bukkit.Location;
@@ -21,7 +21,7 @@ public interface IFakeLivingEntity {
 	void animate(int animationId);
 	void attack(Damageable entity, double damage);
 	
-	void collide(List<IFakeLivingEntity> entities);
+	void collide(ArrayDeque<IFakeLivingEntity> entities);
 	void collide(IFakeLivingEntity entity);
 	
 	int getId();

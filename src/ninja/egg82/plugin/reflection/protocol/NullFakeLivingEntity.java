@@ -1,6 +1,6 @@
 package ninja.egg82.plugin.reflection.protocol;
 
-import java.util.List;
+import java.util.ArrayDeque;
 import java.util.UUID;
 
 import org.bukkit.Location;
@@ -49,7 +49,7 @@ public class NullFakeLivingEntity implements IFakeLivingEntity {
 		
 	}
 	
-	public void collide(List<IFakeLivingEntity> entities) {
+	public void collide(ArrayDeque<IFakeLivingEntity> entities) {
 		
 	}
 	public void collide(IFakeLivingEntity entity) {

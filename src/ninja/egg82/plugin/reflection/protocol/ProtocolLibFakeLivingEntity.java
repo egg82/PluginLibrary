@@ -1,7 +1,6 @@
 package ninja.egg82.plugin.reflection.protocol;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayDeque;
 import java.util.UUID;
 
 import org.bukkit.GameMode;
@@ -44,7 +43,7 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 	
 	private long lastAttackTime = -1L;
 	
-	private ArrayList<String> players = new ArrayList<String>();
+	private ArrayDeque<String> players = new ArrayDeque<String>();
 	
 	//constructor
 	public ProtocolLibFakeLivingEntity(Location loc, EntityType type) {
@@ -90,8 +89,8 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 		}
 	}
 	public void removeAllPlayers() {
-		for (int i = 0; i < players.size(); i++) {
-			packetHelper.send(destroyPacket, CommandUtil.getPlayerByUuid(players.get(i)));
+		for (String uuid : players) {
+			packetHelper.send(destroyPacket, CommandUtil.getPlayerByUuid(uuid));
 		}
 		players.clear();
 	}
@@ -113,9 +112,9 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 		currentLocation.setPitch(pitch);
 		currentLocation.setYaw(yaw);
 		
-		for (int i = 0; i < players.size(); i++) {
-			packetHelper.send(lookPacket, CommandUtil.getPlayerByUuid(players.get(i)));
-			packetHelper.send(headLookPacket, CommandUtil.getPlayerByUuid(players.get(i)));
+		for (String uuid : players) {
+			packetHelper.send(lookPacket, CommandUtil.getPlayerByUuid(uuid));
+			packetHelper.send(headLookPacket, CommandUtil.getPlayerByUuid(uuid));
 		}
 	}
 	public void moveTo(Location loc) {
@@ -127,8 +126,8 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 		
 		currentLocation = LocationUtil.makeEqualXYZ(loc, currentLocation);
 		
-		for (int i = 0; i < players.size(); i++) {
-			packetHelper.send(movePacket, CommandUtil.getPlayerByUuid(players.get(i)));
+		for (String uuid : players) {
+			packetHelper.send(movePacket, CommandUtil.getPlayerByUuid(uuid));
 		}
 	}
 	public void teleportTo(Location loc) {
@@ -140,8 +139,8 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 		
 		currentLocation = loc.clone();
 		
-		for (int i = 0; i < players.size(); i++) {
-			packetHelper.send(teleportPacket, CommandUtil.getPlayerByUuid(players.get(i)));
+		for (String uuid : players) {
+			packetHelper.send(teleportPacket, CommandUtil.getPlayerByUuid(uuid));
 		}
 	}
 	public Location getLocation() {
@@ -150,8 +149,8 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 	
 	public void animate(int animationId) {
 		PacketContainer animatePacket = packetHelper.animate(id, animationId);
-		for (int i = 0; i < players.size(); i++) {
-			packetHelper.send(animatePacket, CommandUtil.getPlayerByUuid(players.get(i)));
+		for (String uuid : players) {
+			packetHelper.send(animatePacket, CommandUtil.getPlayerByUuid(uuid));
 		}
 	}
 	public void attack(Damageable entity, double damage) {
@@ -171,7 +170,7 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 		}
 	}
 	
-	public void collide(List<IFakeLivingEntity> entities) {
+	public void collide(ArrayDeque<IFakeLivingEntity> entities) {
 		for (IFakeLivingEntity e : entities) {
 			if (currentLocation.distanceSquared(e.getLocation()) < 0.5625d) { //0.75^2
 				moveTo(currentLocation.clone().subtract(e.getLocation().toVector().subtract(currentLocation.toVector()).multiply(0.25d)));
