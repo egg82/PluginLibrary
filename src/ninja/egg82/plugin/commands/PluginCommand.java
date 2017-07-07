@@ -1,5 +1,8 @@
 package ninja.egg82.plugin.commands;
 
+import java.util.List;
+
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
 import ninja.egg82.patterns.SynchronousCommand;
@@ -51,6 +54,10 @@ public abstract class PluginCommand extends SynchronousCommand {
 	
 	public final void undo() {
 		onUndo();
+	}
+	
+	public List<String> tabComplete(CommandSender sender, Command command, String label, String[] args) {
+		return null;
 	}
 	
 	//private

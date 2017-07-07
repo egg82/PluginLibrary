@@ -111,6 +111,9 @@ public class BasePlugin extends JavaPlugin {
 		}
 		return false;
 	}
+	public final List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+		return commandHandler.tabComplete(sender, command, label, args);
+	}
 	
 	//private
 	protected final void info(String message) {

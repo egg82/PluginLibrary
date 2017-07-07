@@ -1,6 +1,7 @@
 package ninja.egg82.plugin.handlers;
 
 import java.util.HashMap;
+import java.util.List;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -79,6 +80,30 @@ public final class CommandHandler {
 			run.setArgs(args);
 			run.undo();
 		});
+	}
+	public synchronized List<String> tabComplete(CommandSender sender, Command command, String label, String[] args) {
+		String key = command.getName().toLowerCase();
+		
+		PluginCommand run = initializedCommands.get(key);
+		Class<? extends PluginCommand> c = commands.get(key);
+		
+		// run might be null, but c will never be as long as the command actually exists
+		if (c == null) {
+			return null;
+		}
+		
+		// Lazy initialize. No need to create a command until it's actually going to be used
+		if (run == null) {
+			// Create a new command and store it
+			try {
+				run = c.getDeclaredConstructor(CommandSender.class, Command.class, String.class, String[].class).newInstance(sender, command, label, args);
+			} catch (Exception ex) {
+				return null;
+			}
+			initializedCommands.put(key, run);
+		}
+		
+		return run.tabComplete(sender, command, label, args);
 	}
 	
 	//private
