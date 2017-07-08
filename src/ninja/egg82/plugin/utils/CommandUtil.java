@@ -208,7 +208,7 @@ public final class CommandUtil {
 			Map<String, String> args = getArguments(symbol.substring(beginArgs + 1, endArgs).trim());
 			ArrayList<Entity> retVal = new ArrayList<Entity>(Bukkit.getOnlinePlayers());
 			
-			filter(retVal, loc, args);
+			filter(retVal, loc, args, false);
 			
 			return retVal;
 		} else {
@@ -231,7 +231,7 @@ public final class CommandUtil {
 				retVal.addAll(w.getEntities());
 			}
 			
-			filter(retVal, loc, args);
+			filter(retVal, loc, args, false);
 			
 			return retVal;
 		} else {
@@ -264,7 +264,7 @@ public final class CommandUtil {
 				return Double.compare(a.getLocation().distanceSquared(loc), b.getLocation().distanceSquared(loc));
 			});
 			
-			filter(retVal, loc, args);
+			filter(retVal, loc, args, true);
 			
 			return retVal;
 		} else {
@@ -302,7 +302,7 @@ public final class CommandUtil {
 			
 			Collections.shuffle(retVal);
 			
-			filter(retVal, loc, args);
+			filter(retVal, loc, args, true);
 			
 			return retVal;
 		} else {
@@ -331,7 +331,7 @@ public final class CommandUtil {
 		
 		return retVal;
 	}
-	private static void filter(List<Entity> list, Location commandLocation, Map<String, String> args) {
+	private static void filter(List<Entity> list, Location commandLocation, Map<String, String> args, boolean onlyPlayersWithoutType) {
 		Integer x = null;
 		try {
 			x = Integer.parseInt(args.get("x"));
@@ -541,7 +541,7 @@ public final class CommandUtil {
 				removalList.add(entity);
 				continue;
 			}
-			if (!eType(entity.getType().name(), type)) {
+			if (!eType(entity.getType().name(), type, onlyPlayersWithoutType)) {
 				removalList.add(entity);
 				continue;
 			}
@@ -831,8 +831,8 @@ public final class CommandUtil {
 		
 		return true;
 	}
-	private static boolean eType(String entityType, String type) {
-		if (type == null) {
+	private static boolean eType(String entityType, String type, boolean onlyPlayersWithoutType) {
+		if (onlyPlayersWithoutType && type == null) {
 			if (entityType != "PLAYER") {
 				return false;
 			}

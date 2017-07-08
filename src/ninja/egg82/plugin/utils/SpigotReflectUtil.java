@@ -2,6 +2,7 @@ package ninja.egg82.plugin.utils;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
@@ -35,6 +36,9 @@ public final class SpigotReflectUtil {
 	}
 	
 	public static int addCommandsFromPackage(String packageName) {
+		return addCommandsFromPackage(packageName, null);
+	}
+	public static int addCommandsFromPackage(String packageName, Map<String, String[]> aliasMap) {
 		int numCommands = 0;
 		
 		CommandHandler commandHandler = (CommandHandler) ServiceLocator.getService(CommandHandler.class);
@@ -53,7 +57,7 @@ public final class SpigotReflectUtil {
 			}
 			
 			numCommands++;
-			commandHandler.setCommand(name.substring(0, name.length() - 7).toLowerCase(), c);
+			commandHandler.setCommand(name.substring(0, name.length() - 7).toLowerCase(), c, (aliasMap != null) ? aliasMap.get(name) : null);
 		}
 		
 		return numCommands;
