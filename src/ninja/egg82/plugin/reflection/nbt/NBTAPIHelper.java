@@ -19,7 +19,7 @@ public class NBTAPIHelper implements INBTHelper {
 	//public
 	public void addTag(ItemStack stack, String name, Object data) {
 		if (stack == null) {
-			return;
+			throw new RuntimeException("stack cannot be null.");
 		}
 		if (name == null) {
 			throw new RuntimeException("name cannot be null.");
@@ -30,7 +30,7 @@ public class NBTAPIHelper implements INBTHelper {
 	}
 	public void addTag(Entity entity, String name, Object data) {
 		if (entity == null) {
-			return;
+			throw new RuntimeException("entity cannot be null.");
 		}
 		if (name == null) {
 			throw new RuntimeException("name cannot be null.");
@@ -45,7 +45,7 @@ public class NBTAPIHelper implements INBTHelper {
 	
 	public void removeTag(ItemStack stack, String name) {
 		if (stack == null) {
-			return;
+			throw new RuntimeException("stack cannot be null.");
 		}
 		if (name == null) {
 			throw new RuntimeException("name cannot be null.");
@@ -56,7 +56,7 @@ public class NBTAPIHelper implements INBTHelper {
 	}
 	public void removeTag(Entity entity, String name) {
 		if (entity == null) {
-			return;
+			throw new RuntimeException("entity cannot be null.");
 		}
 		if (name == null) {
 			throw new RuntimeException("name cannot be null.");
@@ -97,10 +97,10 @@ public class NBTAPIHelper implements INBTHelper {
 	
 	public Object getTag(ItemStack stack, String name) {
 		if (stack == null) {
-			return null;
+			throw new RuntimeException("stack cannot be null.");
 		}
 		if (name == null) {
-			return null;
+			throw new RuntimeException("name cannot be null.");
 		}
 		
 		NBTItem nbt = new NBTItem(stack);
@@ -108,10 +108,10 @@ public class NBTAPIHelper implements INBTHelper {
 	}
 	public Object getTag(Entity entity, String name) {
 		if (entity == null) {
-			return null;
+			throw new RuntimeException("entity cannot be null.");
 		}
 		if (name == null) {
-			return null;
+			throw new RuntimeException("name cannot be null.");
 		}
 		
 		NBTEntity nbt = new NBTEntity(entity);

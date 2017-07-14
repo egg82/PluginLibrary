@@ -19,7 +19,7 @@ import ninja.egg82.utils.ReflectUtil;
 
 public final class SpigotReflectUtil {
 	//vars
-	private static String serverVersion = null;
+	private static String gameVersion = null;
 	
 	//constructor
 	public SpigotReflectUtil() {
@@ -41,11 +41,11 @@ public final class SpigotReflectUtil {
 	public static int addCommandsFromPackage(String packageName, Map<String, String[]> aliasMap) {
 		int numCommands = 0;
 		
-		CommandHandler commandHandler = (CommandHandler) ServiceLocator.getService(CommandHandler.class);
+		CommandHandler commandHandler = ServiceLocator.getService(CommandHandler.class);
 		
 		List<Class<? extends PluginCommand>> enums = ReflectUtil.getClasses(PluginCommand.class, packageName);
 		for (Class<? extends PluginCommand> c : enums) {
-			String name = c.getSimpleName();
+			String name = c.getSimpleName().toLowerCase();
 			String pkg = c.getName();
 			pkg = pkg.substring(0, pkg.lastIndexOf('.'));
 			
@@ -57,7 +57,7 @@ public final class SpigotReflectUtil {
 			}
 			
 			numCommands++;
-			commandHandler.setCommand(name.substring(0, name.length() - 7).toLowerCase(), c, (aliasMap != null) ? aliasMap.get(name) : null);
+			commandHandler.setCommand((name.substring(name.length() - 7).equals("command")) ? name.substring(0, name.length() - 7) : name, c, (aliasMap != null) ? aliasMap.get(name) : null);
 		}
 		
 		return numCommands;
@@ -67,12 +67,12 @@ public final class SpigotReflectUtil {
 	public static int addEventsFromPackage(String packageName) {
 		int numEvents = 0;
 		
-		IEventListener eventListener = (IEventListener) ServiceLocator.getService(IEventListener.class);
+		IEventListener eventListener = ServiceLocator.getService(IEventListener.class);
 		
 		List<Class<? extends EventCommand>> enums = ReflectUtil.getClasses(EventCommand.class, packageName);
 		Class<? extends Event> c2 = null;
 		for (Class<? extends EventCommand> c : enums) {
-			String name = c.getSimpleName();
+			String name = c.getSimpleName().toLowerCase();
 			String pkg = c.getName();
 			pkg = pkg.substring(0, pkg.lastIndexOf('.'));
 			
@@ -83,7 +83,7 @@ public final class SpigotReflectUtil {
 				continue;
 			}
 			
-			String eventName = name.substring(0, name.length() - 7);
+			String eventName = (name.substring(name.length() - 7).equals("command")) ? name.substring(0, name.length() - 7) : name;
 			
 			c2 = null;
 			c2 = (Class<? extends Event>) ReflectUtil.getClassFromName("org.bukkit.event.block." + eventName);
@@ -128,7 +128,7 @@ public final class SpigotReflectUtil {
 	public static int addPermissionsFromClass(Class<?> clazz) {
 		int numPermissions = 0;
 		
-		PermissionsManager permissionsManager = (PermissionsManager) ServiceLocator.getService(PermissionsManager.class);
+		PermissionsManager permissionsManager = ServiceLocator.getService(PermissionsManager.class);
 		
 		Object[] enums = ReflectUtil.getStaticFields(clazz);
 		String[] permissions = Arrays.copyOf(enums, enums.length, String[].class);
@@ -143,7 +143,7 @@ public final class SpigotReflectUtil {
 	public static int addTicksFromPackage(String packageName) {
 		int numTicks = 0;
 		
-		TickHandler tickHandler = (TickHandler) ServiceLocator.getService(TickHandler.class);
+		TickHandler tickHandler = ServiceLocator.getService(TickHandler.class);
 		
 		List<Class<? extends TickCommand>> enums = ReflectUtil.getClasses(TickCommand.class, packageName);
 		for (Class<? extends TickCommand> t : enums) {
@@ -162,19 +162,19 @@ public final class SpigotReflectUtil {
 	}
 	
 	public static void clearAll() {
-		((CommandHandler) ServiceLocator.getService(CommandHandler.class)).clear();
-		((IEventListener) ServiceLocator.getService(IEventListener.class)).clear();
-		((PermissionsManager) ServiceLocator.getService(PermissionsManager.class)).clear();
-		((TickHandler) ServiceLocator.getService(TickHandler.class)).clear();
+		ServiceLocator.getService(CommandHandler.class).clear();
+		ServiceLocator.getService(IEventListener.class).clear();
+		ServiceLocator.getService(PermissionsManager.class).clear();
+		ServiceLocator.getService(TickHandler.class).clear();
 	}
 	
 	public static Class<?> getNms(String className) {
-		if (serverVersion == null) {
-			serverVersion = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
+		if (gameVersion == null) {
+			gameVersion = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
 		}
 		
 		try {
-			return Class.forName("net.minecraft.server." + serverVersion + "." + className);
+			return Class.forName("net.minecraft.server." + gameVersion + "." + className);
 		} catch (Exception ex) {
 			return null;
 		}

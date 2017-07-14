@@ -19,12 +19,11 @@ public final class PlayerHelper_1_8 implements IPlayerHelper {
 		}
 		return player.getItemInHand();
 	}
-	@SuppressWarnings("deprecation")
 	public ItemStack getItemInOffHand(Player player) {
 		if (player == null) {
 			throw new IllegalArgumentException("player cannot be null.");
 		}
-		return player.getItemInHand();
+		return null;
 	}
 	@SuppressWarnings("deprecation")
 	public void setItemInMainHand(Player player, ItemStack item) {

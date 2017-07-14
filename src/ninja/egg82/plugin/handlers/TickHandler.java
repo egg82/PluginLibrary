@@ -5,7 +5,6 @@ import java.util.HashMap;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
-import ninja.egg82.patterns.IRegistry;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.commands.TickCommand;
 import ninja.egg82.startup.InitRegistry;
@@ -14,8 +13,8 @@ public final class TickHandler {
 	//vars
 	private HashMap<Class<? extends TickCommand>, Integer> tasks = new HashMap<Class<? extends TickCommand>, Integer>();
 	
-	private JavaPlugin plugin = (JavaPlugin) ((IRegistry) ServiceLocator.getService(InitRegistry.class)).getRegister("plugin");
-	private BukkitScheduler scheduler = (BukkitScheduler) ((IRegistry) ServiceLocator.getService(InitRegistry.class)).getRegister("plugin.scheduler");
+	private JavaPlugin plugin = ServiceLocator.getService(InitRegistry.class).getRegister("plugin", JavaPlugin.class);
+	private BukkitScheduler scheduler = ServiceLocator.getService(InitRegistry.class).getRegister("plugin.scheduler", BukkitScheduler.class);
 	
 	//constructor
 	public TickHandler() {

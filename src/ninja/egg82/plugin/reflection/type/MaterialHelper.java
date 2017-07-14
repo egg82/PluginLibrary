@@ -1,4 +1,4 @@
-package ninja.egg82.plugin.utils;
+package ninja.egg82.plugin.reflection.type;
 
 import java.util.ArrayList;
 import java.util.Arrays;

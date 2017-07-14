@@ -52,7 +52,7 @@ public final class CommandUtil {
 		}
 		
 		if (permissionsManager == null) {
-			permissionsManager = (PermissionsManager) ServiceLocator.getService(PermissionsManager.class);
+			permissionsManager = ServiceLocator.getService(PermissionsManager.class);
 		}
 		
 		return permissionsManager.playerHasPermission((Player) sender, permission);

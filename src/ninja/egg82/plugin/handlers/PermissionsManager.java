@@ -6,14 +6,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.PluginManager;
 
-import ninja.egg82.patterns.IRegistry;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.startup.InitRegistry;
 
 public final class PermissionsManager {
 	//vars
 	private HashMap<String, Permission> permissions = new HashMap<String, Permission>();
-	private PluginManager manager = (PluginManager) ((IRegistry) ServiceLocator.getService(InitRegistry.class)).getRegister("plugin.manager");
+	private PluginManager manager = ServiceLocator.getService(InitRegistry.class).getRegister("plugin.manager", PluginManager.class);
 	
 	//constructor
 	public PermissionsManager() {

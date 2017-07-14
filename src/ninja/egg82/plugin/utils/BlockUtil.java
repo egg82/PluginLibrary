@@ -122,7 +122,7 @@ public final class BlockUtil {
 			return new BlockData(((InventoryHolder) blockState).getInventory().getContents(), blockState, blockType);
 		} else if (blockType == Material.FLOWER_POT) {
 			MaterialData currentItem = ((FlowerPot) blockState).getContents();
-			return new BlockData((currentItem != null) ? new ItemStack[] {currentItem.toItemStack()} : null, blockState, blockType);
+			return new BlockData((currentItem != null) ? new ItemStack[] {currentItem.toItemStack(1)} : null, blockState, blockType);
 		} else if (blockType == Material.JUKEBOX) {
 			Material currentItem = ((Jukebox) blockState).getPlaying();
 			return new BlockData((currentItem != Material.AIR && currentItem != null) ? new ItemStack[] {new ItemStack(currentItem)} : null, blockState, blockType);
@@ -286,7 +286,7 @@ public final class BlockUtil {
 			items = ((InventoryHolder) state).getInventory().getContents();
 		} else if (blockType == Material.FLOWER_POT) {
 			MaterialData currentItem = ((FlowerPot) state).getContents();
-			items = (currentItem != null) ? new ItemStack[] {currentItem.toItemStack()} : null;
+			items = (currentItem != null) ? new ItemStack[] {currentItem.toItemStack(1)} : null;
 		} else if (blockType == Material.JUKEBOX) {
 			Material currentItem = ((Jukebox) state).getPlaying();
 			items = (currentItem != Material.AIR && currentItem != null) ? new ItemStack[] {new ItemStack(currentItem)} : null;

@@ -15,7 +15,7 @@ import ninja.egg82.plugin.reflection.protocol.wrappers.block.IPacketBlockHelper;
 
 public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 	//vars
-	private IPacketBlockHelper packetHelper = (IPacketBlockHelper) ServiceLocator.getService(IPacketBlockHelper.class);
+	private IPacketBlockHelper packetHelper = ServiceLocator.getService(IPacketBlockHelper.class);
 	private int maxDistance = Bukkit.getViewDistance() * 16;
 	
 	//constructor

@@ -23,14 +23,12 @@ import ninja.egg82.plugin.reflection.protocol.NullFakeBlockHelper;
 import ninja.egg82.plugin.reflection.protocol.NullFakeEntityHelper;
 import ninja.egg82.plugin.reflection.protocol.ProtocolLibFakeBlockHelper;
 import ninja.egg82.plugin.reflection.protocol.ProtocolLibFakeEntityHelper;
-import ninja.egg82.plugin.utils.EntityTypeHelper;
-import ninja.egg82.plugin.utils.MaterialHelper;
-import ninja.egg82.plugin.utils.PotionEffectTypeHelper;
-import ninja.egg82.plugin.utils.SoundHelper;
+import ninja.egg82.plugin.reflection.type.MaterialHelper;
+import ninja.egg82.plugin.reflection.type.PotionEffectTypeHelper;
+import ninja.egg82.plugin.reflection.type.SoundHelper;
 import ninja.egg82.plugin.utils.VersionUtil;
 import ninja.egg82.startup.InitRegistry;
 import ninja.egg82.startup.Start;
-import ninja.egg82.utils.ReflectUtil;
 
 public class BasePlugin extends JavaPlugin {
 	//vars
@@ -67,7 +65,6 @@ public class BasePlugin extends JavaPlugin {
 		
 		ServiceLocator.provideService(SoundHelper.class);
 		ServiceLocator.provideService(MaterialHelper.class);
-		ServiceLocator.provideService(EntityTypeHelper.class);
 		ServiceLocator.provideService(PotionEffectTypeHelper.class);
 		reflect(gameVersion, "ninja.egg82.plugin.reflection.player");
 		reflect(gameVersion, "ninja.egg82.plugin.reflection.entity");
@@ -94,7 +91,7 @@ public class BasePlugin extends JavaPlugin {
 		ServiceLocator.provideService(CommandHandler.class, false);
 		ServiceLocator.provideService(TickHandler.class, false);
 		
-		commandHandler = (CommandHandler) ServiceLocator.getService(CommandHandler.class);
+		commandHandler = ServiceLocator.getService(CommandHandler.class);
 	}
 	
 	public void onEnable() {
@@ -154,65 +151,7 @@ public class BasePlugin extends JavaPlugin {
 		reflect(version, pkg, true);
 	}
 	private void reflect(String version, String pkg, boolean lazyInitialize) {
-		List<Class<?>> enums = ReflectUtil.getClasses(Object.class, pkg);
-		
-		// Sort by version, ascending
-		enums.sort((v1, v2) -> {
-			int[] v1Name = VersionUtil.parseVersion(v1.getSimpleName(), '_');
-			int[] v2Name = VersionUtil.parseVersion(v2.getSimpleName(), '_');
-			
-			if (v1Name.length == 0) {
-				return -1;
-			}
-			if (v2Name.length == 0) {
-				return 1;
-			}
-			
-			for (int i = 0; i < Math.min(v1Name.length, v2Name.length); i++) {
-				if (v1Name[i] < v2Name[i]) {
-					return -1;
-				} else if (v1Name[i] > v2Name[i]) {
-					return 1;
-				}
-			}
-			
-			return 0;
-		});
-		
-		int[] currentVersion = VersionUtil.parseVersion(version, '.');
-		
-		Class<?> bestMatch = null;
-		
-		// Ascending order means it will naturally try to get the highest possible value (lowest->highest)
-		for (Class<?> c : enums) {
-			String name = c.getSimpleName();
-		    
-		    int[] reflectVersion = VersionUtil.parseVersion(name, '_');
-		    
-		    // Here's where we cap how high we can get, comparing the reflected version to the Bukkit version
-		    // True makes the initial assumption that the current reflected version is correct
-		    boolean equalToOrLessThan = true;
-		    for (int i = 0; i < reflectVersion.length; i++) {
-		    	if (currentVersion.length > i) {
-		    		if(reflectVersion[i] > currentVersion[i]) {
-		    			// We do not, in fact, have the correct version
-		    			equalToOrLessThan = false;
-		    			break;
-		    		} else if (currentVersion[i] > reflectVersion[i]) {
-		    			// We definitely have the correct version. At least until a better one comes along
-		    			break;
-		    		}
-		    	} else {
-		    		// Nope, this isn't the correct version
-		    		equalToOrLessThan = false;
-		    		break;
-		    	}
-		    }
-		    if (equalToOrLessThan) {
-		    	// Our initial assumption was correct. Use this version until we can find one that's better
-		    	bestMatch = c;
-		    }
-		}
+		Class<?> bestMatch = VersionUtil.getBestMatch(version, pkg);
 		
 		if (bestMatch != null) {
 			ServiceLocator.provideService(bestMatch, lazyInitialize);

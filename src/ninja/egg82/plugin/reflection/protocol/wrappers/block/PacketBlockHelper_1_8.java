@@ -125,6 +125,10 @@ public class PacketBlockHelper_1_8 implements IPacketBlockHelper {
 	}
 	
 	public void send(PacketContainer packet, Player player) {
+		if (player == null) {
+			return;
+		}
+		
 		try {
 			protocolManager.sendServerPacket(player, packet);
 		} catch (Exception ex) {
@@ -145,6 +149,9 @@ public class PacketBlockHelper_1_8 implements IPacketBlockHelper {
 		
 		try {
 			for (int i = 0; i < players.length; i++) {
+				if (players[i] == null) {
+					continue;
+				}
 				protocolManager.sendServerPacket(players[i], packet);
 			}
 		} catch (Exception ex) {

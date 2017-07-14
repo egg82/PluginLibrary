@@ -15,7 +15,6 @@ import com.comphenix.protocol.reflect.accessors.Accessors;
 import com.comphenix.protocol.reflect.accessors.FieldAccessor;
 import com.comphenix.protocol.utility.MinecraftReflection;
 
-import ninja.egg82.patterns.IRegistry;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.reflection.entity.IEntityHelper;
 import ninja.egg82.plugin.reflection.protocol.wrappers.entityLiving.IPacketEntityLivingHelper;
@@ -26,14 +25,14 @@ import ninja.egg82.startup.InitRegistry;
 
 public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 	//vars
-	private IPacketEntityLivingHelper packetHelper = (IPacketEntityLivingHelper) ServiceLocator.getService(IPacketEntityLivingHelper.class);
+	private IPacketEntityLivingHelper packetHelper = ServiceLocator.getService(IPacketEntityLivingHelper.class);
 	private PacketContainer spawnPacket = null;
 	private PacketContainer teleportSpawnPacket = null;
 	private PacketContainer destroyPacket = null;
 	private FieldAccessor nextEntityId = Accessors.getFieldAccessor(MinecraftReflection.getEntityClass(), "entityCount", true);
 	
-	private String gameVersion = (String) ((IRegistry) ServiceLocator.getService(InitRegistry.class)).getRegister("game.version");
-	private IEntityHelper entityHelper = (IEntityHelper) ServiceLocator.getService(IEntityHelper.class);
+	private String gameVersion = ServiceLocator.getService(InitRegistry.class).getRegister("game.version", String.class);
+	private IEntityHelper entityHelper = ServiceLocator.getService(IEntityHelper.class);
 	
 	private static int currentEntityId = Integer.MAX_VALUE;
 	

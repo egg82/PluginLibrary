@@ -18,7 +18,6 @@ import org.bukkit.event.world.*;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import ninja.egg82.patterns.IRegistry;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.commands.EventCommand;
 import ninja.egg82.startup.InitRegistry;
@@ -30,8 +29,8 @@ public final class EventListener_1_8 implements IEventListener, Listener {
 	
 	//constructor
 	public EventListener_1_8() {
-		PluginManager pluginManager = (PluginManager) ((IRegistry) ServiceLocator.getService(InitRegistry.class)).getRegister("plugin.manager");
-		pluginManager.registerEvents(this, (JavaPlugin) ((IRegistry) ServiceLocator.getService(InitRegistry.class)).getRegister("plugin"));
+		PluginManager pluginManager = ServiceLocator.getService(InitRegistry.class).getRegister("plugin.manager", PluginManager.class);
+		pluginManager.registerEvents(this, ServiceLocator.getService(InitRegistry.class).getRegister("plugin", JavaPlugin.class));
 	}
 	
 	//public

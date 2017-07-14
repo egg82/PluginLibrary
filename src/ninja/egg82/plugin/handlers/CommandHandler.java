@@ -67,35 +67,10 @@ public final class CommandHandler {
 	}
 	
 	public synchronized void runCommand(CommandSender sender, Command command, String label, String[] args) {
-		String key = command.getName().toLowerCase();
+		PluginCommand run = getCommand(sender, command, label, args);
 		
-		if (commandAliases.containsKey(key)) {
-			key = commandAliases.get(key);
-		}
-		
-		PluginCommand run = initializedCommands.get(key);
-		Class<? extends PluginCommand> c = commands.get(key);
-		
-		// run might be null, but c will never be as long as the command actually exists
-		if (c == null) {
-			return;
-		}
-		
-		// Lazy initialize. No need to create a command until it's actually going to be used
 		if (run == null) {
-			// Create a new command and store it
-			try {
-				run = c.getDeclaredConstructor(CommandSender.class, Command.class, String.class, String[].class).newInstance(sender, command, label, args);
-			} catch (Exception ex) {
-				return;
-			}
-			initializedCommands.put(key, run);
-		} else {
-			// We already have the command initialized, no need to create a new one
-			run.setSender(sender);
-			run.setCommand(command);
-			run.setLabel(label);
-			run.setArgs(args);
+			return;
 		}
 		
 		run.start();
@@ -108,6 +83,17 @@ public final class CommandHandler {
 		});
 	}
 	public synchronized List<String> tabComplete(CommandSender sender, Command command, String label, String[] args) {
+		PluginCommand run = getCommand(sender, command, label, args);
+		
+		if (run == null) {
+			return null;
+		}
+		
+		return run.tabComplete(sender, command, label, args);
+	}
+	
+	//private
+	private synchronized PluginCommand getCommand(CommandSender sender, Command command, String label, String[] args) {
 		String key = command.getName().toLowerCase();
 		
 		if (commandAliases.containsKey(key)) {
@@ -131,11 +117,14 @@ public final class CommandHandler {
 				return null;
 			}
 			initializedCommands.put(key, run);
+		} else {
+			// We already have the command initialized, no need to create a new one
+			run.setSender(sender);
+			run.setCommand(command);
+			run.setLabel(label);
+			run.setArgs(args);
 		}
 		
-		return run.tabComplete(sender, command, label, args);
+		return run;
 	}
-	
-	//private
-	
 }

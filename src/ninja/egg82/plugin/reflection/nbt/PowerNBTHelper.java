@@ -20,94 +20,148 @@ public class PowerNBTHelper implements INBTHelper {
 	//public
 	public void addTag(ItemStack stack, String name, Object data) {
 		if (stack == null) {
-			return;
+			throw new RuntimeException("stack cannot be null.");
 		}
 		if (name == null) {
 			throw new RuntimeException("name cannot be null.");
 		}
 		
-		NBTCompound compound = manager.read(stack);
+		NBTCompound compound = null;
+		try {
+			compound = manager.read(stack);
+		} catch (Exception ex) {
+			
+		}
 		if (compound == null) {
 			compound = new NBTCompound();
 		}
 		compound.put(name, data);
-		manager.write(stack, compound);
+		try {
+			manager.write(stack, compound);
+		} catch (Exception ex) {
+			
+		}
 	}
 	public void addTag(Entity entity, String name, Object data) {
 		if (entity == null) {
-			return;
+			throw new RuntimeException("entity cannot be null.");
 		}
 		if (name == null) {
 			throw new RuntimeException("name cannot be null.");
 		}
 		
-		NBTCompound compound = manager.read(entity);
+		NBTCompound compound = null;
+		try {
+			compound = manager.read(entity);
+		} catch (Exception ex) {
+			
+		}
 		if (compound == null) {
 			compound = new NBTCompound();
 		}
 		compound.put(name, data);
-		manager.write(entity, compound);
+		try {
+			manager.write(entity, compound);
+		} catch (Exception ex) {
+			
+		}
 	}
 	public void addTag(Block block, String name, Object data) {
 		if (block == null) {
-			return;
+			throw new RuntimeException("block cannot be null.");
 		}
 		if (name == null) {
 			throw new RuntimeException("name cannot be null.");
 		}
 		
-		NBTCompound compound = manager.read(block);
+		NBTCompound compound = null;
+		try {
+			compound = manager.read(block);
+		} catch (Exception ex) {
+			
+		}
 		if (compound == null) {
 			compound = new NBTCompound();
 		}
 		compound.put(name, data);
-		manager.write(block, compound);
+		try {
+			manager.write(block, compound);
+		} catch (Exception ex) {
+			
+		}
 	}
 	
 	public void removeTag(ItemStack stack, String name) {
 		if (stack == null) {
-			return;
+			throw new RuntimeException("stack cannot be null.");
 		}
 		if (name == null) {
 			throw new RuntimeException("name cannot be null.");
 		}
 		
-		NBTCompound compound = manager.read(stack);
+		NBTCompound compound = null;
+		try {
+			compound = manager.read(stack);
+		} catch (Exception ex) {
+			
+		}
 		if (compound == null) {
 			return;
 		}
 		compound.remove(name);
-		manager.write(stack, compound);
+		try {
+			manager.write(stack, compound);
+		} catch (Exception ex) {
+			
+		}
 	}
 	public void removeTag(Entity entity, String name) {
 		if (entity == null) {
-			return;
+			throw new RuntimeException("entity cannot be null.");
 		}
 		if (name == null) {
 			throw new RuntimeException("name cannot be null.");
 		}
 		
-		NBTCompound compound = manager.read(entity);
+		NBTCompound compound = null;
+		try {
+			compound = manager.read(entity);
+		} catch (Exception ex) {
+			
+		}
 		if (compound == null) {
 			return;
 		}
 		compound.remove(name);
-		manager.write(entity, compound);
+		try {
+			manager.write(entity, compound);
+		} catch (Exception ex) {
+			
+		}
 	}
 	public void removeTag(Block block, String name) {
 		if (block == null) {
-			return;
+			throw new RuntimeException("block cannot be null.");
 		}
 		if (name == null) {
 			throw new RuntimeException("name cannot be null.");
 		}
 		
-		NBTCompound compound = manager.read(block);
+		NBTCompound compound = null;
+		try {
+			compound = manager.read(block);
+		} catch (Exception ex) {
+			
+		}
 		if (compound == null) {
 			return;
 		}
 		compound.remove(name);
-		manager.write(block, compound);
+		try {
+			manager.write(block, compound);
+		} catch (Exception ex) {
+			
+		}
 	}
 	
 	public boolean hasTag(ItemStack stack, String name) {
@@ -118,7 +172,12 @@ public class PowerNBTHelper implements INBTHelper {
 			return false;
 		}
 		
-		NBTCompound compound = manager.read(stack);
+		NBTCompound compound = null;
+		try {
+			compound = manager.read(stack);
+		} catch (Exception ex) {
+			
+		}
 		if (compound == null) {
 			return false;
 		}
@@ -132,7 +191,12 @@ public class PowerNBTHelper implements INBTHelper {
 			return false;
 		}
 		
-		NBTCompound compound = manager.read(entity);
+		NBTCompound compound = null;
+		try {
+			compound = manager.read(entity);
+		} catch (Exception ex) {
+			
+		}
 		if (compound == null) {
 			return false;
 		}
@@ -146,7 +210,12 @@ public class PowerNBTHelper implements INBTHelper {
 			return false;
 		}
 		
-		NBTCompound compound = manager.read(block);
+		NBTCompound compound = null;
+		try {
+			compound = manager.read(block);
+		} catch (Exception ex) {
+			
+		}
 		if (compound == null) {
 			return false;
 		}
@@ -155,13 +224,18 @@ public class PowerNBTHelper implements INBTHelper {
 	
 	public Object getTag(ItemStack stack, String name) {
 		if (stack == null) {
-			return null;
+			throw new RuntimeException("stack cannot be null.");
 		}
 		if (name == null) {
-			return null;
+			throw new RuntimeException("name cannot be null.");
 		}
 		
-		NBTCompound compound = manager.read(stack);
+		NBTCompound compound = null;
+		try {
+			compound = manager.read(stack);
+		} catch (Exception ex) {
+			
+		}
 		if (compound == null) {
 			return null;
 		}
@@ -169,13 +243,18 @@ public class PowerNBTHelper implements INBTHelper {
 	}
 	public Object getTag(Entity entity, String name) {
 		if (entity == null) {
-			return null;
+			throw new RuntimeException("entity cannot be null.");
 		}
 		if (name == null) {
-			return null;
+			throw new RuntimeException("name cannot be null.");
 		}
 		
-		NBTCompound compound = manager.read(entity);
+		NBTCompound compound = null;
+		try {
+			compound = manager.read(entity);
+		} catch (Exception ex) {
+			
+		}
 		if (compound == null) {
 			return null;
 		}
@@ -183,13 +262,18 @@ public class PowerNBTHelper implements INBTHelper {
 	}
 	public Object getTag(Block block, String name) {
 		if (block == null) {
-			return null;
+			throw new RuntimeException("block cannot be null.");
 		}
 		if (name == null) {
-			return null;
+			throw new RuntimeException("name cannot be null.");
 		}
 		
-		NBTCompound compound = manager.read(block);
+		NBTCompound compound = null;
+		try {
+			compound = manager.read(block);
+		} catch (Exception ex) {
+			
+		}
 		if (compound == null) {
 			return null;
 		}
