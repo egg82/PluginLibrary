@@ -2,17 +2,17 @@ package ninja.egg82.plugin.handlers;
 
 import java.util.HashMap;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.PluginManager;
 
-import ninja.egg82.patterns.ServiceLocator;
-import ninja.egg82.startup.InitRegistry;
+import ninja.egg82.exceptions.ArgumentNullException;
 
 public final class PermissionsManager {
 	//vars
 	private HashMap<String, Permission> permissions = new HashMap<String, Permission>();
-	private PluginManager manager = ServiceLocator.getService(InitRegistry.class).getRegister("plugin.manager", PluginManager.class);
+	private PluginManager manager = Bukkit.getServer().getPluginManager();
 	
 	//constructor
 	public PermissionsManager() {
@@ -22,7 +22,7 @@ public final class PermissionsManager {
 	//public
 	public synchronized void addPermission(String permission) {
 		if (permission == null) {
-			throw new IllegalArgumentException("permission cannot be null.");
+			throw new ArgumentNullException("permission");
 		}
 		
 		permission = permission.toLowerCase();
@@ -36,7 +36,7 @@ public final class PermissionsManager {
 	}
 	public synchronized void removePermission(String permission) {
 		if (permission == null) {
-			throw new IllegalArgumentException("permission cannot be null.");
+			throw new ArgumentNullException("permission");
 		}
 		
 		permission = permission.toLowerCase();

@@ -2,19 +2,22 @@ package ninja.egg82.plugin.handlers;
 
 import java.util.HashMap;
 
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
+import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.commands.TickCommand;
+import ninja.egg82.plugin.enums.SpigotInitType;
 import ninja.egg82.startup.InitRegistry;
 
 public final class TickHandler {
 	//vars
 	private HashMap<Class<? extends TickCommand>, Integer> tasks = new HashMap<Class<? extends TickCommand>, Integer>();
 	
-	private JavaPlugin plugin = ServiceLocator.getService(InitRegistry.class).getRegister("plugin", JavaPlugin.class);
-	private BukkitScheduler scheduler = ServiceLocator.getService(InitRegistry.class).getRegister("plugin.scheduler", BukkitScheduler.class);
+	private JavaPlugin plugin = ServiceLocator.getService(InitRegistry.class).getRegister(SpigotInitType.PLUGIN, JavaPlugin.class);
+	private BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
 	
 	//constructor
 	public TickHandler() {
@@ -24,7 +27,7 @@ public final class TickHandler {
 	//public
 	public synchronized void addTickCommand(Class<? extends TickCommand> clazz) {
 		if (clazz == null) {
-			throw new IllegalArgumentException("clazz cannot be null.");
+			throw new ArgumentNullException("clazz");
 		}
 		
 		if (tasks.containsKey(clazz)) {
@@ -49,7 +52,7 @@ public final class TickHandler {
 	@SuppressWarnings("deprecation")
 	public synchronized void addAsyncTickCommand(Class<? extends TickCommand> clazz) {
 		if (clazz == null) {
-			throw new IllegalArgumentException("clazz cannot be null.");
+			throw new ArgumentNullException("clazz");
 		}
 		
 		if (tasks.containsKey(clazz)) {
@@ -74,7 +77,7 @@ public final class TickHandler {
 	}
 	public synchronized void addDelayedTickCommand(Class<? extends TickCommand> clazz, long delay) {
 		if (clazz == null) {
-			throw new IllegalArgumentException("clazz cannot be null.");
+			throw new ArgumentNullException("clazz");
 		}
 		
 		if (tasks.containsKey(clazz)) {
@@ -98,7 +101,7 @@ public final class TickHandler {
 	@SuppressWarnings("deprecation")
 	public synchronized void addAsyncDelayedTickCommand(Class<? extends TickCommand> clazz, long delay) {
 		if (clazz == null) {
-			throw new IllegalArgumentException("clazz cannot be null.");
+			throw new ArgumentNullException("clazz");
 		}
 		
 		if (tasks.containsKey(clazz)) {
@@ -122,7 +125,7 @@ public final class TickHandler {
 	}
 	public synchronized void removeTickCommand(Class<? extends TickCommand> clazz) {
 		if (clazz == null) {
-			throw new IllegalArgumentException("clazz cannot be null.");
+			throw new ArgumentNullException("clazz");
 		}
 		
 		int taskId = tasks.get(clazz);
@@ -133,7 +136,7 @@ public final class TickHandler {
 	}
 	public synchronized boolean hasTickCommand(Class<? extends TickCommand> clazz) {
 		if (clazz == null) {
-			throw new IllegalArgumentException("clazz cannot be null.");
+			throw new ArgumentNullException("clazz");
 		}
 		return tasks.containsKey(clazz);
 	}

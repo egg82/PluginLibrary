@@ -3,6 +3,7 @@ package ninja.egg82.plugin.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.utils.ReflectUtil;
 
 public final class VersionUtil {
@@ -15,6 +16,13 @@ public final class VersionUtil {
 	
 	//public
 	public static Class<?> getBestMatch(String version, String pkg) {
+		if (version == null) {
+			throw new ArgumentNullException("version");
+		}
+		if (pkg == null) {
+			throw new ArgumentNullException("pkg");
+		}
+		
 		List<Class<?>> enums = ReflectUtil.getClasses(Object.class, pkg);
 		
 		// Sort by version, ascending
@@ -79,6 +87,10 @@ public final class VersionUtil {
 	}
 	
 	public static int[] parseVersion(String version, char separator) {
+		if (version == null) {
+			throw new ArgumentNullException("version");
+		}
+		
 		ArrayList<Integer> ints = new ArrayList<Integer>();
 		
 		int lastIndex = 0;

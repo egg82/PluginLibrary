@@ -20,6 +20,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableMap;
 
+import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.plugin.utils.SpigotReflectUtil;
 
 @SuppressWarnings("deprecation")
@@ -34,10 +35,10 @@ public class EntityHelper_1_9 implements IEntityHelper {
 	//public
 	public void addPassenger(Entity bottom, Entity top) {
 		if (bottom == null) {
-			throw new IllegalArgumentException("bottom cannot be null.");
+			throw new ArgumentNullException("bottom");
 		}
 		if (top == null) {
-			throw new IllegalArgumentException("top cannot be null.");
+			throw new ArgumentNullException("top");
 		}
 		
 		bottom.setPassenger(top);
@@ -45,10 +46,10 @@ public class EntityHelper_1_9 implements IEntityHelper {
 	}
 	public void removePassenger(Entity bottom, Entity top) {
 		if (bottom == null) {
-			throw new IllegalArgumentException("bottom cannot be null.");
+			throw new ArgumentNullException("bottom");
 		}
 		if (top == null) {
-			throw new IllegalArgumentException("top cannot be null.");
+			throw new ArgumentNullException("top");
 		}
 		
 		bottom.eject();
@@ -56,13 +57,17 @@ public class EntityHelper_1_9 implements IEntityHelper {
 	}
 	public void removeAllPassengers(Entity bottom) {
 		if (bottom == null) {
-			throw new IllegalArgumentException("bottom cannot be null.");
+			throw new ArgumentNullException("bottom");
 		}
 		
 		bottom.eject();
 		sendPacket(bottom);
 	}
 	public List<Entity> getPassengers(Entity bottom) {
+		if (bottom == null) {
+			throw new ArgumentNullException("bottom");
+		}
+		
 		return new ArrayList<Entity>(Arrays.asList(bottom.getPassenger()));
 	}
 	

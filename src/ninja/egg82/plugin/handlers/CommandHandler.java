@@ -6,6 +6,7 @@ import java.util.List;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
+import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.plugin.commands.PluginCommand;
 
 public final class CommandHandler {
@@ -25,7 +26,7 @@ public final class CommandHandler {
 	}
 	public synchronized void setCommand(String command, Class<? extends PluginCommand> clazz, String[] aliases) {
 		if (command == null) {
-			throw new IllegalArgumentException("command cannot be null.");
+			throw new ArgumentNullException("command");
 		}
 		
 		String key = command.toLowerCase();

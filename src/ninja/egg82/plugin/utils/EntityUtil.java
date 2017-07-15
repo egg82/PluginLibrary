@@ -6,6 +6,7 @@ import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 
+import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.plugin.core.EntityData;
 
 public class EntityUtil {
@@ -19,7 +20,7 @@ public class EntityUtil {
 	//public
 	public static List<EntityData> getEntities(Location center, int xRadius, int yRadius, int zRadius) {
 		if (center == null) {
-			throw new IllegalArgumentException("center cannot be null.");
+			throw new ArgumentNullException("center");
 		}
 		
 		ArrayList<EntityData> entities = new ArrayList<EntityData>();

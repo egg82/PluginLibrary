@@ -29,6 +29,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 
+import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.plugin.core.BlockData;
 
 public final class BlockUtil {
@@ -42,7 +43,7 @@ public final class BlockUtil {
 	//public
 	public static Location getTopAirBlock(Location l) {
 		if (l == null) {
-			throw new IllegalArgumentException("l cannot be null.");
+			throw new ArgumentNullException("l");
 		}
 		
 		l = l.clone();
@@ -70,7 +71,7 @@ public final class BlockUtil {
 	}
 	public static Location getTopWalkableBlock(Location l) {
 		if (l == null) {
-			throw new IllegalArgumentException("l cannot be null.");
+			throw new ArgumentNullException("l");
 		}
 		
 		l = l.clone();
@@ -99,21 +100,21 @@ public final class BlockUtil {
 	
 	public static BlockData getBlock(Location location) {
 		if (location == null) {
-			throw new IllegalArgumentException("location cannot be null.");
+			throw new ArgumentNullException("location");
 		}
 		
 		return getBlock(location.getBlock());
 	}
 	public static BlockData getBlock(Block block) {
 		if (block == null) {
-			throw new IllegalArgumentException("block cannot be null.");
+			throw new ArgumentNullException("block");
 		}
 		
 		return getBlock(block.getState());
 	}
 	public static BlockData getBlock(BlockState blockState) {
 		if (blockState == null) {
-			throw new IllegalArgumentException("blockState cannot be null.");
+			throw new ArgumentNullException("blockState");
 		}
 		
 		Material blockType = blockState.getType();
@@ -133,17 +134,17 @@ public final class BlockUtil {
 	
 	public static void setBlock(Block block, BlockData data, boolean updateBlock) {
 		if (block == null) {
-			throw new IllegalArgumentException("block cannot be null.");
+			throw new ArgumentNullException("block");
 		}
 		
 		setBlock(block.getLocation(), data, updateBlock);
 	}
 	public static void setBlock(Location location, BlockData data, boolean updateBlock) {
 		if (location == null) {
-			throw new IllegalArgumentException("location cannot be null.");
+			throw new ArgumentNullException("location");
 		}
 		if (data == null) {
-			throw new IllegalArgumentException("data cannot be null.");
+			throw new ArgumentNullException("data");
 		}
 		
 		BlockState blockState = location.getBlock().getState();
@@ -171,7 +172,7 @@ public final class BlockUtil {
 	
 	public static List<BlockData> getBlocks(Location center, int xRadius, int yRadius, int zRadius) {
 		if (center == null) {
-			throw new IllegalArgumentException("center cannot be null.");
+			throw new ArgumentNullException("center");
 		}
 		
 		int minX = center.getBlockX() - xRadius;
@@ -199,13 +200,13 @@ public final class BlockUtil {
 	}
 	public static void setBlocks(List<BlockData> blocks, Location center, int xRadius, int yRadius, int zRadius, boolean updateBlocks) {
 		if (blocks == null) {
-			throw new IllegalArgumentException("blocks cannot be null.");
+			throw new ArgumentNullException("blocks");
 		}
 		if (blocks.size() != (xRadius * 2 + 1) * (yRadius * 2 + 1) * (zRadius * 2 + 1)) {
-			throw new RuntimeException("blocks is not the correct length.");
+			throw new RuntimeException("blocks is not the correct length for the radii specified.");
 		}
 		if (center == null) {
-			throw new IllegalArgumentException("center cannot be null.");
+			throw new ArgumentNullException("center");
 		}
 		
 		int minX = center.getBlockX() - xRadius;
@@ -233,7 +234,7 @@ public final class BlockUtil {
 	}
 	public static void clearBlocks(Location center, Material clearMaterial, int xRadius, int yRadius, int zRadius, boolean updateBlocks) {
 		if (center == null) {
-			throw new IllegalArgumentException("center cannot be null.");
+			throw new ArgumentNullException("center");
 		}
 		if (clearMaterial == null) {
 			clearMaterial = Material.AIR;
@@ -270,13 +271,13 @@ public final class BlockUtil {
 	
 	public static void breakNaturally(BlockState state, Location location, GameMode gameMode, ItemStack tool, boolean updateBlock) {
 		if (state == null) {
-			throw new IllegalArgumentException("state cannot be null.");
+			throw new ArgumentNullException("state");
 		}
 		if (location == null) {
-			throw new IllegalArgumentException("location cannot be null.");
+			throw new ArgumentNullException("location");
 		}
 		if (gameMode == null) {
-			throw new IllegalArgumentException("gameMode cannot be null.");
+			throw new ArgumentNullException("gameMode");
 		}
 		
 		Material blockType = state.getType();
@@ -310,10 +311,6 @@ public final class BlockUtil {
 	
 	//private
 	private static void clearInventory(BlockState block) {
-		if (block == null) {
-			throw new IllegalArgumentException("block cannot be null.");
-		}
-		
 		Material type = block.getType();
 		
 		if (block instanceof InventoryHolder) {
@@ -329,13 +326,6 @@ public final class BlockUtil {
 	}
 	
 	private static void setBlockData(BlockState block, BlockState data) {
-		if (block == null) {
-			throw new IllegalArgumentException("block cannot be null.");
-		}
-		if (data == null) {
-			throw new IllegalArgumentException("data cannot be null.");
-		}
-		
 		Material type = block.getType();
 		
 		block.setData(data.getData());

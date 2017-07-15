@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.utils.ReflectUtil;
 
 public class TypeFilterHelper<T> {
@@ -14,6 +15,10 @@ public class TypeFilterHelper<T> {
 	//constructor
 	@SuppressWarnings("unchecked")
 	public TypeFilterHelper(Class<T> clazz) {
+		if (clazz == null) {
+			throw new ArgumentNullException("clazz");
+		}
+		
 		this.clazz = clazz;
 		
 		Object[] enums = ReflectUtil.getStaticFields(clazz);
@@ -27,10 +32,10 @@ public class TypeFilterHelper<T> {
 	@SuppressWarnings("unchecked")
 	public T[] filter(T[] list, String filter, boolean whitelist) {
 		if (list == null) {
-			throw new IllegalArgumentException("list cannot be null.");
+			throw new ArgumentNullException("list");
 		}
 		if (filter == null) {
-			throw new IllegalArgumentException("filter cannot be null.");
+			throw new ArgumentNullException("filter");
 		}
 		
 		filter = filter.toLowerCase();

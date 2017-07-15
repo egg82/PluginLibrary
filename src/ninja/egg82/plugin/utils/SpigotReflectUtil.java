@@ -8,6 +8,7 @@ import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 
+import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.commands.EventCommand;
 import ninja.egg82.plugin.commands.PluginCommand;
@@ -29,6 +30,10 @@ public final class SpigotReflectUtil {
 	
 	//public
 	public static int addServicesFromPackage(String packageName) {
+		if (packageName == null) {
+			throw new ArgumentNullException("packageName");
+		}
+		
 		List<Class<?>> services = ReflectUtil.getClasses(Object.class, packageName);
 		for (Class<?> service : services) {
 			ServiceLocator.provideService(service);
@@ -40,6 +45,10 @@ public final class SpigotReflectUtil {
 		return addCommandsFromPackage(packageName, null);
 	}
 	public static int addCommandsFromPackage(String packageName, Map<String, String[]> aliasMap) {
+		if (packageName == null) {
+			throw new ArgumentNullException("packageName");
+		}
+		
 		int numCommands = 0;
 		
 		CommandHandler commandHandler = ServiceLocator.getService(CommandHandler.class);
@@ -66,6 +75,10 @@ public final class SpigotReflectUtil {
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static int addEventsFromPackage(String packageName) {
+		if (packageName == null) {
+			throw new ArgumentNullException("packageName");
+		}
+		
 		int numEvents = 0;
 		
 		IEventListener eventListener = ServiceLocator.getService(IEventListener.class);
@@ -94,6 +107,10 @@ public final class SpigotReflectUtil {
 	}
 	
 	public static int addPermissionsFromClass(Class<?> clazz) {
+		if (clazz == null) {
+			throw new ArgumentNullException("clazz");
+		}
+		
 		int numPermissions = 0;
 		
 		PermissionsManager permissionsManager = ServiceLocator.getService(PermissionsManager.class);
@@ -109,6 +126,10 @@ public final class SpigotReflectUtil {
 	}
 	
 	public static int addTicksFromPackage(String packageName) {
+		if (packageName == null) {
+			throw new ArgumentNullException("packageName");
+		}
+		
 		int numTicks = 0;
 		
 		TickHandler tickHandler = ServiceLocator.getService(TickHandler.class);
@@ -137,6 +158,10 @@ public final class SpigotReflectUtil {
 	}
 	
 	public static Class<?> getNms(String className) {
+		if (className == null) {
+			throw new ArgumentNullException("className");
+		}
+		
 		if (gameVersion == null) {
 			gameVersion = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
 		}

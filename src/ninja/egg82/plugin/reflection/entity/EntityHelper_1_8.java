@@ -16,6 +16,8 @@ import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableMap;
 
+import ninja.egg82.exceptions.ArgumentNullException;
+
 @SuppressWarnings("deprecation")
 public final class EntityHelper_1_8 implements IEntityHelper {
 	//vars
@@ -28,32 +30,36 @@ public final class EntityHelper_1_8 implements IEntityHelper {
 	//public
 	public void addPassenger(Entity bottom, Entity top) {
 		if (bottom == null) {
-			throw new IllegalArgumentException("bottom cannot be null.");
+			throw new ArgumentNullException("bottom");
 		}
 		if (top == null) {
-			throw new IllegalArgumentException("top cannot be null.");
+			throw new ArgumentNullException("top");
 		}
 		
 		bottom.setPassenger(top);
 	}
 	public void removePassenger(Entity bottom, Entity top) {
 		if (bottom == null) {
-			throw new IllegalArgumentException("bottom cannot be null.");
+			throw new ArgumentNullException("bottom");
 		}
 		if (top == null) {
-			throw new IllegalArgumentException("top cannot be null.");
+			throw new ArgumentNullException("top");
 		}
 		
 		bottom.eject();
 	}
 	public void removeAllPassengers(Entity bottom) {
 		if (bottom == null) {
-			throw new IllegalArgumentException("bottom cannot be null.");
+			throw new ArgumentNullException("bottom");
 		}
 		
 		bottom.eject();
 	}
 	public List<Entity> getPassengers(Entity bottom) {
+		if (bottom == null) {
+			throw new ArgumentNullException("bottom");
+		}
+		
 		return new ArrayList<Entity>(Arrays.asList(bottom.getPassenger()));
 	}
 	

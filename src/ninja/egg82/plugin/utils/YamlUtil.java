@@ -8,6 +8,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import ninja.egg82.patterns.ServiceLocator;
+import ninja.egg82.plugin.enums.SpigotInitType;
 import ninja.egg82.startup.InitRegistry;
 import ninja.egg82.utils.FileUtil;
 
@@ -36,7 +37,7 @@ public class YamlUtil {
 		}
 		
 		if (plugin == null) {
-			plugin = ServiceLocator.getService(InitRegistry.class).getRegister("plugin", JavaPlugin.class);
+			plugin = ServiceLocator.getService(InitRegistry.class).getRegister(SpigotInitType.PLUGIN, JavaPlugin.class);
 		}
 		
 		YamlConfiguration defaultConfig = null;

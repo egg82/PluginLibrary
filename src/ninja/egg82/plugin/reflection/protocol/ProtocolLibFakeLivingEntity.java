@@ -1,11 +1,13 @@
 package ninja.egg82.plugin.reflection.protocol;
 
 import java.util.ArrayDeque;
+import java.util.Collection;
 import java.util.UUID;
 
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Damageable;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
@@ -15,7 +17,9 @@ import com.comphenix.protocol.reflect.accessors.Accessors;
 import com.comphenix.protocol.reflect.accessors.FieldAccessor;
 import com.comphenix.protocol.utility.MinecraftReflection;
 
+import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.ServiceLocator;
+import ninja.egg82.plugin.enums.SpigotInitType;
 import ninja.egg82.plugin.reflection.entity.IEntityHelper;
 import ninja.egg82.plugin.reflection.protocol.wrappers.entityLiving.IPacketEntityLivingHelper;
 import ninja.egg82.plugin.utils.BlockUtil;
@@ -31,7 +35,7 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 	private PacketContainer destroyPacket = null;
 	private FieldAccessor nextEntityId = Accessors.getFieldAccessor(MinecraftReflection.getEntityClass(), "entityCount", true);
 	
-	private String gameVersion = ServiceLocator.getService(InitRegistry.class).getRegister("game.version", String.class);
+	private String gameVersion = ServiceLocator.getService(InitRegistry.class).getRegister(SpigotInitType.GAME_VERSION, String.class);
 	private IEntityHelper entityHelper = ServiceLocator.getService(IEntityHelper.class);
 	
 	private static int currentEntityId = Integer.MAX_VALUE;
@@ -47,10 +51,10 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 	//constructor
 	public ProtocolLibFakeLivingEntity(Location loc, EntityType type) {
 		if (loc == null) {
-			throw new RuntimeException("loc cannot be null.");
+			throw new ArgumentNullException("loc");
 		}
 		if (type == null) {
-			throw new RuntimeException("type cannot be null.");
+			throw new ArgumentNullException("type");
 		}
 		
 		currentLocation = loc.clone();
@@ -68,6 +72,10 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 	
 	//public
 	public void addPlayer(Player player) {
+		if (player == null) {
+			throw new ArgumentNullException("player");
+		}
+		
 		String uuid = player.getUniqueId().toString();
 		
 		if (!players.contains(uuid)) {
@@ -80,6 +88,10 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 		}
 	}
 	public void removePlayer(Player player) {
+		if (player == null) {
+			throw new ArgumentNullException("player");
+		}
+		
 		String uuid = player.getUniqueId().toString();
 		
 		if (players.contains(uuid)) {
@@ -96,7 +108,7 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 	
 	public void lookTo(Location loc) {
 		if (loc == null) {
-			throw new RuntimeException("loc cannot be null.");
+			throw new ArgumentNullException("loc");
 		}
 		
 		double dX = currentLocation.getX() - loc.getX();
@@ -118,7 +130,7 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 	}
 	public void moveTo(Location loc) {
 		if (loc == null) {
-			throw new RuntimeException("loc cannot be null.");
+			throw new ArgumentNullException("loc");
 		}
 		
 		PacketContainer movePacket = packetHelper.move(id, currentLocation, loc, (BlockUtil.getTopWalkableBlock(loc).getY() == loc.getY()) ? false : true);
@@ -131,7 +143,7 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 	}
 	public void teleportTo(Location loc) {
 		if (loc == null) {
-			throw new RuntimeException("loc cannot be null.");
+			throw new ArgumentNullException("loc");
 		}
 		
 		PacketContainer teleportPacket = packetHelper.teleport(id, loc, (BlockUtil.getTopWalkableBlock(loc).getY() == loc.getY()) ? false : true);
@@ -153,6 +165,10 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 		}
 	}
 	public void attack(Damageable entity, double damage) {
+		if (entity == null) {
+			throw new ArgumentNullException("entity");
+		}
+		
 		long currentTime = System.currentTimeMillis();
 		
 		if (currentTime - lastAttackTime >= 1000L) {
@@ -169,7 +185,11 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 		}
 	}
 	
-	public void collide(ArrayDeque<IFakeLivingEntity> entities) {
+	public void collideF(Collection<IFakeLivingEntity> entities) {
+		if (entities == null) {
+			throw new ArgumentNullException("entities");
+		}
+		
 		for (IFakeLivingEntity e : entities) {
 			if (currentLocation.distanceSquared(e.getLocation()) < 0.5625d) { //0.75^2
 				moveTo(currentLocation.clone().subtract(e.getLocation().toVector().subtract(currentLocation.toVector()).multiply(0.25d)));
@@ -177,10 +197,36 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 			}
 		}
 	}
+	public void collideE(Collection<Entity> entities) {
+		if (entities == null) {
+			throw new ArgumentNullException("entities");
+		}
+		
+		for (Entity e : entities) {
+			if (currentLocation.distanceSquared(e.getLocation()) < 0.5625d) { //0.75^2
+				moveTo(currentLocation.clone().subtract(e.getLocation().toVector().subtract(currentLocation.toVector()).multiply(0.25d)));
+				e.setVelocity(currentLocation.toVector().subtract(e.getLocation().toVector()).multiply(0.25d));
+			}
+		}
+	}
 	public void collide(IFakeLivingEntity entity) {
+		if (entity == null) {
+			throw new ArgumentNullException("entity");
+		}
+		
 		if (currentLocation.distanceSquared(entity.getLocation()) < 0.5625d) { //0.75^2
 			moveTo(currentLocation.clone().subtract(entity.getLocation().toVector().subtract(currentLocation.toVector()).multiply(0.25d)));
 			entity.moveTo(entity.getLocation().subtract(currentLocation.toVector().subtract(entity.getLocation().toVector()).multiply(0.25d)));
+		}
+	}
+	public void collide(Entity entity) {
+		if (entity == null) {
+			throw new ArgumentNullException("entity");
+		}
+		
+		if (currentLocation.distanceSquared(entity.getLocation()) < 0.5625d) { //0.75^2
+			moveTo(currentLocation.clone().subtract(entity.getLocation().toVector().subtract(currentLocation.toVector()).multiply(0.25d)));
+			entity.setVelocity(currentLocation.toVector().subtract(entity.getLocation().toVector()).multiply(0.25d));
 		}
 	}
 	

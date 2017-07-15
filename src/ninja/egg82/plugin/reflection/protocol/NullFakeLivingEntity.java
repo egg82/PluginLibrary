@@ -1,10 +1,11 @@
 package ninja.egg82.plugin.reflection.protocol;
 
-import java.util.ArrayDeque;
+import java.util.Collection;
 import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Damageable;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
@@ -49,10 +50,16 @@ public class NullFakeLivingEntity implements IFakeLivingEntity {
 		
 	}
 	
-	public void collide(ArrayDeque<IFakeLivingEntity> entities) {
+	public void collideF(Collection<IFakeLivingEntity> entities) {
+		
+	}
+	public void collideE(Collection<Entity> entities) {
 		
 	}
 	public void collide(IFakeLivingEntity entity) {
+		
+	}
+	public void collide(Entity entity) {
 		
 	}
 	

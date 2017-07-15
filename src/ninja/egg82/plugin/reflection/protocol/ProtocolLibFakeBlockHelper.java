@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 
 import com.comphenix.protocol.events.PacketContainer;
 
+import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.reflection.protocol.wrappers.block.IPacketBlockHelper;
 
@@ -29,10 +30,10 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 	}
 	public void updateBlock(Player player, Location blockLocation, Material newMaterial, short newMetadata) {
 		if (player == null) {
-			throw new RuntimeException("player cannot be null");
+			throw new ArgumentNullException("player");
 		}
 		if (blockLocation == null) {
-			throw new RuntimeException("blockLocation cannot be null");
+			throw new ArgumentNullException("blockLocation");
 		}
 		if (blockLocation.distanceSquared(player.getLocation()) > maxDistance * maxDistance) {
 			return;
@@ -47,7 +48,7 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 	}
 	public void updateBlock(Player[] players, Location blockLocation, Material newMaterial, short newMetadata) {
 		if (players == null) {
-			throw new RuntimeException("players cannot be null");
+			throw new ArgumentNullException("players");
 		}
 		if (players.length == 0) {
 			return;
@@ -66,13 +67,13 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 	}
 	public void updateBlocks(Player player, Location[] blockLocations, Material newMaterial, short newMetadata) {
 		if (player == null) {
-			throw new RuntimeException("player cannot be null");
+			throw new ArgumentNullException("player");
 		}
 		if (blockLocations == null) {
-			throw new RuntimeException("blockLocations cannot be null");
+			throw new ArgumentNullException("blockLocations");
 		}
 		if (newMaterial == null) {
-			throw new RuntimeException("newMaterial cannot be null");
+			throw new ArgumentNullException("newMaterial");
 		}
 		
 		ArrayList<PacketContainer> packets = new ArrayList<PacketContainer>();
@@ -113,13 +114,13 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 	}
 	public void updateBlocks(Player player, Location[] blockLocations, Material[] newMaterials, short[] newMetadata) {
 		if (player == null) {
-			throw new RuntimeException("player cannot be null");
+			throw new ArgumentNullException("player");
 		}
 		if (blockLocations == null) {
-			throw new RuntimeException("blockLocations cannot be null");
+			throw new ArgumentNullException("blockLocations");
 		}
 		if (newMaterials == null) {
-			throw new RuntimeException("newMaterials cannot be null");
+			throw new ArgumentNullException("newMaterials");
 		}
 		if (blockLocations.length == 0 || newMaterials.length == 0) {
 			return;
@@ -186,7 +187,7 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 	}
 	public void updateBlocks(Player[] players, Location[] blockLocations, Material newMaterial, short newMetadata) {
 		if (players == null) {
-			throw new RuntimeException("players cannot be null");
+			throw new ArgumentNullException("players");
 		}
 		if (players.length == 0) {
 			return;
@@ -195,7 +196,7 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 			return;
 		}
 		if (blockLocations == null) {
-			throw new RuntimeException("blockLocations cannot be null");
+			throw new ArgumentNullException("blockLocations");
 		}
 		if (blockLocations.length == 0) {
 			return;
@@ -213,7 +214,7 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 	}
 	public void updateBlocks(Player[] players, Location[] blockLocations, Material[] newMaterials, short[] newMetadata) {
 		if (players == null) {
-			throw new RuntimeException("players cannot be null");
+			throw new ArgumentNullException("players");
 		}
 		if (players.length == 0) {
 			return;
@@ -222,13 +223,13 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 			return;
 		}
 		if (blockLocations == null) {
-			throw new RuntimeException("blockLocations cannot be null");
+			throw new ArgumentNullException("blockLocations");
 		}
 		if (newMaterials == null) {
-			throw new RuntimeException("newMaterials cannot be null");
+			throw new ArgumentNullException("newMaterials");
 		}
 		if (newMetadata == null) {
-			throw new RuntimeException("newMetadata cannot be null");
+			throw new ArgumentNullException("newMetadata");
 		}
 		if (newMetadata.length != newMaterials.length) {
 			throw new RuntimeException("newMetaData must be equal in length to newMaterials");

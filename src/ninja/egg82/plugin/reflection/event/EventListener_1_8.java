@@ -2,6 +2,7 @@ package ninja.egg82.plugin.reflection.event;
 
 import java.util.HashMap;
 
+import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -18,8 +19,10 @@ import org.bukkit.event.world.*;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.commands.EventCommand;
+import ninja.egg82.plugin.enums.SpigotInitType;
 import ninja.egg82.startup.InitRegistry;
 
 public final class EventListener_1_8 implements IEventListener, Listener {
@@ -29,14 +32,14 @@ public final class EventListener_1_8 implements IEventListener, Listener {
 	
 	//constructor
 	public EventListener_1_8() {
-		PluginManager pluginManager = ServiceLocator.getService(InitRegistry.class).getRegister("plugin.manager", PluginManager.class);
-		pluginManager.registerEvents(this, ServiceLocator.getService(InitRegistry.class).getRegister("plugin", JavaPlugin.class));
+		PluginManager pluginManager = Bukkit.getServer().getPluginManager();
+		pluginManager.registerEvents(this, ServiceLocator.getService(InitRegistry.class).getRegister(SpigotInitType.PLUGIN, JavaPlugin.class));
 	}
 	
 	//public
 	public synchronized void setEvent(Class<? extends Event> event, Class<? extends EventCommand<? extends Event>> clazz) {
 		if (event == null) {
-			throw new IllegalArgumentException("event cannot be null.");
+			throw new ArgumentNullException("event");
 		}
 		
 		String key = event.getName();

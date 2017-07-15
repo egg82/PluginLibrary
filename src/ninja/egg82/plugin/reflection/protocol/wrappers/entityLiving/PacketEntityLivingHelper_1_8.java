@@ -13,6 +13,8 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 
+import ninja.egg82.exceptions.ArgumentNullException;
+
 public class PacketEntityLivingHelper_1_8 implements IPacketEntityLivingHelper {
 	//vars
 	private ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
@@ -28,6 +30,19 @@ public class PacketEntityLivingHelper_1_8 implements IPacketEntityLivingHelper {
 	}
 	@SuppressWarnings("deprecation")
 	public PacketContainer spawn(int entityId, UUID uuid, EntityType type, Location spawnLoc, Vector velocity) {
+		if (uuid == null) {
+			throw new ArgumentNullException("uuid");
+		}
+		if (type == null) {
+			throw new ArgumentNullException("type");
+		}
+		if (spawnLoc == null) {
+			throw new ArgumentNullException("spawnLoc");
+		}
+		if (velocity == null) {
+			throw new ArgumentNullException("velocity");
+		}
+		
 		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.SPAWN_ENTITY_LIVING);
 		
 		packet.getIntegers()
@@ -49,7 +64,7 @@ public class PacketEntityLivingHelper_1_8 implements IPacketEntityLivingHelper {
 	
 	public PacketContainer destroy(List<Integer> entityIds) {
 		if (entityIds == null) {
-			throw new RuntimeException("entityIds cannot be null.");
+			throw new ArgumentNullException("entityIds");
 		}
 		
 		return destroy(entityIds.stream().mapToInt(i -> i).toArray());
@@ -59,7 +74,7 @@ public class PacketEntityLivingHelper_1_8 implements IPacketEntityLivingHelper {
 	}
 	public PacketContainer destroy(int[] entityIds) {
 		if (entityIds == null) {
-			throw new RuntimeException("entityIds cannot be null.");
+			throw new ArgumentNullException("entityIds");
 		}
 		
 		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_DESTROY);
@@ -92,6 +107,13 @@ public class PacketEntityLivingHelper_1_8 implements IPacketEntityLivingHelper {
 		return packet;
 	}
 	public PacketContainer move(int entityId, Location from, Location to, boolean isFlying) {
+		if (from == null) {
+			throw new ArgumentNullException("from");
+		}
+		if (to == null) {
+			throw new ArgumentNullException("to");
+		}
+		
 		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.REL_ENTITY_MOVE);
 		
 		packet.getIntegers()
@@ -106,6 +128,10 @@ public class PacketEntityLivingHelper_1_8 implements IPacketEntityLivingHelper {
 		return packet;
 	}
 	public PacketContainer teleport(int entityId, Location to, boolean isFlying) {
+		if (to == null) {
+			throw new ArgumentNullException("to");
+		}
+		
 		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_TELEPORT);
 		
 		packet.getIntegers()
@@ -145,14 +171,14 @@ public class PacketEntityLivingHelper_1_8 implements IPacketEntityLivingHelper {
 	}
 	public void send(PacketContainer packet, List<Player> players) {
 		if (players == null) {
-			throw new RuntimeException("players cannot be null.");
+			throw new ArgumentNullException("players");
 		}
 		
 		send(packet, players.toArray(new Player[0]));
 	}
 	public void send(PacketContainer packet, Player[] players) {
 		if (players == null) {
-			throw new RuntimeException("players cannot be null.");
+			throw new ArgumentNullException("players");
 		}
 		
 		try {

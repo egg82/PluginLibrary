@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import me.dpohvar.powernbt.PowerNBT;
 import me.dpohvar.powernbt.api.NBTCompound;
 import me.dpohvar.powernbt.api.NBTManager;
+import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.utils.ReflectUtil;
 
 public class PowerNBTHelper implements INBTHelper {
@@ -21,10 +22,10 @@ public class PowerNBTHelper implements INBTHelper {
 	//public
 	public void addTag(ItemStack stack, String name, Object data) {
 		if (stack == null) {
-			throw new RuntimeException("stack cannot be null.");
+			throw new ArgumentNullException("stack");
 		}
 		if (name == null) {
-			throw new RuntimeException("name cannot be null.");
+			throw new ArgumentNullException("name");
 		}
 		
 		NBTCompound compound = null;
@@ -45,10 +46,10 @@ public class PowerNBTHelper implements INBTHelper {
 	}
 	public void addTag(Entity entity, String name, Object data) {
 		if (entity == null) {
-			throw new RuntimeException("entity cannot be null.");
+			throw new ArgumentNullException("entity");
 		}
 		if (name == null) {
-			throw new RuntimeException("name cannot be null.");
+			throw new ArgumentNullException("name");
 		}
 		
 		NBTCompound compound = null;
@@ -69,10 +70,10 @@ public class PowerNBTHelper implements INBTHelper {
 	}
 	public void addTag(Block block, String name, Object data) {
 		if (block == null) {
-			throw new RuntimeException("block cannot be null.");
+			throw new ArgumentNullException("block");
 		}
 		if (name == null) {
-			throw new RuntimeException("name cannot be null.");
+			throw new ArgumentNullException("name");
 		}
 		
 		NBTCompound compound = null;
@@ -94,10 +95,10 @@ public class PowerNBTHelper implements INBTHelper {
 	
 	public void removeTag(ItemStack stack, String name) {
 		if (stack == null) {
-			throw new RuntimeException("stack cannot be null.");
+			throw new ArgumentNullException("stack");
 		}
 		if (name == null) {
-			throw new RuntimeException("name cannot be null.");
+			throw new ArgumentNullException("name");
 		}
 		
 		NBTCompound compound = null;
@@ -118,10 +119,10 @@ public class PowerNBTHelper implements INBTHelper {
 	}
 	public void removeTag(Entity entity, String name) {
 		if (entity == null) {
-			throw new RuntimeException("entity cannot be null.");
+			throw new ArgumentNullException("entity");
 		}
 		if (name == null) {
-			throw new RuntimeException("name cannot be null.");
+			throw new ArgumentNullException("name");
 		}
 		
 		NBTCompound compound = null;
@@ -142,10 +143,10 @@ public class PowerNBTHelper implements INBTHelper {
 	}
 	public void removeTag(Block block, String name) {
 		if (block == null) {
-			throw new RuntimeException("block cannot be null.");
+			throw new ArgumentNullException("block");
 		}
 		if (name == null) {
-			throw new RuntimeException("name cannot be null.");
+			throw new ArgumentNullException("name");
 		}
 		
 		NBTCompound compound = null;
@@ -225,10 +226,10 @@ public class PowerNBTHelper implements INBTHelper {
 	
 	public Object getTag(ItemStack stack, String name) {
 		if (stack == null) {
-			throw new RuntimeException("stack cannot be null.");
+			throw new ArgumentNullException("stack");
 		}
 		if (name == null) {
-			throw new RuntimeException("name cannot be null.");
+			throw new ArgumentNullException("name");
 		}
 		
 		NBTCompound compound = null;
@@ -245,10 +246,10 @@ public class PowerNBTHelper implements INBTHelper {
 	@SuppressWarnings("unchecked")
 	public <T> T getTag(ItemStack stack, String name, Class<T> type) {
 		if (stack == null) {
-			throw new RuntimeException("stack cannot be null.");
+			throw new ArgumentNullException("stack");
 		}
 		if (name == null) {
-			throw new RuntimeException("name cannot be null.");
+			throw new ArgumentNullException("name");
 		}
 		
 		NBTCompound compound = null;
@@ -278,10 +279,10 @@ public class PowerNBTHelper implements INBTHelper {
 	}
 	public Object getTag(Entity entity, String name) {
 		if (entity == null) {
-			throw new RuntimeException("entity cannot be null.");
+			throw new ArgumentNullException("entity");
 		}
 		if (name == null) {
-			throw new RuntimeException("name cannot be null.");
+			throw new ArgumentNullException("name");
 		}
 		
 		NBTCompound compound = null;
@@ -298,10 +299,10 @@ public class PowerNBTHelper implements INBTHelper {
 	@SuppressWarnings("unchecked")
 	public <T> T getTag(Entity entity, String name, Class<T> type) {
 		if (entity == null) {
-			throw new RuntimeException("entity cannot be null.");
+			throw new ArgumentNullException("entity");
 		}
 		if (name == null) {
-			throw new RuntimeException("name cannot be null.");
+			throw new ArgumentNullException("name");
 		}
 		
 		NBTCompound compound = null;
@@ -331,10 +332,10 @@ public class PowerNBTHelper implements INBTHelper {
 	}
 	public Object getTag(Block block, String name) {
 		if (block == null) {
-			throw new RuntimeException("block cannot be null.");
+			throw new ArgumentNullException("block");
 		}
 		if (name == null) {
-			throw new RuntimeException("name cannot be null.");
+			throw new ArgumentNullException("name");
 		}
 		
 		NBTCompound compound = null;
@@ -351,10 +352,10 @@ public class PowerNBTHelper implements INBTHelper {
 	@SuppressWarnings("unchecked")
 	public <T> T getTag(Block block, String name, Class<T> type) {
 		if (block == null) {
-			throw new RuntimeException("block cannot be null.");
+			throw new ArgumentNullException("block");
 		}
 		if (name == null) {
-			throw new RuntimeException("name cannot be null.");
+			throw new ArgumentNullException("name");
 		}
 		
 		NBTCompound compound = null;
