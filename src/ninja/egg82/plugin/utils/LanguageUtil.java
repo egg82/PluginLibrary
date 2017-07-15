@@ -15,6 +15,9 @@ public class LanguageUtil {
 	public static void setRegistry(IRegistry newRegistry) {
 		languageRegistry = newRegistry;
 	}
+	public static IRegistry getRegistry() {
+		return languageRegistry;
+	}
 	
 	public static String getString(String key) {
 		if (languageRegistry == null) {

@@ -11,11 +11,11 @@ public class LanguageRegistry extends Registry {
 	public LanguageRegistry() {
 		super();
 		
-		setRegister("no-permissions", String.class, ChatColor.RED + "You do not have permissions to run this command!");
-		setRegister("incorrect-usage", String.class, ChatColor.RED + "Incorrect usage.");
-		setRegister("player-not-found", String.class, ChatColor.RED + "Player not found.");
-		setRegister("console-not-allowed", String.class, ChatColor.RED + "The console is not allowed to perform this action.");
-		setRegister("player-not-allowed", String.class, ChatColor.RED + "Only the console is allowed to perform this action.");
+		setRegister("no-permissions", ChatColor.RED + "You do not have permissions to run this command!");
+		setRegister("incorrect-usage", ChatColor.RED + "Incorrect usage.");
+		setRegister("player-not-found", ChatColor.RED + "Player not found.");
+		setRegister("console-not-allowed", ChatColor.RED + "The console is not allowed to perform this action.");
+		setRegister("player-not-allowed", ChatColor.RED + "Only the console is allowed to perform this action.");
 	}
 	
 	//public

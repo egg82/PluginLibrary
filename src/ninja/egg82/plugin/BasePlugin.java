@@ -57,10 +57,10 @@ public class BasePlugin extends JavaPlugin {
 		gameVersion = gameVersion.trim().replace('_', '.');
 		
 		IRegistry initRegistry = (IRegistry) ServiceLocator.getService(InitRegistry.class);
-		initRegistry.setRegister(SpigotInitType.GAME_VERSION, String.class, gameVersion);
-		initRegistry.setRegister(SpigotInitType.PLUGIN, JavaPlugin.class, this);
-		initRegistry.setRegister(SpigotInitType.PLUGIN_VERSION, String.class, getDescription().getVersion());
-		initRegistry.setRegister(SpigotInitType.PLUGIN_LOGGER, Logger.class, getLogger());
+		initRegistry.setRegister(SpigotInitType.GAME_VERSION, gameVersion);
+		initRegistry.setRegister(SpigotInitType.PLUGIN, this);
+		initRegistry.setRegister(SpigotInitType.PLUGIN_VERSION, getDescription().getVersion());
+		initRegistry.setRegister(SpigotInitType.PLUGIN_LOGGER, getLogger());
 		
 		reflect(gameVersion, "ninja.egg82.plugin.reflection.player");
 		reflect(gameVersion, "ninja.egg82.plugin.reflection.entity");

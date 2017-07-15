@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ninja.egg82.lib</groupId>
   <artifactId>spigot-lib</artifactId>
-  <version>1.7.25</version>
+  <version>1.7.26</version>
   <name>egg82-spigot-lib</name>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -76,6 +76,10 @@
       <name>varscript.ru-releases</name>
       <url>https://repo.varscript.ru/release</url>
     </repository>
+	<repository>
+	  <id>bungeecord-repo</id>
+	  <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+	</repository>
   </repositories>
   <dependencies>
     <dependency>
@@ -98,7 +102,7 @@
     <dependency>
       <groupId>ninja.egg82.lib</groupId>
       <artifactId>egg82-lib</artifactId>
-      <version>1.5.12</version>
+      <version>1.5.13</version>
     </dependency>
     <dependency>
       <groupId>com.comphenix.protocol</groupId>

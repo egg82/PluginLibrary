@@ -15,6 +15,9 @@ public class ConfigUtil {
 	public static void setRegistry(IRegistry newRegistry) {
 		configRegistry = newRegistry;
 	}
+	public static IRegistry getRegistry() {
+		return configRegistry;
+	}
 	
 	public static <T> T getObject(String key, Class<T> objectType) {
 		if (configRegistry == null) {
