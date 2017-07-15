@@ -46,10 +46,19 @@ public class NullNBTHelper implements INBTHelper {
 	public Object getTag(ItemStack stack, String name) {
 		return null;
 	}
+	public <T> T getTag(ItemStack stack, String name, Class<T> type) {
+		return null;
+	}
 	public Object getTag(Entity entity, String name) {
 		return null;
 	}
+	public <T> T getTag(Entity entity, String name, Class<T> type) {
+		return null;
+	}
 	public Object getTag(Block block, String name) {
+		return null;
+	}
+	public <T> T getTag(Block block, String name, Class<T> type) {
 		return null;
 	}
 	

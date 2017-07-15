@@ -19,8 +19,11 @@ public interface INBTHelper {
 	boolean hasTag(Block block, String name);
 	
 	Object getTag(ItemStack stack, String name);
+	<T> T getTag(ItemStack stack, String name, Class<T> type);
 	Object getTag(Entity entity, String name);
+	<T> T getTag(Entity entity, String name, Class<T> type);
 	Object getTag(Block block, String name);
+	<T> T getTag(Block block, String name, Class<T> type);
 	
 	boolean isValidLibrary();
 	boolean supportsBlocks();

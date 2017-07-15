@@ -106,6 +106,17 @@ public class NBTAPIHelper implements INBTHelper {
 		NBTItem nbt = new NBTItem(stack);
 		return nbt.getObject(name, Object.class);
 	}
+	public <T> T getTag(ItemStack stack, String name, Class<T> type) {
+		if (stack == null) {
+			throw new RuntimeException("stack cannot be null.");
+		}
+		if (name == null) {
+			throw new RuntimeException("name cannot be null.");
+		}
+		
+		NBTItem nbt = new NBTItem(stack);
+		return nbt.getObject(name, type);
+	}
 	public Object getTag(Entity entity, String name) {
 		if (entity == null) {
 			throw new RuntimeException("entity cannot be null.");
@@ -117,7 +128,21 @@ public class NBTAPIHelper implements INBTHelper {
 		NBTEntity nbt = new NBTEntity(entity);
 		return nbt.getObject(name, Object.class);
 	}
+	public <T> T getTag(Entity entity, String name, Class<T> type) {
+		if (entity == null) {
+			throw new RuntimeException("entity cannot be null.");
+		}
+		if (name == null) {
+			throw new RuntimeException("name cannot be null.");
+		}
+		
+		NBTEntity nbt = new NBTEntity(entity);
+		return nbt.getObject(name, type);
+	}
 	public Object getTag(Block block, String name) {
+		throw new NotImplementedException("This library does not support block NBT tags.");
+	}
+	public <T> T getTag(Block block, String name, Class<T> type) {
 		throw new NotImplementedException("This library does not support block NBT tags.");
 	}
 	

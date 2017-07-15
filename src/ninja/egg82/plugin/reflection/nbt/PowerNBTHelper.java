@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import me.dpohvar.powernbt.PowerNBT;
 import me.dpohvar.powernbt.api.NBTCompound;
 import me.dpohvar.powernbt.api.NBTManager;
+import ninja.egg82.utils.ReflectUtil;
 
 public class PowerNBTHelper implements INBTHelper {
 	//vars
@@ -241,6 +242,40 @@ public class PowerNBTHelper implements INBTHelper {
 		}
 		return compound.get(name);
 	}
+	@SuppressWarnings("unchecked")
+	public <T> T getTag(ItemStack stack, String name, Class<T> type) {
+		if (stack == null) {
+			throw new RuntimeException("stack cannot be null.");
+		}
+		if (name == null) {
+			throw new RuntimeException("name cannot be null.");
+		}
+		
+		NBTCompound compound = null;
+		try {
+			compound = manager.read(stack);
+		} catch (Exception ex) {
+			
+		}
+		if (compound == null) {
+			return null;
+		}
+		
+		Object retVal = compound.get(name);
+		if (retVal != null) {
+			if (!ReflectUtil.doesExtend(type, retVal.getClass())) {
+				try {
+					retVal = type.cast(retVal);
+				} catch (Exception ex) {
+					throw new RuntimeException("tag type cannot be converted to the type specified.", ex);
+				}
+			} else {
+				return (T) retVal;
+			}
+		}
+		
+		return null;
+	}
 	public Object getTag(Entity entity, String name) {
 		if (entity == null) {
 			throw new RuntimeException("entity cannot be null.");
@@ -260,6 +295,40 @@ public class PowerNBTHelper implements INBTHelper {
 		}
 		return compound.get(name);
 	}
+	@SuppressWarnings("unchecked")
+	public <T> T getTag(Entity entity, String name, Class<T> type) {
+		if (entity == null) {
+			throw new RuntimeException("entity cannot be null.");
+		}
+		if (name == null) {
+			throw new RuntimeException("name cannot be null.");
+		}
+		
+		NBTCompound compound = null;
+		try {
+			compound = manager.read(entity);
+		} catch (Exception ex) {
+			
+		}
+		if (compound == null) {
+			return null;
+		}
+		
+		Object retVal = compound.get(name);
+		if (retVal != null) {
+			if (!ReflectUtil.doesExtend(type, retVal.getClass())) {
+				try {
+					retVal = type.cast(retVal);
+				} catch (Exception ex) {
+					throw new RuntimeException("tag type cannot be converted to the type specified.", ex);
+				}
+			} else {
+				return (T) retVal;
+			}
+		}
+		
+		return null;
+	}
 	public Object getTag(Block block, String name) {
 		if (block == null) {
 			throw new RuntimeException("block cannot be null.");
@@ -278,6 +347,40 @@ public class PowerNBTHelper implements INBTHelper {
 			return null;
 		}
 		return compound.get(name);
+	}
+	@SuppressWarnings("unchecked")
+	public <T> T getTag(Block block, String name, Class<T> type) {
+		if (block == null) {
+			throw new RuntimeException("block cannot be null.");
+		}
+		if (name == null) {
+			throw new RuntimeException("name cannot be null.");
+		}
+		
+		NBTCompound compound = null;
+		try {
+			compound = manager.read(block);
+		} catch (Exception ex) {
+			
+		}
+		if (compound == null) {
+			return null;
+		}
+		
+		Object retVal = compound.get(name);
+		if (retVal != null) {
+			if (!ReflectUtil.doesExtend(type, retVal.getClass())) {
+				try {
+					retVal = type.cast(retVal);
+				} catch (Exception ex) {
+					throw new RuntimeException("tag type cannot be converted to the type specified.", ex);
+				}
+			} else {
+				return (T) retVal;
+			}
+		}
+		
+		return null;
 	}
 	
 	public boolean isValidLibrary() {

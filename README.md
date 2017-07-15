@@ -7,8 +7,5 @@ Library for Bukkit/Spigot plugins
       <url>https://www.myget.org/F/egg82-java/maven/</url>
     </repository>
 
-    <dependency>
-      <groupId>ninja.egg82.lib</groupId>
-      <artifactId>spigot-lib</artifactId>
-      <version>1.7.23</version>
-    </dependency>
+### Latest Repo
+https://www.myget.org/feed/egg82-java/package/maven/ninja.egg82.lib/spigot-lib

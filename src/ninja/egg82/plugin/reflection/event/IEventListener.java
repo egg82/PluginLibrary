@@ -6,7 +6,7 @@ import ninja.egg82.plugin.commands.EventCommand;
 
 public interface IEventListener {
 	//functions
-	void setEvent(Class<? extends Event> event, Class<? extends EventCommand> clazz);
+	void setEvent(Class<? extends Event> event, Class<? extends EventCommand<? extends Event>> clazz);
 	boolean hasEvent(Class<? extends Event> event);
 	void clear();
 }

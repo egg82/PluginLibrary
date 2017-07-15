@@ -1,5 +1,6 @@
 package ninja.egg82.plugin.utils;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -63,63 +64,30 @@ public final class SpigotReflectUtil {
 		return numCommands;
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static int addEventsFromPackage(String packageName) {
 		int numEvents = 0;
 		
 		IEventListener eventListener = ServiceLocator.getService(IEventListener.class);
 		
 		List<Class<? extends EventCommand>> enums = ReflectUtil.getClasses(EventCommand.class, packageName);
-		Class<? extends Event> c2 = null;
 		for (Class<? extends EventCommand> c : enums) {
-			String name = c.getSimpleName().toLowerCase();
 			String pkg = c.getName();
 			pkg = pkg.substring(0, pkg.lastIndexOf('.'));
 			
 			if (!pkg.equalsIgnoreCase(packageName)) {
 				continue;
 			}
-			if (name.length() < 7) {
+			
+			Class<? extends Event> eventType = null;
+			try {
+				eventType = (Class<? extends Event>) ((ParameterizedType) c.getGenericSuperclass()).getActualTypeArguments()[0];
+			} catch (Exception ex) {
 				continue;
 			}
 			
-			String eventName = (name.substring(name.length() - 7).equals("command")) ? name.substring(0, name.length() - 7) : name;
-			
-			c2 = null;
-			c2 = (Class<? extends Event>) ReflectUtil.getClassFromName("org.bukkit.event.block." + eventName);
-			if (c2 == null) {
-				c2 = (Class<? extends Event>) ReflectUtil.getClassFromName("org.bukkit.event.enchantment." + eventName);
-				if (c2 == null) {
-					c2 = (Class<? extends Event>) ReflectUtil.getClassFromName("org.bukkit.event.entity." + eventName);
-					if (c2 == null) {
-						c2 = (Class<? extends Event>) ReflectUtil.getClassFromName("org.bukkit.event.hanging." + eventName);
-						if (c2 == null) {
-							c2 = (Class<? extends Event>) ReflectUtil.getClassFromName("org.bukkit.event.inventory." + eventName);
-							if (c2 == null) {
-								c2 = (Class<? extends Event>) ReflectUtil.getClassFromName("org.bukkit.event.player." + eventName);
-								if (c2 == null) {
-									c2 = (Class<? extends Event>) ReflectUtil.getClassFromName("org.bukkit.event.server." + eventName);
-									if (c2 == null) {
-										c2 = (Class<? extends Event>) ReflectUtil.getClassFromName("org.bukkit.event.vehicle." + eventName);
-										if (c2 == null) {
-											c2 = (Class<? extends Event>) ReflectUtil.getClassFromName("org.bukkit.event.weather." + eventName);
-											if (c2 == null) {
-												c2 = (Class<? extends Event>) ReflectUtil.getClassFromName("org.bukkit.event.world." + eventName);
-												if (c2 == null) {
-													continue;
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-			
 			numEvents++;
-			eventListener.setEvent(c2, c);
+			eventListener.setEvent(eventType, (Class<? extends EventCommand<? extends Event>>) c);
 		}
 		
 		return numEvents;

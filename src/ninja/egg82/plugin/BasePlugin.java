@@ -23,9 +23,6 @@ import ninja.egg82.plugin.reflection.protocol.NullFakeBlockHelper;
 import ninja.egg82.plugin.reflection.protocol.NullFakeEntityHelper;
 import ninja.egg82.plugin.reflection.protocol.ProtocolLibFakeBlockHelper;
 import ninja.egg82.plugin.reflection.protocol.ProtocolLibFakeEntityHelper;
-import ninja.egg82.plugin.reflection.type.MaterialHelper;
-import ninja.egg82.plugin.reflection.type.PotionEffectTypeHelper;
-import ninja.egg82.plugin.reflection.type.SoundHelper;
 import ninja.egg82.plugin.utils.VersionUtil;
 import ninja.egg82.startup.InitRegistry;
 import ninja.egg82.startup.Start;
@@ -63,9 +60,6 @@ public class BasePlugin extends JavaPlugin {
 		initRegistry.setRegister("plugin.scheduler", BukkitScheduler.class, getServer().getScheduler());
 		initRegistry.setRegister("plugin.logger", Logger.class, getLogger());
 		
-		ServiceLocator.provideService(SoundHelper.class);
-		ServiceLocator.provideService(MaterialHelper.class);
-		ServiceLocator.provideService(PotionEffectTypeHelper.class);
 		reflect(gameVersion, "ninja.egg82.plugin.reflection.player");
 		reflect(gameVersion, "ninja.egg82.plugin.reflection.entity");
 		reflect(gameVersion, "ninja.egg82.plugin.reflection.protocol.wrappers.entityLiving");
