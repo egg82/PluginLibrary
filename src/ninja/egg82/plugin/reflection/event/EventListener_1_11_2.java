@@ -16,24 +16,25 @@ import org.bukkit.event.server.*;
 import org.bukkit.event.vehicle.*;
 import org.bukkit.event.weather.*;
 import org.bukkit.event.world.*;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.commands.EventCommand;
 import ninja.egg82.plugin.enums.SpigotInitType;
+import ninja.egg82.plugin.reflection.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.startup.InitRegistry;
 
 public final class EventListener_1_11_2 implements IEventListener, Listener {
 	//vars
+	private IExceptionHandler exceptionHandler = ServiceLocator.getService(IExceptionHandler.class);
+	
 	private HashMap<String, Class<? extends EventCommand<? extends Event>>> events = new HashMap<String, Class<? extends EventCommand<? extends Event>>>();
 	private HashMap<String, EventCommand<? extends Event>> initializedEvents = new HashMap<String, EventCommand<? extends Event>>();
 	
 	//constructor
 	public EventListener_1_11_2() {
-		PluginManager pluginManager = Bukkit.getServer().getPluginManager();
-		pluginManager.registerEvents(this, ServiceLocator.getService(InitRegistry.class).getRegister(SpigotInitType.PLUGIN, JavaPlugin.class));
+		Bukkit.getServer().getPluginManager().registerEvents(this, ServiceLocator.getService(InitRegistry.class).getRegister(SpigotInitType.PLUGIN, JavaPlugin.class));
 	}
 	
 	//public
@@ -426,10 +427,6 @@ public final class EventListener_1_11_2 implements IEventListener, Listener {
 		onAnyEvent(e, e.getClass());
 	}
 	@EventHandler
-	public void onPlayerAdvancementDone(PlayerAdvancementDoneEvent e) {
-		onAnyEvent(e, e.getClass());
-	}
-	@EventHandler
 	public void onPlayerBedEnter(PlayerBedEnterEvent e) {
 		onAnyEvent(e, e.getClass());
 	}
@@ -781,6 +778,7 @@ public final class EventListener_1_11_2 implements IEventListener, Listener {
 			try {
 				run = c.getDeclaredConstructor(clazz).newInstance(event);
 			} catch (Exception ex) {
+				exceptionHandler.silentException(ex);
 				return;
 			}
 			initializedEvents.put(key, run);
@@ -789,6 +787,11 @@ public final class EventListener_1_11_2 implements IEventListener, Listener {
 			run.setEvent(event);
 		}
 		
-		run.start();
+		try {
+			run.start();
+		} catch (Exception ex) {
+			exceptionHandler.silentException(ex);
+			throw ex;
+		}
 	}
 }

@@ -1,6 +1,6 @@
 package ninja.egg82.plugin.reflection.nbt;
 
-import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
@@ -8,6 +8,8 @@ import org.bukkit.inventory.ItemStack;
 import de.tr7zw.itemnbtapi.NBTEntity;
 import de.tr7zw.itemnbtapi.NBTItem;
 import ninja.egg82.exceptions.ArgumentNullException;
+import ninja.egg82.plugin.core.nbt.INBTCompound;
+import ninja.egg82.plugin.core.nbt.NBTAPICompound;
 
 public class NBTAPIHelper implements INBTHelper {
 	//vars
@@ -18,139 +20,34 @@ public class NBTAPIHelper implements INBTHelper {
 	}
 	
 	//public
-	public void addTag(ItemStack stack, String name, Object data) {
+	public INBTCompound getCompound(ItemStack stack) {
 		if (stack == null) {
 			throw new ArgumentNullException("stack");
 		}
-		if (name == null) {
-			throw new ArgumentNullException("name");
-		}
 		
-		NBTItem nbt = new NBTItem(stack);
-		nbt.setObject(name, data);
+		return new NBTAPICompound(new NBTItem(stack));
 	}
-	public void addTag(Entity entity, String name, Object data) {
+	public INBTCompound getCompound(Entity entity) {
 		if (entity == null) {
 			throw new ArgumentNullException("entity");
 		}
-		if (name == null) {
-			throw new ArgumentNullException("name");
-		}
 		
-		NBTEntity nbt = new NBTEntity(entity);
-		nbt.setObject(name, data);
+		return new NBTAPICompound(new NBTEntity(entity));
 	}
-	public void addTag(Block block, String name, Object data) {
+	public INBTCompound getCompound(Block block) {
 		throw new NotImplementedException("This library does not support block NBT tags.");
 	}
-	
-	public void removeTag(ItemStack stack, String name) {
-		if (stack == null) {
-			throw new ArgumentNullException("stack");
-		}
-		if (name == null) {
-			throw new ArgumentNullException("name");
-		}
-		
-		NBTItem nbt = new NBTItem(stack);
-		nbt.removeKey(name);
-	}
-	public void removeTag(Entity entity, String name) {
-		if (entity == null) {
-			throw new ArgumentNullException("entity");
-		}
-		if (name == null) {
-			throw new ArgumentNullException("name");
-		}
-		
-		NBTEntity nbt = new NBTEntity(entity);
-		nbt.removeKey(name);
-	}
-	public void removeTag(Block block, String name) {
-		throw new NotImplementedException("This library does not support block NBT tags.");
-	}
-	
-	public boolean hasTag(ItemStack stack, String name) {
-		if (stack == null) {
-			return false;
-		}
-		if (name == null) {
-			return false;
-		}
-		
-		NBTItem nbt = new NBTItem(stack);
-		return nbt.hasKey(name);
-	}
-	public boolean hasTag(Entity entity, String name) {
-		if (entity == null) {
-			return false;
-		}
-		if (name == null) {
-			return false;
-		}
-		
-		NBTEntity nbt = new NBTEntity(entity);
-		return nbt.hasKey(name);
-	}
-	public boolean hasTag(Block block, String name) {
-		throw new NotImplementedException("This library does not support block NBT tags.");
-	}
-	
-	public Object getTag(ItemStack stack, String name) {
-		if (stack == null) {
-			throw new ArgumentNullException("stack");
-		}
-		if (name == null) {
-			throw new ArgumentNullException("name");
-		}
-		
-		NBTItem nbt = new NBTItem(stack);
-		return nbt.getObject(name, Object.class);
-	}
-	public <T> T getTag(ItemStack stack, String name, Class<T> type) {
-		if (stack == null) {
-			throw new ArgumentNullException("stack");
-		}
-		if (name == null) {
-			throw new ArgumentNullException("name");
-		}
-		
-		NBTItem nbt = new NBTItem(stack);
-		return nbt.getObject(name, type);
-	}
-	public Object getTag(Entity entity, String name) {
-		if (entity == null) {
-			throw new ArgumentNullException("entity");
-		}
-		if (name == null) {
-			throw new ArgumentNullException("name");
-		}
-		
-		NBTEntity nbt = new NBTEntity(entity);
-		return nbt.getObject(name, Object.class);
-	}
-	public <T> T getTag(Entity entity, String name, Class<T> type) {
-		if (entity == null) {
-			throw new ArgumentNullException("entity");
-		}
-		if (name == null) {
-			throw new ArgumentNullException("name");
-		}
-		
-		NBTEntity nbt = new NBTEntity(entity);
-		return nbt.getObject(name, type);
-	}
-	public Object getTag(Block block, String name) {
-		throw new NotImplementedException("This library does not support block NBT tags.");
-	}
-	public <T> T getTag(Block block, String name, Class<T> type) {
-		throw new NotImplementedException("This library does not support block NBT tags.");
+	public INBTCompound getCompound(String filePath) {
+		throw new NotImplementedException("This library does not support file NBT tags.");
 	}
 	
 	public boolean isValidLibrary() {
 		return true;
 	}
 	public boolean supportsBlocks() {
+		return false;
+	}
+	public boolean supportsFiles() {
 		return false;
 	}
 	

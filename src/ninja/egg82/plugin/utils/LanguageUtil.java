@@ -4,7 +4,7 @@ import ninja.egg82.patterns.IRegistry;
 
 public class LanguageUtil {
 	//vars
-	private static IRegistry languageRegistry = null;
+	private static IRegistry<String> languageRegistry = null;
 	
 	//constructor
 	public LanguageUtil() {
@@ -12,10 +12,10 @@ public class LanguageUtil {
 	}
 	
 	//public
-	public static void setRegistry(IRegistry newRegistry) {
+	public static void setRegistry(IRegistry<String> newRegistry) {
 		languageRegistry = newRegistry;
 	}
-	public static IRegistry getRegistry() {
+	public static IRegistry<String> getRegistry() {
 		return languageRegistry;
 	}
 	

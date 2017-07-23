@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ninja.egg82.lib</groupId>
   <artifactId>spigot-lib</artifactId>
-  <version>1.7.26</version>
+  <version>1.7.27</version>
   <name>egg82-spigot-lib</name>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -31,6 +31,14 @@
                 <relocation>
                   <pattern>org.apache</pattern>
                   <shadedPattern>ninja.egg82.lib.org.apache</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>net.jodah</pattern>
+                  <shadedPattern>ninja.egg82.lib.net.jodah</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>com.rollbar</pattern>
+                  <shadedPattern>ninja.egg82.lib.com.rollbar</shadedPattern>
                 </relocation>
               </relocations>
               <filters>
@@ -102,7 +110,7 @@
     <dependency>
       <groupId>ninja.egg82.lib</groupId>
       <artifactId>egg82-lib</artifactId>
-      <version>1.5.13</version>
+      <version>1.5.14</version>
     </dependency>
     <dependency>
       <groupId>com.comphenix.protocol</groupId>
@@ -121,6 +129,16 @@
       <artifactId>Item-NBT-API</artifactId>
       <version>1.5</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.jodah</groupId>
+      <artifactId>expiringmap</artifactId>
+      <version>0.5.8</version>
+    </dependency>
+    <dependency>
+      <groupId>com.rollbar</groupId>
+      <artifactId>rollbar</artifactId>
+      <version>0.5.3</version>
     </dependency>
   </dependencies>
   <description>Library for Spigot plugins</description>

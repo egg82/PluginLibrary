@@ -170,30 +170,34 @@ public final class CommandUtil {
 		}
 		return p;
 	}
+	public static Player getPlayerByUuid(String uuid) {
+		return getPlayerByUuid(UUID.fromString(uuid));
+	}
 	public static Player getPlayerByUuid(UUID uuid) {
 		if (uuid == null) {
 			return null;
 		}
+		
 		return Bukkit.getPlayer(uuid);
 	}
-	public static Player getPlayerByUuid(String uuid) {
-		if (uuid == null) {
+	
+	@SuppressWarnings("deprecation")
+	public static OfflinePlayer getOfflinePlayerByName(String name) {
+		if (name == null) {
 			return null;
 		}
-		return Bukkit.getPlayer(UUID.fromString(uuid));
+		
+		return Bukkit.getOfflinePlayer(name);
 	}
-	
+	public static OfflinePlayer getOfflinePlayerByUuid(String uuid) {
+		return getOfflinePlayerByUuid(UUID.fromString(uuid));
+	}
 	public static OfflinePlayer getOfflinePlayerByUuid(UUID uuid) {
 		if (uuid == null) {
 			return null;
 		}
+		
 		return Bukkit.getOfflinePlayer(uuid);
-	}
-	public static OfflinePlayer getOfflinePlayerByUuid(String uuid) {
-		if (uuid == null) {
-			return null;
-		}
-		return Bukkit.getOfflinePlayer(UUID.fromString(uuid));
 	}
 	
 	//private

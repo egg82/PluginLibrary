@@ -3,6 +3,9 @@ package ninja.egg82.plugin.reflection.protocol;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 
+import ninja.egg82.plugin.core.protocol.IFakeLivingEntity;
+import ninja.egg82.plugin.core.protocol.ProtocolLibFakeLivingEntity;
+
 public class ProtocolLibFakeEntityHelper implements IFakeEntityHelper {
 	//vars
 	

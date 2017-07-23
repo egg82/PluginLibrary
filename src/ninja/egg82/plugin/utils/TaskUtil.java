@@ -6,10 +6,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.enums.SpigotInitType;
+import ninja.egg82.plugin.reflection.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.startup.InitRegistry;
 
 public class TaskUtil {
 	//vars
+	
 	private static JavaPlugin plugin = null;
 	
 	//constructor
@@ -31,9 +33,27 @@ public class TaskUtil {
 		}
 		
 		if (delay <= 0L) {
-			return Bukkit.getServer().getScheduler().runTask(plugin, task).getTaskId();
+			return Bukkit.getServer().getScheduler().runTask(plugin, new Runnable() {
+				public void run() {
+					IExceptionHandler exceptionHandler = ServiceLocator.getService(IExceptionHandler.class);
+					try {
+						task.run();
+					} catch (Exception ex) {
+						exceptionHandler.silentException(ex);
+						throw ex;
+					}
+				}}).getTaskId();
 		} else {
-			return Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, task, delay);
+			return Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+				public void run() {
+					IExceptionHandler exceptionHandler = ServiceLocator.getService(IExceptionHandler.class);
+					try {
+						task.run();
+					} catch (Exception ex) {
+						exceptionHandler.silentException(ex);
+						throw ex;
+					}
+				}}, delay);
 		}
 	}
 	public static int runAsync(Runnable task) {
@@ -50,9 +70,27 @@ public class TaskUtil {
 		}
 		
 		if (delay <= 0L) {
-			return Bukkit.getServer().getScheduler().runTaskAsynchronously(plugin, task).getTaskId();
+			return Bukkit.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+				public void run() {
+					IExceptionHandler exceptionHandler = ServiceLocator.getService(IExceptionHandler.class);
+					try {
+						task.run();
+					} catch (Exception ex) {
+						exceptionHandler.silentException(ex);
+						throw ex;
+					}
+				}}).getTaskId();
 		} else {
-			return Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, task, delay);
+			return Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
+				public void run() {
+					IExceptionHandler exceptionHandler = ServiceLocator.getService(IExceptionHandler.class);
+					try {
+						task.run();
+					} catch (Exception ex) {
+						exceptionHandler.silentException(ex);
+						throw ex;
+					}
+				}}, delay);
 		}
 	}
 	

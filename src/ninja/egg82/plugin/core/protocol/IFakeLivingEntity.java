@@ -1,4 +1,4 @@
-package ninja.egg82.plugin.reflection.protocol;
+package ninja.egg82.plugin.core.protocol;
 
 import java.util.Collection;
 import java.util.UUID;

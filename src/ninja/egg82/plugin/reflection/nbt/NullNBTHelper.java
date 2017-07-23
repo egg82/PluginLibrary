@@ -4,6 +4,9 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 
+import ninja.egg82.plugin.core.nbt.INBTCompound;
+import ninja.egg82.plugin.core.nbt.NullCompound;
+
 public class NullNBTHelper implements INBTHelper {
 	//vars
 	
@@ -11,55 +14,19 @@ public class NullNBTHelper implements INBTHelper {
 	public NullNBTHelper() {
 		
 	}
-	
-	//public
-	public void addTag(ItemStack stack, String name, Object data) {
-		
+
+	@Override
+	public INBTCompound getCompound(ItemStack stack) {
+		return new NullCompound();
 	}
-	public void addTag(Entity entity, String name, Object data) {
-		
+	public INBTCompound getCompound(Entity entity) {
+		return new NullCompound();
 	}
-	public void addTag(Block block, String name, Object data) {
-		
+	public INBTCompound getCompound(Block block) {
+		return new NullCompound();
 	}
-	
-	public void removeTag(ItemStack stack, String name) {
-		
-	}
-	public void removeTag(Entity entity, String name) {
-		
-	}
-	public void removeTag(Block block, String name) {
-		
-	}
-	
-	public boolean hasTag(ItemStack stack, String name) {
-		return false;
-	}
-	public boolean hasTag(Entity entity, String name) {
-		return false;
-	}
-	public boolean hasTag(Block block, String name) {
-		return false;
-	}
-	
-	public Object getTag(ItemStack stack, String name) {
-		return null;
-	}
-	public <T> T getTag(ItemStack stack, String name, Class<T> type) {
-		return null;
-	}
-	public Object getTag(Entity entity, String name) {
-		return null;
-	}
-	public <T> T getTag(Entity entity, String name, Class<T> type) {
-		return null;
-	}
-	public Object getTag(Block block, String name) {
-		return null;
-	}
-	public <T> T getTag(Block block, String name, Class<T> type) {
-		return null;
+	public INBTCompound getCompound(String filePath) {
+		return new NullCompound();
 	}
 	
 	public boolean isValidLibrary() {
@@ -68,6 +35,12 @@ public class NullNBTHelper implements INBTHelper {
 	public boolean supportsBlocks() {
 		return false;
 	}
+	public boolean supportsFiles() {
+		return false;
+	}
+	
+	//public
+	
 	
 	//private
 	

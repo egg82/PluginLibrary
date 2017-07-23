@@ -25,7 +25,7 @@ import ninja.egg82.plugin.enums.SpigotInitType;
 import ninja.egg82.plugin.reflection.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.startup.InitRegistry;
 
-public final class EventListener_1_8 implements IEventListener, Listener {
+public final class EventListener_1_12 implements IEventListener, Listener {
 	//vars
 	private IExceptionHandler exceptionHandler = ServiceLocator.getService(IExceptionHandler.class);
 	
@@ -33,7 +33,7 @@ public final class EventListener_1_8 implements IEventListener, Listener {
 	private HashMap<String, EventCommand<? extends Event>> initializedEvents = new HashMap<String, EventCommand<? extends Event>>();
 	
 	//constructor
-	public EventListener_1_8() {
+	public EventListener_1_12() {
 		Bukkit.getServer().getPluginManager().registerEvents(this, ServiceLocator.getService(InitRegistry.class).getRegister(SpigotInitType.PLUGIN, JavaPlugin.class));
 	}
 	
@@ -422,13 +422,12 @@ public final class EventListener_1_8 implements IEventListener, Listener {
 	public void onAsyncPlayerPreLogin(AsyncPlayerPreLoginEvent e) {
 		onAnyEvent(e, e.getClass());
 	}
-	@SuppressWarnings("deprecation")
 	@EventHandler
-	public void onPlayerAchievementAwarded(PlayerAchievementAwardedEvent e) {
+	public void onPlayerAnimation(PlayerAnimationEvent e) {
 		onAnyEvent(e, e.getClass());
 	}
 	@EventHandler
-	public void onPlayerAnimation(PlayerAnimationEvent e) {
+	public void onPlayerAdvancementDone(PlayerAdvancementDoneEvent e) {
 		onAnyEvent(e, e.getClass());
 	}
 	@EventHandler

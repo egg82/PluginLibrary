@@ -1,7 +1,10 @@
-package ninja.egg82.plugin.reflection.protocol;
+package ninja.egg82.plugin.core.protocol;
 
-import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.GameMode;
@@ -46,7 +49,7 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 	
 	private long lastAttackTime = -1L;
 	
-	private ArrayDeque<String> players = new ArrayDeque<String>();
+	private List<UUID> players = Collections.synchronizedList(new ArrayList<UUID>());
 	
 	//constructor
 	public ProtocolLibFakeLivingEntity(Location loc, EntityType type) {
@@ -76,7 +79,7 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 			throw new ArgumentNullException("player");
 		}
 		
-		String uuid = player.getUniqueId().toString();
+		UUID uuid = player.getUniqueId();
 		
 		if (!players.contains(uuid)) {
 			packetHelper.send(spawnPacket, player);
@@ -92,7 +95,7 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 			throw new ArgumentNullException("player");
 		}
 		
-		String uuid = player.getUniqueId().toString();
+		UUID uuid = player.getUniqueId();
 		
 		if (players.contains(uuid)) {
 			packetHelper.send(destroyPacket, player);
@@ -100,8 +103,12 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 		}
 	}
 	public void removeAllPlayers() {
-		for (String uuid : players) {
-			packetHelper.send(destroyPacket, CommandUtil.getPlayerByUuid(uuid));
+		synchronized (players) {
+			Iterator<UUID> i = players.iterator();
+			while (i.hasNext()) {
+				UUID uuid = i.next();
+				packetHelper.send(destroyPacket, CommandUtil.getPlayerByUuid(uuid));
+			}
 		}
 		players.clear();
 	}
@@ -123,9 +130,13 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 		currentLocation.setPitch(pitch);
 		currentLocation.setYaw(yaw);
 		
-		for (String uuid : players) {
-			packetHelper.send(lookPacket, CommandUtil.getPlayerByUuid(uuid));
-			packetHelper.send(headLookPacket, CommandUtil.getPlayerByUuid(uuid));
+		synchronized (players) {
+			Iterator<UUID> i = players.iterator();
+			while (i.hasNext()) {
+				UUID uuid = i.next();
+				packetHelper.send(lookPacket, CommandUtil.getPlayerByUuid(uuid));
+				packetHelper.send(headLookPacket, CommandUtil.getPlayerByUuid(uuid));
+			}
 		}
 	}
 	public void moveTo(Location loc) {
@@ -137,8 +148,12 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 		
 		currentLocation = LocationUtil.makeEqualXYZ(loc, currentLocation);
 		
-		for (String uuid : players) {
-			packetHelper.send(movePacket, CommandUtil.getPlayerByUuid(uuid));
+		synchronized (players) {
+			Iterator<UUID> i = players.iterator();
+			while (i.hasNext()) {
+				UUID uuid = i.next();
+				packetHelper.send(movePacket, CommandUtil.getPlayerByUuid(uuid));
+			}
 		}
 	}
 	public void teleportTo(Location loc) {
@@ -150,8 +165,12 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 		
 		currentLocation = loc.clone();
 		
-		for (String uuid : players) {
-			packetHelper.send(teleportPacket, CommandUtil.getPlayerByUuid(uuid));
+		synchronized (players) {
+			Iterator<UUID> i = players.iterator();
+			while (i.hasNext()) {
+				UUID uuid = i.next();
+				packetHelper.send(teleportPacket, CommandUtil.getPlayerByUuid(uuid));
+			}
 		}
 	}
 	public Location getLocation() {
@@ -160,8 +179,12 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 	
 	public void animate(int animationId) {
 		PacketContainer animatePacket = packetHelper.animate(id, animationId);
-		for (String uuid : players) {
-			packetHelper.send(animatePacket, CommandUtil.getPlayerByUuid(uuid));
+		synchronized (players) {
+			Iterator<UUID> i = players.iterator();
+			while (i.hasNext()) {
+				UUID uuid = i.next();
+				packetHelper.send(animatePacket, CommandUtil.getPlayerByUuid(uuid));
+			}
 		}
 	}
 	public void attack(Damageable entity, double damage) {

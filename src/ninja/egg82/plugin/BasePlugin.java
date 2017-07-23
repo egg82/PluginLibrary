@@ -1,6 +1,7 @@
 package ninja.egg82.plugin;
 
 import java.util.List;
+import java.util.logging.Handler;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
@@ -16,6 +17,8 @@ import ninja.egg82.plugin.enums.SpigotInitType;
 import ninja.egg82.plugin.handlers.CommandHandler;
 import ninja.egg82.plugin.handlers.PermissionsManager;
 import ninja.egg82.plugin.handlers.TickHandler;
+import ninja.egg82.plugin.reflection.exceptionHandlers.IExceptionHandler;
+import ninja.egg82.plugin.reflection.exceptionHandlers.RollbarExceptionHandler;
 import ninja.egg82.plugin.reflection.nbt.NBTAPIHelper;
 import ninja.egg82.plugin.reflection.nbt.NullNBTHelper;
 import ninja.egg82.plugin.reflection.nbt.PowerNBTHelper;
@@ -34,33 +37,35 @@ import ninja.egg82.startup.Start;
 public class BasePlugin extends JavaPlugin {
 	//vars
 	private CommandHandler commandHandler = null;
-	private String gameVersion = Bukkit.getVersion();
+	private String gameVersion = null;
 	private Logger logger = null;
 	private CommandSender consoleSender = null;
 	
 	//constructor
 	public BasePlugin() {
+		super();
 		
-	}
-	
-	//public
-	public void onLoad() {
 		logger = getLogger();
-		consoleSender = this.getServer().getConsoleSender();
+		ServiceLocator.provideService(RollbarExceptionHandler.class);
+		logger.addHandler((Handler) ServiceLocator.getService(IExceptionHandler.class));
 		
 		Start.init();
 		
-		PluginManager manager = getServer().getPluginManager();
-		
+		gameVersion = Bukkit.getVersion();
 		gameVersion = gameVersion.substring(gameVersion.indexOf('('));
 		gameVersion = gameVersion.substring(gameVersion.indexOf(' ') + 1, gameVersion.length() - 1);
 		gameVersion = gameVersion.trim().replace('_', '.');
 		
-		IRegistry initRegistry = (IRegistry) ServiceLocator.getService(InitRegistry.class);
+		IRegistry<String> initRegistry = ServiceLocator.getService(InitRegistry.class);
 		initRegistry.setRegister(SpigotInitType.GAME_VERSION, gameVersion);
 		initRegistry.setRegister(SpigotInitType.PLUGIN, this);
 		initRegistry.setRegister(SpigotInitType.PLUGIN_VERSION, getDescription().getVersion());
 		initRegistry.setRegister(SpigotInitType.PLUGIN_LOGGER, getLogger());
+	}
+	
+	//public
+	public void onLoad() {
+		consoleSender = this.getServer().getConsoleSender();
 		
 		reflect(gameVersion, "ninja.egg82.plugin.reflection.player");
 		reflect(gameVersion, "ninja.egg82.plugin.reflection.entity");
@@ -71,6 +76,8 @@ public class BasePlugin extends JavaPlugin {
 		ConfigUtil.setRegistry(ServiceLocator.getService(ConfigRegistry.class));
 		ServiceLocator.provideService(LanguageRegistry.class, false);
 		LanguageUtil.setRegistry(ServiceLocator.getService(LanguageRegistry.class));
+		
+		PluginManager manager = getServer().getPluginManager();
 		
 		if (manager.getPlugin("ProtocolLib") != null) {
 			ServiceLocator.provideService(ProtocolLibFakeEntityHelper.class);

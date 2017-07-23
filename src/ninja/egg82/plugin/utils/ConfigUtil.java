@@ -4,7 +4,7 @@ import ninja.egg82.patterns.IRegistry;
 
 public class ConfigUtil {
 	//vars
-	private static IRegistry configRegistry = null;
+	private static IRegistry<String> configRegistry = null;
 	
 	//constructor
 	public ConfigUtil() {
@@ -12,10 +12,10 @@ public class ConfigUtil {
 	}
 	
 	//public
-	public static void setRegistry(IRegistry newRegistry) {
+	public static void setRegistry(IRegistry<String> newRegistry) {
 		configRegistry = newRegistry;
 	}
-	public static IRegistry getRegistry() {
+	public static IRegistry<String> getRegistry() {
 		return configRegistry;
 	}
 	
