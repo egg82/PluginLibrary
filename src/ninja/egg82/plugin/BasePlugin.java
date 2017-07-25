@@ -18,7 +18,7 @@ import ninja.egg82.plugin.handlers.CommandHandler;
 import ninja.egg82.plugin.handlers.PermissionsManager;
 import ninja.egg82.plugin.handlers.TickHandler;
 import ninja.egg82.plugin.reflection.exceptionHandlers.IExceptionHandler;
-import ninja.egg82.plugin.reflection.exceptionHandlers.RollbarExceptionHandler;
+import ninja.egg82.plugin.reflection.exceptionHandlers.NullExceptionHandler;
 import ninja.egg82.plugin.reflection.nbt.NBTAPIHelper;
 import ninja.egg82.plugin.reflection.nbt.NullNBTHelper;
 import ninja.egg82.plugin.reflection.nbt.PowerNBTHelper;
@@ -45,11 +45,11 @@ public class BasePlugin extends JavaPlugin {
 	public BasePlugin() {
 		super();
 		
-		logger = getLogger();
-		ServiceLocator.provideService(RollbarExceptionHandler.class);
-		logger.addHandler((Handler) ServiceLocator.getService(IExceptionHandler.class));
-		
 		Start.init();
+		
+		logger = getLogger();
+		ServiceLocator.provideService(NullExceptionHandler.class);
+		logger.addHandler((Handler) ServiceLocator.getService(IExceptionHandler.class));
 		
 		gameVersion = Bukkit.getVersion();
 		gameVersion = gameVersion.substring(gameVersion.indexOf('('));

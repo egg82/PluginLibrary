@@ -73,7 +73,7 @@ public final class CommandUtil {
 			commandLocation = new Location(Bukkit.getWorlds().get(0), 0.0d, 0.0d, 0.0d);
 		}
 		
-		if (symbol == null || symbol.length() == 0 || symbol.charAt(0) != '@') {
+		if (symbol == null || symbol.length() <= 1 || symbol.charAt(0) != '@') {
 			return new ArrayList<Entity>();
 		}
 		

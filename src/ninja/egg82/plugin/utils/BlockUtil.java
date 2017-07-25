@@ -330,62 +330,62 @@ public final class BlockUtil {
 		
 		block.setData(data.getData());
 		
-		if (type == Material.STANDING_BANNER || type == Material.WALL_BANNER) {
+		if ((type == Material.STANDING_BANNER || type == Material.WALL_BANNER) && block instanceof Banner) {
 			Banner b1 = (Banner) block;
 			Banner b2 = (Banner) data;
 			b1.setBaseColor(b2.getBaseColor());
 			b1.setPatterns(b2.getPatterns());
-		} else if (type == Material.BEACON) {
+		} else if (type == Material.BEACON && block instanceof Beacon) {
 			((Beacon) block).getInventory().setContents(((Beacon) data).getInventory().getContents());
-		} else if (type == Material.BREWING_STAND) {
+		} else if (type == Material.BREWING_STAND && block instanceof BrewingStand) {
 			BrewingStand b1 = (BrewingStand) block;
 			BrewingStand b2 = (BrewingStand) data;
 			b1.getInventory().setContents(b2.getInventory().getContents());
 			b1.setBrewingTime(b2.getBrewingTime());
 			b1.setFuelLevel(b2.getFuelLevel());
-		} else if (type == Material.CHEST) {
+		} else if (type == Material.CHEST && block instanceof Chest) {
 			((Chest) block).getBlockInventory().setContents(((Chest) data).getBlockInventory().getContents());
-		} else if (type == Material.COMMAND) {
+		} else if (type == Material.COMMAND && block instanceof CommandBlock) {
 			CommandBlock b1 = (CommandBlock) block;
 			CommandBlock b2 = (CommandBlock) data;
 			b1.setName(b2.getName());
 			b1.setCommand(b2.getCommand());
-		} else if (type == Material.FURNACE || type == Material.BURNING_FURNACE) {
+		} else if ((type == Material.FURNACE || type == Material.BURNING_FURNACE) && block instanceof Furnace) {
 			Furnace b1 = (Furnace) block;
 			Furnace b2 = (Furnace) data;
 			b1.setBurnTime(b2.getBurnTime());
 			b1.setCookTime(b2.getCookTime());
 			b1.getInventory().setContents(b2.getInventory().getContents());
-		} else if (type == Material.MOB_SPAWNER) {
+		} else if (type == Material.MOB_SPAWNER && block instanceof CreatureSpawner) {
 			CreatureSpawner b1 = (CreatureSpawner) block;
 			CreatureSpawner b2 = (CreatureSpawner) data;
 			b1.setSpawnedType(b2.getSpawnedType());
 			b1.setDelay(b2.getDelay());
 			b1.setSpawnedType(b2.getSpawnedType());
-		} else if (type == Material.DISPENSER) {
+		} else if (type == Material.DISPENSER && block instanceof Dispenser) {
 			((Dispenser) block).getInventory().setContents(((Dispenser) data).getInventory().getContents());
 		} else if (type == Material.DROPPER) {
 			((Dropper) block).getInventory().setContents(((Dropper) data).getInventory().getContents());
-		} else if (type.toString().equalsIgnoreCase("end_gateway")) {
+		} else if (type.toString().equalsIgnoreCase("end_gateway") & block instanceof EndGateway) {
 			EndGateway b1 = (EndGateway) block;
 			EndGateway b2 = (EndGateway) data;
 			b1.setExactTeleport(b2.isExactTeleport());
 			b1.setExitLocation(b2.getExitLocation());
-		} else if (type == Material.FLOWER_POT) {
+		} else if (type == Material.FLOWER_POT && block instanceof FlowerPot) {
 			((FlowerPot) block).setContents(((FlowerPot) data).getContents());
-		} else if (type == Material.HOPPER) {
+		} else if (type == Material.HOPPER && block instanceof Hopper) {
 			((Hopper) block).getInventory().setContents(((Hopper) data).getInventory().getContents());
-		} else if (type == Material.JUKEBOX) {
+		} else if (type == Material.JUKEBOX && block instanceof Jukebox) {
 			((Jukebox) block).setPlaying(((Jukebox) data).getPlaying());
-		} else if (type == Material.NOTE_BLOCK) {
+		} else if (type == Material.NOTE_BLOCK && block instanceof NoteBlock) {
 			((NoteBlock) block).setNote(((NoteBlock) data).getNote());
-		} else if (type == Material.SIGN_POST || type == Material.WALL_SIGN) {
+		} else if ((type == Material.SIGN_POST || type == Material.WALL_SIGN) && block instanceof Sign) {
 			Sign b1 = (Sign) block;
 			String[] lines = ((Sign) data).getLines();
 			for (int j = 0; j < lines.length; j++) {
 				b1.setLine(j, lines[j]);
 			}
-		} else if (type == Material.SKULL) {
+		} else if (type == Material.SKULL && block instanceof Skull) {
 			Skull b1 = (Skull) block;
 			Skull b2 = (Skull) data;
 			b1.setOwningPlayer(b2.getOwningPlayer());
