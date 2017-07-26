@@ -396,7 +396,7 @@ public final class BlockUtil {
 			b1.setOwningPlayer(b2.getOwningPlayer());
 			b1.setRotation(b2.getRotation());
 			b1.setSkullType(b2.getSkullType());
-		} else if (type == Material.CROPS) {
+		} else if (type == Material.CROPS && block instanceof Crops) {
 			Crops b1 = (Crops) block;
 			Crops b2 = (Crops) data;
 			b1.setState(b2.getState());
