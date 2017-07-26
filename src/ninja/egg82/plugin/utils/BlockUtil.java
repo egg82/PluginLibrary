@@ -27,6 +27,7 @@ import org.bukkit.block.Sign;
 import org.bukkit.block.Skull;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.Crops;
 import org.bukkit.material.MaterialData;
 
 import ninja.egg82.exceptions.ArgumentNullException;
@@ -328,7 +329,11 @@ public final class BlockUtil {
 	private static void setBlockData(BlockState block, BlockState data) {
 		Material type = block.getType();
 		
-		block.setData(data.getData());
+		try {
+			block.setData(data.getData());
+		} catch (Exception ex) {
+			
+		}
 		
 		if ((type == Material.STANDING_BANNER || type == Material.WALL_BANNER) && block instanceof Banner) {
 			Banner b1 = (Banner) block;
@@ -391,6 +396,10 @@ public final class BlockUtil {
 			b1.setOwningPlayer(b2.getOwningPlayer());
 			b1.setRotation(b2.getRotation());
 			b1.setSkullType(b2.getSkullType());
+		} else if (type == Material.CROPS) {
+			Crops b1 = (Crops) block;
+			Crops b2 = (Crops) data;
+			b1.setState(b2.getState());
 		}
 	}
 }

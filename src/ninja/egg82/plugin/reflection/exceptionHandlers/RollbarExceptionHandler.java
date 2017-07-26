@@ -2,7 +2,11 @@ package ninja.egg82.plugin.reflection.exceptionHandlers;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -10,13 +14,18 @@ import java.util.logging.Logger;
 
 import javax.swing.Timer;
 
+import org.bukkit.Bukkit;
+
 import com.rollbar.Rollbar;
+import com.rollbar.payload.data.Person;
 
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.enums.SpigotInitType;
 import ninja.egg82.plugin.reflection.exceptionHandlers.builders.IBuilder;
 import ninja.egg82.plugin.reflection.exceptionHandlers.internal.LoggingRollbarResponseHandler;
 import ninja.egg82.startup.InitRegistry;
+import ninja.egg82.utils.FileUtil;
+import ninja.egg82.utils.ICryptoUtil;
 
 public class RollbarExceptionHandler extends Handler implements IExceptionHandler {
 	//vars
@@ -25,8 +34,16 @@ public class RollbarExceptionHandler extends Handler implements IExceptionHandle
 	
 	private Timer resendTimer = null;
 	
+	private String userId = Bukkit.getServerId().trim();
+	private ICryptoUtil cryptoUtil = ServiceLocator.getService(ICryptoUtil.class);
+	
 	//constructor
 	public RollbarExceptionHandler() {
+		if (userId.isEmpty() || userId.equalsIgnoreCase("unnamed") || userId.equalsIgnoreCase("unknown") || userId.equalsIgnoreCase("default")) {
+			userId = UUID.randomUUID().toString();
+			writeProperties();
+		}
+		
 		Logger.getLogger("ninja.egg82.core.PasswordHasher").addHandler(this);
 		Logger.getLogger("ninja.egg82.patterns.events.EventHandler").addHandler(this);
 	}
@@ -37,8 +54,8 @@ public class RollbarExceptionHandler extends Handler implements IExceptionHandle
 		if (params == null || params.length != 2) {
 			throw new IllegalArgumentException("params must have a length of 2. Use ninja.egg82.plugin.reflection.exceptionHandlers.builders.RollbarBuilder");
 		}
-		rollbar = new Rollbar(params[0], params[1]).codeVersion(ServiceLocator.getService(InitRegistry.class).getRegister(SpigotInitType.PLUGIN_VERSION, String.class)).responseHandler(responseHandler);
-		//rollbar = new Rollbar(accessToken, environment, new AsyncPayloadSender()).codeVersion(ServiceLocator.getService(InitRegistry.class).getRegister(SpigotInitType.PLUGIN_VERSION, String.class));
+		rollbar = new Rollbar(params[0], params[1]).codeVersion(ServiceLocator.getService(InitRegistry.class).getRegister(SpigotInitType.PLUGIN_VERSION, String.class)).responseHandler(responseHandler).person(new Person(userId));
+		//rollbar = new Rollbar(accessToken, environment, new AsyncPayloadSender()).codeVersion(ServiceLocator.getService(InitRegistry.class).getRegister(SpigotInitType.PLUGIN_VERSION, String.class)).person(new Person(userId));
 		handleUncaughtErrors(Thread.currentThread());
 		
 		List<LogRecord> records = responseHandler.getUnsentLogs();
@@ -188,4 +205,37 @@ public class RollbarExceptionHandler extends Handler implements IExceptionHandle
 			}
 		}
 	};
+	
+	private void writeProperties() {
+		File propertiesFile = new File(Bukkit.getWorldContainer(), "server.properties");
+		String path = propertiesFile.getAbsolutePath();
+		
+		if (!FileUtil.pathExists(path) || !FileUtil.pathIsFile(path)) {
+			return;
+		}
+		
+		try {
+			FileUtil.open(path);
+			
+			String[] lines = cryptoUtil.toString(FileUtil.read(path, 0L)).replaceAll("\r", "").split("\n");
+			boolean found = false;
+			for (int i = 0; i < lines.length; i++) {
+				if (lines[i].trim().startsWith("server-id=")) {
+					found = true;
+					lines[i] = "server-id=" + userId;
+				}
+			}
+			if (!found) {
+				ArrayList<String> temp = new ArrayList<String>(Arrays.asList(lines));
+				temp.add("server-id=" + userId);
+				lines = temp.toArray(new String[0]);
+			}
+			
+			FileUtil.erase(path);
+			FileUtil.write(path, cryptoUtil.toBytes(String.join(FileUtil.LINE_SEPARATOR, lines)), 0L);
+			FileUtil.close(path);
+		} catch (Exception ex) {
+			
+		}
+	}
 }
