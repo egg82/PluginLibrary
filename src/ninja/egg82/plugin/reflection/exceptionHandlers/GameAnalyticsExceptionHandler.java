@@ -1,10 +1,14 @@
 package ninja.egg82.plugin.reflection.exceptionHandlers;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+
+import javax.swing.Timer;
 
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.enums.SpigotInitType;
@@ -18,6 +22,9 @@ public class GameAnalyticsExceptionHandler extends Handler implements IException
 	
 	private ArrayList<LogRecord> logs = new ArrayList<LogRecord>();
 	private ArrayList<Exception> exceptions = new ArrayList<Exception>();
+	
+	private Timer cleanupTimer = null;
+	private ArrayList<Thread> errorThreads = new ArrayList<Thread>();
 	
 	//constructor
 	public GameAnalyticsExceptionHandler() {
@@ -47,11 +54,24 @@ public class GameAnalyticsExceptionHandler extends Handler implements IException
 			api.log(ex);
 		}
 		exceptions.clear();
+		
+		cleanupTimer = new Timer(5 * 60 * 1000, onCleanupTimer);
+		cleanupTimer.setRepeats(true);
+		cleanupTimer.start();
+	}
+	public void disconnect() {
+		if (api != null) {
+			for (Thread t : errorThreads) {
+				api.unhandleUncaughtErrors(t);
+			}
+			errorThreads.clear();
+		}
 	}
 	
 	public void addThread(Thread thread) {
 		if (api != null) {
 			api.handleUncaughtErrors(thread);
+			errorThreads.add(thread);
 		}
 	}
 	public void silentException(Exception ex) {
@@ -126,5 +146,9 @@ public class GameAnalyticsExceptionHandler extends Handler implements IException
 	}
 	
 	//private
-	
+	private ActionListener onCleanupTimer = new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+			errorThreads.removeIf((v) -> (!v.isAlive()));
+		}
+	};
 }

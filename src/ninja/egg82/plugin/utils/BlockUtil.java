@@ -3,6 +3,7 @@ package ninja.egg82.plugin.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -47,6 +48,10 @@ public final class BlockUtil {
 			throw new ArgumentNullException("l");
 		}
 		
+		if (!l.getWorld().isChunkLoaded(l.getBlockX() >> 4, l.getBlockZ() >> 4) && !Bukkit.isPrimaryThread()) {
+			return l.clone();
+		}
+		
 		l = l.clone();
 		l.setY(l.getBlockY());
 		
@@ -73,6 +78,10 @@ public final class BlockUtil {
 	public static Location getTopWalkableBlock(Location l) {
 		if (l == null) {
 			throw new ArgumentNullException("l");
+		}
+		
+		if (!l.getWorld().isChunkLoaded(l.getBlockX() >> 4, l.getBlockZ() >> 4) && !Bukkit.isPrimaryThread()) {
+			return l.clone();
 		}
 		
 		l = l.clone();

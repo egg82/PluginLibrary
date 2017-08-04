@@ -19,6 +19,7 @@ import org.bukkit.Bukkit;
 import com.rollbar.Rollbar;
 import com.rollbar.payload.data.Person;
 
+import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.enums.SpigotInitType;
 import ninja.egg82.plugin.reflection.exceptionHandlers.builders.IBuilder;
@@ -33,6 +34,8 @@ public class RollbarExceptionHandler extends Handler implements IExceptionHandle
 	private LoggingRollbarResponseHandler responseHandler = new LoggingRollbarResponseHandler();
 	
 	private Timer resendTimer = null;
+	private Timer cleanupTimer = null;
+	private ArrayList<Thread> errorThreads = new ArrayList<Thread>();
 	
 	private String userId = Bukkit.getServerId().trim();
 	private ICryptoUtil cryptoUtil = ServiceLocator.getService(ICryptoUtil.class);
@@ -78,11 +81,22 @@ public class RollbarExceptionHandler extends Handler implements IExceptionHandle
 		resendTimer = new Timer(60 * 60 * 1000, onResendTimer);
 		resendTimer.setRepeats(true);
 		resendTimer.start();
+		
+		cleanupTimer = new Timer(5 * 60 * 1000, onCleanupTimer);
+		cleanupTimer.setRepeats(true);
+		cleanupTimer.start();
+	}
+	public void disconnect() {
+		for (Thread t : errorThreads) {
+			unhandleUncaughtErrors(t);
+		}
+		errorThreads.clear();
 	}
 	
 	public void addThread(Thread thread) {
 		if (rollbar != null) {
 			handleUncaughtErrors(thread);
+			errorThreads.add(thread);
 		}
 	}
 	public void silentException(Exception ex) {
@@ -177,12 +191,21 @@ public class RollbarExceptionHandler extends Handler implements IExceptionHandle
 	}
 	
 	private void handleUncaughtErrors(Thread thread) {
+		if (thread == null) {
+			throw new ArgumentNullException("thread");
+		}
 		thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 			public void uncaughtException(Thread t, Throwable ex) {
 				responseHandler.setLastException(ex);
 				rollbar.log(ex);
 			}
 		});
+	}
+	private void unhandleUncaughtErrors(Thread thread) {
+		if (thread == null) {
+			throw new ArgumentNullException("thread");
+		}
+		thread.setUncaughtExceptionHandler(null);
 	}
 	
 	private ActionListener onResendTimer = new ActionListener() {
@@ -203,6 +226,11 @@ public class RollbarExceptionHandler extends Handler implements IExceptionHandle
 				responseHandler.setLastException(ex);
 				rollbar.log(ex);
 			}
+		}
+	};
+	private ActionListener onCleanupTimer = new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+			errorThreads.removeIf((v) -> (!v.isAlive()));
 		}
 	};
 	

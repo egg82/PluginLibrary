@@ -77,6 +77,12 @@ public class GameAnalyticsAPI {
 			}
 		});
 	}
+	public void unhandleUncaughtErrors(Thread thread) {
+		if (thread == null) {
+			throw new ArgumentNullException("thread");
+		}
+		thread.setUncaughtExceptionHandler(null);
+	}
 	
 	public void log(Throwable ex) {
 		sendError(getTraceString(ex), "error", 0);
@@ -365,7 +371,7 @@ public class GameAnalyticsAPI {
 		JSONObject error = new JSONObject();
 		
 		// Required
-		error.put("device", System.getProperty("os.name").toLowerCase().replaceAll("\\s", ""));
+		error.put("device", System.getProperty("os.name").replaceAll("\\s", ""));
 		error.put("v", 2);
 		error.put("user_id", userId);
 		error.put("client_ts", (System.currentTimeMillis() / 1000) - tsOffset);

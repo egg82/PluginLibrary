@@ -8,6 +8,7 @@ import ninja.egg82.plugin.reflection.exceptionHandlers.builders.IBuilder;
 public interface IExceptionHandler {
 	//functions
 	void connect(IBuilder builder);
+	void disconnect();
 	
 	void addThread(Thread thread);
 	void silentException(Exception ex);

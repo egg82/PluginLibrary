@@ -35,7 +35,7 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 		if (blockLocation == null) {
 			throw new ArgumentNullException("blockLocation");
 		}
-		if (blockLocation.distanceSquared(player.getLocation()) > maxDistance * maxDistance) {
+		if (!blockLocation.getWorld().equals(player.getWorld()) || blockLocation.distanceSquared(player.getLocation()) > maxDistance * maxDistance) {
 			return;
 		}
 		

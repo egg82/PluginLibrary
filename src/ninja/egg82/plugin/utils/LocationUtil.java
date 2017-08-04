@@ -53,6 +53,10 @@ public class LocationUtil {
 		return retVal;
 	}
 	
+	public static Location toBlockLocation(Location loc) {
+		return new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+	}
+	
 	public static Vector moveSmoothly(Location from, Location to) {
 		return moveSmoothly(from, to, 2.5d);
 	}
@@ -68,11 +72,12 @@ public class LocationUtil {
 		return areEqualXYZ(from, to, 0.0d);
 	}
 	public static boolean areEqualXYZ(Location from, Location to, double epsilon) {
-		return (from.distanceSquared(to) > epsilon * epsilon) ? false : true;
+		return (!from.getWorld().equals(to.getWorld()) || from.distanceSquared(to) > epsilon * epsilon) ? false : true;
 	}
 	public static Location makeEqualXYZ(Location from, Location to) {
 		to = to.clone();
 		
+		to.setWorld(from.getWorld());
 		to.setX(from.getX());
 		to.setY(from.getY());
 		to.setZ(from.getZ());

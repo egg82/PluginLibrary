@@ -23,6 +23,9 @@ public class NullExceptionHandler extends Handler implements IExceptionHandler {
 	public void connect(IBuilder builder) {
 		throw new NotImplementedException("This API does not support exceptions.");
 	}
+	public void disconnect() {
+		
+	}
 	
 	public void addThread(Thread thread) {
 		
@@ -32,6 +35,7 @@ public class NullExceptionHandler extends Handler implements IExceptionHandler {
 	}
 	public void throwException(RuntimeException ex) {
 		exceptions.add(ex);
+		throw ex;
 	}
 	
 	public void publish(LogRecord record) {
