@@ -308,7 +308,9 @@ public final class BlockUtil {
 			
 			if (items != null) {
 				for (int i = 0; i < items.length; i++) {
-					blockWorld.dropItemNaturally(location, items[i]);
+					if (items[i] != null) {
+						blockWorld.dropItemNaturally(location, items[i]);
+					}
 				}
 			}
 			

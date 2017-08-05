@@ -22,7 +22,7 @@ public class TypeFilterHelper<T> {
 		this.clazz = clazz;
 		
 		Object[] enums = ReflectUtil.getStaticFields(clazz);
-		types = (T[]) Arrays.copyOf(enums, enums.length, types.getClass());
+		types = (T[]) Arrays.copyOf(enums, enums.length, ((T[]) Array.newInstance(clazz, 0)).getClass());
 	}
 	
 	//public

@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ninja.egg82.lib</groupId>
   <artifactId>spigot-lib</artifactId>
-  <version>1.7.31</version>
+  <version>1.7.32</version>
   <name>egg82-spigot-lib</name>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -113,7 +113,7 @@
     <dependency>
       <groupId>ninja.egg82.lib</groupId>
       <artifactId>egg82-lib</artifactId>
-      <version>1.5.16</version>
+      <version>1.5.17</version>
     </dependency>
     <dependency>
       <groupId>com.comphenix.protocol</groupId>
@@ -132,11 +132,6 @@
       <artifactId>Item-NBT-API</artifactId>
       <version>1.5</version>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.jodah</groupId>
-      <artifactId>expiringmap</artifactId>
-      <version>0.5.8</version>
     </dependency>
     <dependency>
       <groupId>com.rollbar</groupId>
