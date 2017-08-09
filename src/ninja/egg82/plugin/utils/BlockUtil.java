@@ -213,7 +213,7 @@ public final class BlockUtil {
 			throw new ArgumentNullException("blocks");
 		}
 		if (blocks.size() != (xRadius * 2 + 1) * (yRadius * 2 + 1) * (zRadius * 2 + 1)) {
-			throw new RuntimeException("blocks is not the correct length for the radii specified.");
+			throw new RuntimeException("blocks is not the correct length for the radii specified. Expected " + ((xRadius * 2 + 1) * (yRadius * 2 + 1) * (zRadius * 2 + 1)) + ", got " + blocks.size() + ".");
 		}
 		if (center == null) {
 			throw new ArgumentNullException("center");
@@ -404,7 +404,9 @@ public final class BlockUtil {
 		} else if (type == Material.SKULL && block instanceof Skull) {
 			Skull b1 = (Skull) block;
 			Skull b2 = (Skull) data;
-			b1.setOwningPlayer(b2.getOwningPlayer());
+			if (b2.getOwningPlayer() != null) {
+				b1.setOwningPlayer(b2.getOwningPlayer());
+			}
 			b1.setRotation(b2.getRotation());
 			b1.setSkullType(b2.getSkullType());
 		} else if (type == Material.CROPS && block instanceof Crops) {
