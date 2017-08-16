@@ -44,6 +44,10 @@ public final class PlayerHelper_1_8 implements IPlayerHelper {
 		}
 	}
 	
+	public boolean supportsOffhand() {
+		return false;
+	}
+	
 	//private
 	
 }

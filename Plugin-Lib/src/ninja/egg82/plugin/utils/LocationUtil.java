@@ -45,16 +45,45 @@ public class LocationUtil {
 		
 		return new Location(loc.getWorld(), loc.getX() + distance * Math.cos(angle), loc.getY(), loc.getZ() + distance * Math.sin(angle));
 	}
+	public static Location getLocationAtAngle(Location center, double distance, double dregreeOffsetFromFacingDirection) {
+		double angle = center.getYaw();
+		
+		angle += 90.0d + dregreeOffsetFromFacingDirection;
+		
+		while (angle < 0.0d) {
+			angle += 360.0d;
+		}
+		while (angle > 360.0d) {
+			angle -= 360.0d;
+		}
+		
+		angle = angle * Math.PI / 180.0d;
+		
+		return new Location(center.getWorld(), center.getX() + distance * Math.cos(angle), center.getY(), center.getZ() + distance * Math.sin(angle));
+	}
 	public static Location getRandomPointAround(Location loc, double radius) {
 		double angle = Math.random() * Math.PI * 2.0d;
 		return new Location(loc.getWorld(), loc.getX() + radius * Math.cos(angle), loc.getY(), loc.getZ() + radius * Math.sin(angle));
+	}
+	public static Location[] getHalfCircleAround(Location loc, double radius, int numPoints) {
+		Location[] retVal = new Location[numPoints];
+		double piSlice = Math.PI / numPoints;
+		
+		double angle = loc.getYaw();
+		
+		for (int i = 0; i < numPoints; i++) {
+			double newAngle = (angle + piSlice * i) * Math.PI / 180.0d;
+			retVal[i] = new Location(loc.getWorld(), loc.getX() + radius * Math.cos(newAngle), loc.getY(), loc.getZ() + radius * Math.sin(newAngle));
+		}
+		
+		return retVal;
 	}
 	public static Location[] getCircleAround(Location loc, double radius, int numPoints) {
 		Location[] retVal = new Location[numPoints];
 		double piSlice = 2.0d * Math.PI / numPoints;
 		
 		for (int i = 0; i < numPoints; i++) {
-			double angle = piSlice * i;
+			double angle = (piSlice * i) * Math.PI / 180.0d;
 			retVal[i] = new Location(loc.getWorld(), loc.getX() + radius * Math.cos(angle), loc.getY(), loc.getZ() + radius * Math.sin(angle));
 		}
 		

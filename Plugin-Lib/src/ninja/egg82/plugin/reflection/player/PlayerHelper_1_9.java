@@ -39,6 +39,10 @@ public final class PlayerHelper_1_9 implements IPlayerHelper {
 		player.getInventory().setItemInOffHand(item);
 	}
 	
+	public boolean supportsOffhand() {
+		return true;
+	}
+	
 	//private
 	
 }

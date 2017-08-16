@@ -61,7 +61,7 @@ public final class BlockUtil {
 			}
 			while (l.add(0.0d, 1.0d, 0.0d).getBlock().getType() != Material.AIR) {
 				
-			} 
+			}
 			l.subtract(0.0d, 1.0d, 0.0d);
 		} while (l.getBlock().getType() != Material.AIR || l.add(0.0d, 1.0d, 0.0d).getBlock().getType() != Material.AIR);
 		
@@ -93,7 +93,7 @@ public final class BlockUtil {
 			}
 			while (l.add(0.0d, 1.0d, 0.0d).getBlock().getType().isSolid()) {
 				
-			} 
+			}
 			l.subtract(0.0d, 1.0d, 0.0d);
 		} while (l.getBlock().getType().isSolid() || l.add(0.0d, 1.0d, 0.0d).getBlock().getType().isSolid());
 		
