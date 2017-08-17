@@ -72,7 +72,7 @@ public class LocationUtil {
 		double angle = loc.getYaw();
 		
 		for (int i = 0; i < numPoints; i++) {
-			double newAngle = (angle + piSlice * i) * Math.PI / 180.0d;
+			double newAngle = angle + piSlice * i;
 			retVal[i] = new Location(loc.getWorld(), loc.getX() + radius * Math.cos(newAngle), loc.getY(), loc.getZ() + radius * Math.sin(newAngle));
 		}
 		
@@ -83,7 +83,7 @@ public class LocationUtil {
 		double piSlice = 2.0d * Math.PI / numPoints;
 		
 		for (int i = 0; i < numPoints; i++) {
-			double angle = (piSlice * i) * Math.PI / 180.0d;
+			double angle = piSlice * i;
 			retVal[i] = new Location(loc.getWorld(), loc.getX() + radius * Math.cos(angle), loc.getY(), loc.getZ() + radius * Math.sin(angle));
 		}
 		
