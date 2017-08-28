@@ -88,22 +88,20 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 			ArrayList<Location> currentLocs = new ArrayList<Location>();
 			
 			String name = tempLocs.get(0).getWorld().getName();
-			int chunkX = tempLocs.get(0).getChunk().getX();
-			int chunkZ = tempLocs.get(0).getChunk().getZ();
+			int chunkX = tempLocs.get(0).getBlockX() >> 4;
+			int chunkZ = tempLocs.get(0).getBlockZ() >> 4;
 			
 			currentLocs.add(tempLocs.remove(0));
 			
-			for (int i = 0; i < tempLocs.size(); i++) {
+			for (int i = tempLocs.size() - 1; i >= 0; i--) {
 				if (
 					tempLocs.get(i).getWorld().getName() == name
-					&& tempLocs.get(i).getChunk().getX() == chunkX
-					&& tempLocs.get(i).getChunk().getZ() == chunkZ
+					&& tempLocs.get(i).getBlockX() >> 4 == chunkX
+					&& tempLocs.get(i).getBlockZ() >> 4 == chunkZ
 				) {
-					currentLocs.add(tempLocs.get(i));
+					currentLocs.add(tempLocs.remove(i));
 				}
 			}
-			
-			tempLocs.removeAll(currentLocs);
 			
 			if (name == player.getWorld().getName()) {
 				packets.add(packetHelper.multiBlockChange(currentLocs.toArray(new Location[0]), newMaterial, newMetadata));
@@ -152,26 +150,24 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 			ArrayList<Short> currentMeta = new ArrayList<Short>();
 			
 			String name = tempLocs.get(0).getWorld().getName();
-			int chunkX = tempLocs.get(0).getChunk().getX();
-			int chunkZ = tempLocs.get(0).getChunk().getZ();
+			int chunkX = tempLocs.get(0).getBlockX() >> 4;
+			int chunkZ = tempLocs.get(0).getBlockZ() >> 4;
 			
 			currentLocs.add(tempLocs.remove(0));
 			currentMats.add(tempMats.remove(0));
 			currentMeta.add(tempMeta.remove(0));
 			
-			for (int i = 0; i < tempLocs.size(); i++) {
+			for (int i = tempLocs.size() - 1; i >= 0; i--) {
 				if (
 					tempLocs.get(i).getWorld().getName() == name
-					&& tempLocs.get(i).getChunk().getX() == chunkX
-					&& tempLocs.get(i).getChunk().getZ() == chunkZ
+					&& tempLocs.get(i).getBlockX() >> 4 == chunkX
+					&& tempLocs.get(i).getBlockZ() >> 4 == chunkZ
 				) {
-					currentLocs.add(tempLocs.get(i));
+					currentLocs.add(tempLocs.remove(i));
 					currentMats.add(tempMats.remove(i));
 					currentMeta.add(tempMeta.remove(i));
 				}
 			}
-			
-			tempLocs.removeAll(currentLocs);
 			
 			short[] metaOut = new short[currentMeta.size()];
 			for (int i = 0; i < currentMeta.size(); i++) {
