@@ -113,33 +113,35 @@ public final class BlockUtil {
 			throw new ArgumentNullException("location");
 		}
 		
-		return getBlock(location.getBlock());
+		return getBlock(location, location.getBlock().getState());
 	}
 	public static BlockData getBlock(Block block) {
 		if (block == null) {
 			throw new ArgumentNullException("block");
 		}
 		
-		return getBlock(block.getState());
+		return getBlock(block.getLocation(), block.getState());
 	}
-	public static BlockData getBlock(BlockState blockState) {
+	public static BlockData getBlock(Location location, BlockState blockState) {
 		if (blockState == null) {
 			throw new ArgumentNullException("blockState");
 		}
 		
+		location = LocationUtil.toBlockLocation(location);
+		
 		Material blockType = blockState.getType();
 		
 		if (blockState instanceof InventoryHolder) {
-			return new BlockData(((InventoryHolder) blockState).getInventory().getContents(), blockState, blockType);
+			return new BlockData(((InventoryHolder) blockState).getInventory().getContents(), blockState, blockType, location);
 		} else if (blockType == Material.FLOWER_POT) {
 			MaterialData currentItem = ((FlowerPot) blockState).getContents();
-			return new BlockData((currentItem != null) ? new ItemStack[] {currentItem.toItemStack(1)} : null, blockState, blockType);
+			return new BlockData((currentItem != null) ? new ItemStack[] {currentItem.toItemStack(1)} : null, blockState, blockType, location);
 		} else if (blockType == Material.JUKEBOX) {
 			Material currentItem = ((Jukebox) blockState).getPlaying();
-			return new BlockData((currentItem != Material.AIR && currentItem != null) ? new ItemStack[] {new ItemStack(currentItem)} : null, blockState, blockType);
+			return new BlockData((currentItem != Material.AIR && currentItem != null) ? new ItemStack[] {new ItemStack(currentItem)} : null, blockState, blockType, location);
 		}
 		
-		return new BlockData(null, blockState, blockType);
+		return new BlockData(null, blockState, blockType, location);
 	}
 	
 	public static void setBlock(Block block, BlockData data, boolean updateBlock) {
@@ -314,9 +316,9 @@ public final class BlockUtil {
 				}
 			}
 			
-			setBlock(location, new BlockData(null, null, Material.AIR), updateBlock);
+			setBlock(location, new BlockData(null, null, Material.AIR, null), updateBlock);
 		} else {
-			setBlock(location, new BlockData(items, state, blockType), updateBlock);
+			setBlock(location, new BlockData(items, state, blockType, null), updateBlock);
 			location.getBlock().breakNaturally(tool);
 		}
 	}

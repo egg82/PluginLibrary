@@ -23,6 +23,7 @@ import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.commands.EventCommand;
 import ninja.egg82.plugin.enums.SpigotInitType;
+import ninja.egg82.plugin.utils.EventUtil;
 import ninja.egg82.startup.InitRegistry;
 
 public final class EventListener_1_8 implements IEventListener, Listener {
@@ -769,6 +770,10 @@ public final class EventListener_1_8 implements IEventListener, Listener {
 	@SuppressWarnings("unchecked")
 	private synchronized <T extends Event> void onAnyEvent(T event, Class<? extends Event> clazz) {
 		String key = clazz.getName();
+		
+		/*if (EventUtil.isDuplicate(key, event)) {
+			return;
+		}*/
 		
 		EventCommand<T> run = (EventCommand<T>) initializedEvents.get(key);
 		Class<? extends EventCommand<T>> c = (Class<? extends EventCommand<T>>) events.get(key);
