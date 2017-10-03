@@ -25,6 +25,9 @@ public interface IPacketEntityLivingHelper {
 	PacketContainer teleport(int entityId, Location to, boolean isFlying);
 	PacketContainer animate(int entityId, int animationId);
 	
+	public PacketContainer hurt(int entityId);
+	public PacketContainer death(int entityId);
+	
 	void send(PacketContainer packet, Player player);
 	void send(PacketContainer packet, List<Player> players);
 	void send(PacketContainer packet, Player[] players);

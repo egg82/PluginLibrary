@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <artifactId>nbt-lib</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.3</version>
   <name>egg82-nbt-lib</name>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -57,6 +57,10 @@
   </parent>
   <repositories>
     <repository>
+      <id>spigot-repo</id>
+      <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+    </repository>
+    <repository>
       <id>egg82-ninja</id>
       <url>https://www.myget.org/F/egg82-java/maven/</url>
     </repository>
@@ -81,7 +85,7 @@
     <dependency>
       <groupId>me.dpohvar.powernbt</groupId>
       <artifactId>PowerNBT</artifactId>
-      <version>0.8.9</version>
+      <version>0.8.9.2</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

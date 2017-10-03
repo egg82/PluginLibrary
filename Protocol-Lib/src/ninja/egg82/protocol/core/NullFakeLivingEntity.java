@@ -30,6 +30,13 @@ public class NullFakeLivingEntity implements IFakeLivingEntity {
 		
 	}
 	
+	public double getHealth() {
+		return 0.0d;
+	}
+	public void setHealth(double health) {
+		
+	}
+	
 	public void lookTo(Location loc) {
 		
 	}

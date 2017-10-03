@@ -20,6 +20,12 @@ public class NullCompound implements INBTCompound {
 		return null;
 	}
 	
+	public void setBoolean(String name, boolean data) {
+		
+	}
+	public boolean getBoolean(String name) {
+		return false;
+	}
 	public void setByte(String name, byte data) {
 		
 	}

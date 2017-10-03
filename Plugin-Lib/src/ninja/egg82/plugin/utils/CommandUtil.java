@@ -129,8 +129,8 @@ public final class CommandUtil {
 	 * @param playerLocation The location to execute the command at
 	 * @param command The command to execute
 	 */
-	public static void dispatchCommandAtPlayerLocation(CommandSender sender, Player playerLocation, String command) {
-		if (sender == null || playerLocation == null || command == null || command.length() == 0) {
+	public static void dispatchCommandAtSenderLocation(CommandSender sender, CommandSender senderForLocation, String command) {
+		if (sender == null || senderForLocation == null || command == null || command.length() == 0) {
 			return;
 		}
 		
@@ -139,20 +139,20 @@ public final class CommandUtil {
 		// This way is slower by a country mile, but guaranteed the result the sender wants.
 		
 		if (sender.isOp()) {
-			boolean backup = playerLocation.isOp();
-			playerLocation.setOp(true);
-			playerLocation.recalculatePermissions();
-			Bukkit.dispatchCommand(playerLocation, command);
-			playerLocation.setOp(backup);
-			playerLocation.recalculatePermissions();
+			boolean backup = senderForLocation.isOp();
+			senderForLocation.setOp(true);
+			senderForLocation.recalculatePermissions();
+			Bukkit.dispatchCommand(senderForLocation, command);
+			senderForLocation.setOp(backup);
+			senderForLocation.recalculatePermissions();
 		} else {
-			HashSet<PermissionAttachmentInfo> backup = new HashSet<PermissionAttachmentInfo>(playerLocation.getEffectivePermissions());
-			playerLocation.getEffectivePermissions().addAll(sender.getEffectivePermissions());
-			playerLocation.recalculatePermissions();
-			Bukkit.dispatchCommand(playerLocation, command);
-			playerLocation.getEffectivePermissions().clear();
-			playerLocation.getEffectivePermissions().addAll(backup);
-			playerLocation.recalculatePermissions();
+			HashSet<PermissionAttachmentInfo> backup = new HashSet<PermissionAttachmentInfo>(senderForLocation.getEffectivePermissions());
+			senderForLocation.getEffectivePermissions().addAll(sender.getEffectivePermissions());
+			senderForLocation.recalculatePermissions();
+			Bukkit.dispatchCommand(senderForLocation, command);
+			senderForLocation.getEffectivePermissions().clear();
+			senderForLocation.getEffectivePermissions().addAll(backup);
+			senderForLocation.recalculatePermissions();
 		}
 	}
 	

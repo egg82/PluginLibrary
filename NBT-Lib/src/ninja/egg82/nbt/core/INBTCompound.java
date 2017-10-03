@@ -7,6 +7,8 @@ public interface INBTCompound {
 	
 	String[] getTagNames();
 	
+	void setBoolean(String name, boolean data);
+	boolean getBoolean(String name);
 	void setByte(String name, byte data);
 	byte getByte(String name);
 	void setShort(String name, short data);

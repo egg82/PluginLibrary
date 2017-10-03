@@ -48,6 +48,7 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 	private UUID uuid = UUID.randomUUID();
 	
 	private long lastAttackTime = -1L;
+	private double health = 20.0d;
 	
 	private List<UUID> players = Collections.synchronizedList(new ArrayList<UUID>());
 	
@@ -111,6 +112,51 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 			}
 		}
 		players.clear();
+	}
+	
+	public void damage(double damage) {
+		health -= damage;
+		if (health < 0.0d) {
+			health = 0.0d;
+		}
+		
+		PacketContainer packet = null;
+		
+		if (health > 0.0d) {
+			packet = packetHelper.hurt(id);
+		} else {
+			packet = packetHelper.death(id);
+		}
+		
+		synchronized (players) {
+			Iterator<UUID> i = players.iterator();
+			while (i.hasNext()) {
+				UUID uuid = i.next();
+				packetHelper.send(packet, CommandUtil.getPlayerByUuid(uuid));
+			}
+		}
+	}
+	
+	public double getHealth() {
+		return health;
+	}
+	public void setHealth(double health) {
+		if (health < 0.0d) {
+			health = 0.0d;
+		}
+		this.health = health;
+		
+		if (health == 0.0d) {
+			PacketContainer deathPacket = packetHelper.death(id);
+			
+			synchronized (players) {
+				Iterator<UUID> i = players.iterator();
+				while (i.hasNext()) {
+					UUID uuid = i.next();
+					packetHelper.send(deathPacket, CommandUtil.getPlayerByUuid(uuid));
+				}
+			}
+		}
 	}
 	
 	public void lookTo(Location loc) {

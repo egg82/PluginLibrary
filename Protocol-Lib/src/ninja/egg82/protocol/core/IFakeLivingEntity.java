@@ -14,6 +14,9 @@ public interface IFakeLivingEntity {
 	void removePlayer(Player player);
 	void removeAllPlayers();
 	
+	double getHealth();
+	void setHealth(double health);
+	
 	void lookTo(Location loc);
 	void moveTo(Location loc);
 	void teleportTo(Location loc);

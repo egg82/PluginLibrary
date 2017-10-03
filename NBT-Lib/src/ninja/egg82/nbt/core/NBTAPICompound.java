@@ -32,6 +32,20 @@ public class NBTAPICompound implements INBTCompound {
 		return compound.getKeys().toArray(new String[0]);
 	}
 	
+	public void setBoolean(String name, boolean data) {
+		if (name == null) {
+			throw new ArgumentNullException("name");
+		}
+		
+		compound.setBoolean(name, data);
+	}
+	public boolean getBoolean(String name) {
+		if (name == null) {
+			throw new ArgumentNullException("name");
+		}
+		
+		return compound.getBoolean(name);
+	}
 	public void setByte(String name, byte data) {
 		if (name == null) {
 			throw new ArgumentNullException("name");

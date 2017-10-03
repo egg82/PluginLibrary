@@ -158,6 +158,25 @@ public class PacketEntityLivingHelper_1_8 implements IPacketEntityLivingHelper {
 		return packet;
 	}
 	
+	public PacketContainer hurt(int entityId) {
+		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_STATUS);
+		
+		packet.getIntegers()
+			.write(0, entityId);
+		packet.getBytes()
+			.write(0, (byte) 2);
+		return packet;
+	}
+	public PacketContainer death(int entityId) {
+		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_STATUS);
+		
+		packet.getIntegers()
+			.write(0, entityId);
+		packet.getBytes()
+			.write(0, (byte) 3);
+		return packet;
+	}
+	
 	public void send(PacketContainer packet, Player player) {
 		if (player == null) {
 			return;

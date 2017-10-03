@@ -65,6 +65,22 @@ public class PowerNBTCompound implements INBTCompound {
 		return readCompound().keySet().toArray(new String[0]);
 	}
 	
+	public void setBoolean(String name, boolean data) {
+		if (name == null) {
+			throw new ArgumentNullException("name");
+		}
+		
+		NBTCompound compound = readCompound();
+		compound.put(name, data);
+		writeCompound(compound);
+	}
+	public boolean getBoolean(String name) {
+		if (name == null) {
+			throw new ArgumentNullException("name");
+		}
+		
+		return readCompound().getBoolean(name);
+	}
 	public void setByte(String name, byte data) {
 		if (name == null) {
 			throw new ArgumentNullException("name");
