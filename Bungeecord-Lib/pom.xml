@@ -76,6 +76,16 @@
       <artifactId>exception-lib</artifactId>
       <version>[0.0.0,)</version>
     </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.6</version>
+    </dependency>
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>[20170101,)</version>
+    </dependency>
   </dependencies>
   <description>Library for Bungeecord</description>
   <url>https://www.egg82.ninja</url>

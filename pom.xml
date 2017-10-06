@@ -9,7 +9,8 @@
     <sourceDirectory>src</sourceDirectory>
   </build>
   <modules>
-    <module>Plugin-Lib</module>
+    <module>Bungeecord-Lib</module>
+	<module>Plugin-Lib</module>
     <module>Disguise-Lib</module>
 	<module>NBT-Lib</module>
 	<module>Protocol-Lib</module>
