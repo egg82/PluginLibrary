@@ -8,8 +8,6 @@ import ninja.egg82.plugin.commands.TickCommand;
 
 class DelayedTickRunner implements Runnable {
 	//vars
-	private IExceptionHandler exceptionHandler = ServiceLocator.getService(IExceptionHandler.class);
-	
 	private TickCommand command = null;
 	private Consumer<Object> removalCallback = null;
 	
@@ -26,7 +24,7 @@ class DelayedTickRunner implements Runnable {
 		try {
 			command.start();
 		} catch (Exception ex) {
-			exceptionHandler.silentException(ex);
+			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 			throw ex;
 		}
 	}

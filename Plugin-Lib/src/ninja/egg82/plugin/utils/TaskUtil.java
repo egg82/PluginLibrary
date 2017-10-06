@@ -35,22 +35,20 @@ public class TaskUtil {
 		if (delay <= 0L) {
 			return Bukkit.getServer().getScheduler().runTask(plugin, new Runnable() {
 				public void run() {
-					IExceptionHandler exceptionHandler = ServiceLocator.getService(IExceptionHandler.class);
 					try {
 						task.run();
 					} catch (Exception ex) {
-						exceptionHandler.silentException(ex);
+						ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 						throw ex;
 					}
 				}}).getTaskId();
 		} else {
 			return Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 				public void run() {
-					IExceptionHandler exceptionHandler = ServiceLocator.getService(IExceptionHandler.class);
 					try {
 						task.run();
 					} catch (Exception ex) {
-						exceptionHandler.silentException(ex);
+						ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 						throw ex;
 					}
 				}}, delay);
@@ -72,22 +70,20 @@ public class TaskUtil {
 		if (delay <= 0L) {
 			return Bukkit.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
 				public void run() {
-					IExceptionHandler exceptionHandler = ServiceLocator.getService(IExceptionHandler.class);
 					try {
 						task.run();
 					} catch (Exception ex) {
-						exceptionHandler.silentException(ex);
+						ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 						throw ex;
 					}
 				}}).getTaskId();
 		} else {
 			return Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
 				public void run() {
-					IExceptionHandler exceptionHandler = ServiceLocator.getService(IExceptionHandler.class);
 					try {
 						task.run();
 					} catch (Exception ex) {
-						exceptionHandler.silentException(ex);
+						ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 						throw ex;
 					}
 				}}, delay);

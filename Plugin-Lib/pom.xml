@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <artifactId>plugin-lib</artifactId>
-  <version>1.0.4</version>
+  <version>1.1.5</version>
   <name>egg82-plugin-lib</name>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -68,10 +68,6 @@
       <id>egg82-ninja</id>
       <url>https://www.myget.org/F/egg82-java/maven/</url>
     </repository>
-	<repository>
-	  <id>bungeecord-repo</id>
-	  <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-	</repository>
   </repositories>
   <dependencies>
     <dependency>

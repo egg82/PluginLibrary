@@ -13,8 +13,6 @@ import ninja.egg82.plugin.commands.PluginCommand;
 
 public final class CommandHandler {
 	//vars
-	private IExceptionHandler exceptionHandler = ServiceLocator.getService(IExceptionHandler.class);
-	
 	private HashMap<String, Class<? extends PluginCommand>> commands = new HashMap<String, Class<? extends PluginCommand>>();
 	private HashMap<String, String> commandAliases = new HashMap<String, String>();
 	private HashMap<String, PluginCommand> initializedCommands = new HashMap<String, PluginCommand>();
@@ -81,7 +79,7 @@ public final class CommandHandler {
 		try {
 			run.start();
 		} catch (Exception ex) {
-			exceptionHandler.silentException(ex);
+			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 			throw ex;
 		}
 	}
@@ -93,7 +91,7 @@ public final class CommandHandler {
 			try {
 				run.undo();
 			} catch (Exception ex) {
-				exceptionHandler.silentException(ex);
+				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 				throw ex;
 			}
 		});
@@ -108,7 +106,7 @@ public final class CommandHandler {
 		try {
 			return run.tabComplete(sender, command, label, args);
 		} catch (Exception ex) {
-			exceptionHandler.silentException(ex);
+			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 			throw ex;
 		}
 	}
@@ -135,7 +133,7 @@ public final class CommandHandler {
 			try {
 				run = c.getDeclaredConstructor(CommandSender.class, Command.class, String.class, String[].class).newInstance(sender, command, label, args);
 			} catch (Exception ex) {
-				exceptionHandler.silentException(ex);
+				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 				return null;
 			}
 			initializedCommands.put(key, run);

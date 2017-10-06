@@ -16,6 +16,7 @@ import ninja.egg82.patterns.IRegistry;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.enums.SpigotInitType;
 import ninja.egg82.plugin.handlers.CommandHandler;
+import ninja.egg82.plugin.handlers.MessageHandler;
 import ninja.egg82.plugin.handlers.PermissionsManager;
 import ninja.egg82.plugin.handlers.TickHandler;
 import ninja.egg82.plugin.services.ConfigRegistry;
@@ -29,6 +30,7 @@ import ninja.egg82.startup.Start;
 public class BasePlugin extends JavaPlugin {
 	//vars
 	private CommandHandler commandHandler = null;
+	
 	private String gameVersion = null;
 	private Logger logger = null;
 	private CommandSender consoleSender = null;
@@ -57,7 +59,7 @@ public class BasePlugin extends JavaPlugin {
 	
 	//public
 	public void onLoad() {
-		consoleSender = this.getServer().getConsoleSender();
+		consoleSender = getServer().getConsoleSender();
 		
 		reflect(gameVersion, "ninja.egg82.plugin.reflection.player");
 		reflect(gameVersion, "ninja.egg82.plugin.reflection.entity");
@@ -69,6 +71,7 @@ public class BasePlugin extends JavaPlugin {
 		
 		ServiceLocator.provideService(PermissionsManager.class, false);
 		ServiceLocator.provideService(CommandHandler.class, false);
+		ServiceLocator.provideService(MessageHandler.class, false);
 		ServiceLocator.provideService(TickHandler.class, false);
 		
 		commandHandler = ServiceLocator.getService(CommandHandler.class);

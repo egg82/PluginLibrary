@@ -28,8 +28,6 @@ import ninja.egg82.startup.InitRegistry;
 
 public final class EventListener_1_8 implements IEventListener, Listener {
 	//vars
-	private IExceptionHandler exceptionHandler = ServiceLocator.getService(IExceptionHandler.class);
-	
 	private HashMap<String, Class<? extends EventCommand<? extends Event>>> events = new HashMap<String, Class<? extends EventCommand<? extends Event>>>();
 	private HashMap<String, EventCommand<? extends Event>> initializedEvents = new HashMap<String, EventCommand<? extends Event>>();
 	
@@ -789,7 +787,7 @@ public final class EventListener_1_8 implements IEventListener, Listener {
 			try {
 				run = c.getDeclaredConstructor(clazz).newInstance(event);
 			} catch (Exception ex) {
-				exceptionHandler.silentException(ex);
+				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 				return;
 			}
 			initializedEvents.put(key, run);
@@ -801,7 +799,7 @@ public final class EventListener_1_8 implements IEventListener, Listener {
 		try {
 			run.start();
 		} catch (Exception ex) {
-			exceptionHandler.silentException(ex);
+			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 			throw ex;
 		}
 	}

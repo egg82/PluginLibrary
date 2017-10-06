@@ -68,6 +68,25 @@ public final class CommandUtil {
 		return false;
 	}
 	
+	public static String getAtSymbolType(String symbol) {
+		if (symbol == null || symbol.length() <= 1 || symbol.charAt(0) != '@') {
+			return null;
+		}
+		
+		symbol = symbol.trim().toLowerCase();
+		
+		if (symbol.charAt(1) == 'a') {
+			return "a";
+		} else if (symbol.charAt(1) == 'p') {
+			return "p";
+		} else if (symbol.charAt(1) == 'r') {
+			return "r";
+		} else if (symbol.charAt(1) == 'e') {
+			return "e";
+		}
+		
+		return null;
+	}
 	public static List<Entity> parseAtSymbol(String symbol, Location commandLocation) {
 		if (commandLocation == null) {
 			commandLocation = new Location(Bukkit.getWorlds().get(0), 0.0d, 0.0d, 0.0d);
@@ -115,7 +134,7 @@ public final class CommandUtil {
 		
 		for (Entity e : list) {
 			if (!(e instanceof Player)) {
-				retVal.add((Player) e);
+				retVal.add(e);
 			}
 		}
 		

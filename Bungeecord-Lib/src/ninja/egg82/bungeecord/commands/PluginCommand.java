@@ -1,25 +1,22 @@
-package ninja.egg82.plugin.commands;
+package ninja.egg82.bungeecord.commands;
 
 import java.util.List;
 
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-
+import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.plugin.Command;
 import ninja.egg82.patterns.SynchronousCommand;
 
 public abstract class PluginCommand extends SynchronousCommand {
 	//vars
 	protected CommandSender sender = null;
 	protected Command command = null;
-	protected String label = null;
 	protected String[] args = null;
 	
 	//constructor
-	public PluginCommand(CommandSender sender, Command command, String label, String[] args) {
+	public PluginCommand(CommandSender sender, Command command, String[] args) {
 		super();
 		this.sender = sender;
 		this.command = command;
-		this.label = label;
 		this.args = args;
 	}
 	
@@ -34,16 +31,6 @@ public abstract class PluginCommand extends SynchronousCommand {
 	public final Command getCommand() {
 		return command;
 	}
-	public final void setCommand(Command command) {
-		this.command = command;
-	}
-	
-	public final String getLabel() {
-		return label;
-	}
-	public final void setLabel(String label) {
-		this.label = label;
-	}
 	
 	public final String[] getArgs() {
 		return args;
@@ -56,7 +43,7 @@ public abstract class PluginCommand extends SynchronousCommand {
 		onUndo();
 	}
 	
-	public List<String> tabComplete(CommandSender sender, Command command, String label, String[] args) {
+	public List<String> tabComplete(CommandSender sender, String[] args) {
 		return null;
 	}
 	

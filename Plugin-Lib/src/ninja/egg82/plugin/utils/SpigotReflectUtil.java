@@ -11,9 +11,11 @@ import org.bukkit.event.Event;
 import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.commands.EventCommand;
+import ninja.egg82.plugin.commands.MessageCommand;
 import ninja.egg82.plugin.commands.PluginCommand;
 import ninja.egg82.plugin.commands.TickCommand;
 import ninja.egg82.plugin.handlers.CommandHandler;
+import ninja.egg82.plugin.handlers.MessageHandler;
 import ninja.egg82.plugin.handlers.PermissionsManager;
 import ninja.egg82.plugin.handlers.TickHandler;
 import ninja.egg82.plugin.reflection.event.IEventListener;
@@ -71,6 +73,31 @@ public final class SpigotReflectUtil {
 		}
 		
 		return numCommands;
+	}
+	
+	public static int addMessagesFromPackage(String packageName) {
+		if (packageName == null) {
+			throw new ArgumentNullException("packageName");
+		}
+		
+		int numMessages = 0;
+		
+		MessageHandler messageHandler = ServiceLocator.getService(MessageHandler.class);
+		
+		List<Class<? extends MessageCommand>> enums = ReflectUtil.getClasses(MessageCommand.class, packageName);
+		for (Class<? extends MessageCommand> c : enums) {
+			String pkg = c.getName();
+			pkg = pkg.substring(0, pkg.lastIndexOf('.'));
+			
+			if (!pkg.equalsIgnoreCase(packageName)) {
+				continue;
+			}
+			
+			numMessages++;
+			messageHandler.addCommand(c);
+		}
+		
+		return numMessages;
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -151,6 +178,8 @@ public final class SpigotReflectUtil {
 	}
 	
 	public static void clearAll() {
+		ServiceLocator.getService(MessageHandler.class).clearCommands();
+		ServiceLocator.getService(MessageHandler.class).clearChannels();
 		ServiceLocator.getService(CommandHandler.class).clear();
 		ServiceLocator.getService(IEventListener.class).clear();
 		ServiceLocator.getService(PermissionsManager.class).clear();

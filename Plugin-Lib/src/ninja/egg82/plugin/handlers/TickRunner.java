@@ -6,8 +6,6 @@ import ninja.egg82.plugin.commands.TickCommand;
 
 class TickRunner implements Runnable {
 	//vars
-	private IExceptionHandler exceptionHandler = ServiceLocator.getService(IExceptionHandler.class);
-	
 	private TickCommand command = null;
 	
 	//constructor
@@ -20,7 +18,7 @@ class TickRunner implements Runnable {
 		try {
 			command.start();
 		} catch (Exception ex) {
-			exceptionHandler.silentException(ex);
+			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 			throw ex;
 		}
 	}
