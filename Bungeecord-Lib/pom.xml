@@ -38,6 +38,20 @@
                 </filter>
               </filters>
               <minimizeJar>true</minimizeJar>
+              <relocations>
+                <relocation>
+                  <pattern>org.json</pattern>
+                  <shadedPattern>ninja.egg82.lib.org.json</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.bouncycastle</pattern>
+                  <shadedPattern>ninja.egg82.lib.org.bouncycastle</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.apache</pattern>
+                  <shadedPattern>ninja.egg82.lib.org.apache</shadedPattern>
+                </relocation>
+              </relocations>
             </configuration>
           </execution>
         </executions>
