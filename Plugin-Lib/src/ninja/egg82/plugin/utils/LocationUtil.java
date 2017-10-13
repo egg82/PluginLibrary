@@ -13,6 +13,19 @@ public class LocationUtil {
 	}
 	
 	//public
+	public static boolean isFinite(Vector vec) {
+		if (Math.abs(vec.getX()) > Double.MAX_VALUE) {
+			return false;
+		}
+		if (Math.abs(vec.getY()) > Double.MAX_VALUE) {
+			return false;
+		}
+		if (Math.abs(vec.getZ()) > Double.MAX_VALUE) {
+			return false;
+		}
+		return true;
+	}
+	
 	public static Location getLocationInFront(Location loc, double distance) {
 		double angle = loc.getYaw();
 		

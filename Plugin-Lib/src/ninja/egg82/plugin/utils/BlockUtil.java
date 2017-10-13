@@ -48,7 +48,7 @@ public final class BlockUtil {
 			throw new ArgumentNullException("l");
 		}
 		
-		if (!l.getWorld().isChunkLoaded(l.getBlockX() >> 4, l.getBlockZ() >> 4) && !Bukkit.isPrimaryThread()) {
+		if (!Bukkit.isPrimaryThread() && !l.getWorld().isChunkLoaded(l.getBlockX() >> 4, l.getBlockZ() >> 4)) {
 			return l.clone();
 		}
 		
@@ -80,7 +80,7 @@ public final class BlockUtil {
 			throw new ArgumentNullException("l");
 		}
 		
-		if (!l.getWorld().isChunkLoaded(l.getBlockX() >> 4, l.getBlockZ() >> 4) && !Bukkit.isPrimaryThread()) {
+		if (!Bukkit.isPrimaryThread() && !l.getWorld().isChunkLoaded(l.getBlockX() >> 4, l.getBlockZ() >> 4)) {
 			return l.clone();
 		}
 		
@@ -111,6 +111,10 @@ public final class BlockUtil {
 	public static BlockData getBlock(Location location) {
 		if (location == null) {
 			throw new ArgumentNullException("location");
+		}
+		
+		if (!Bukkit.isPrimaryThread() && !location.getWorld().isChunkLoaded(location.getBlockX() >> 4, location.getBlockZ() >> 4)) {
+			return new BlockData(null, null, null, LocationUtil.toBlockLocation(location));
 		}
 		
 		return getBlock(location, location.getBlock().getState());
@@ -341,11 +345,16 @@ public final class BlockUtil {
 	
 	private static void setBlockData(BlockState block, BlockState data) {
 		Material type = block.getType();
+		String typeName = type.name();
 		
 		try {
 			block.setData(data.getData());
 		} catch (Exception ex) {
 			
+		}
+		
+		if (block instanceof InventoryHolder) {
+			((InventoryHolder) block).getInventory().setContents(((InventoryHolder) data).getInventory().getContents());
 		}
 		
 		if ((type == Material.STANDING_BANNER || type == Material.WALL_BANNER) && block instanceof Banner) {
@@ -382,9 +391,9 @@ public final class BlockUtil {
 			b1.setSpawnedType(b2.getSpawnedType());
 		} else if (type == Material.DISPENSER && block instanceof Dispenser) {
 			((Dispenser) block).getInventory().setContents(((Dispenser) data).getInventory().getContents());
-		} else if (type == Material.DROPPER) {
+		} else if (type == Material.DROPPER && block instanceof Dropper) {
 			((Dropper) block).getInventory().setContents(((Dropper) data).getInventory().getContents());
-		} else if (type.toString().equalsIgnoreCase("end_gateway") & block instanceof EndGateway) {
+		} else if (typeName.equals("END_GATEWAY") && block instanceof EndGateway) {
 			EndGateway b1 = (EndGateway) block;
 			EndGateway b2 = (EndGateway) data;
 			b1.setExactTeleport(b2.isExactTeleport());

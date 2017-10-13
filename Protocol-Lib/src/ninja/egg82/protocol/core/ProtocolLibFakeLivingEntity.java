@@ -14,6 +14,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.util.Vector;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.accessors.Accessors;
@@ -249,7 +250,10 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 			}
 			
 			entityHelper.damage(entity, DamageCause.ENTITY_ATTACK, 1.0d);
-			entity.setVelocity(entity.getLocation().toVector().subtract(currentLocation.toVector()).normalize().setY(0.5d).multiply(0.5d));
+			Vector v = entity.getLocation().toVector().subtract(currentLocation.toVector()).normalize().setY(0.5d).multiply(0.5d);
+			if (LocationUtil.isFinite(v)) {
+				entity.setVelocity(v);
+			}
 			lastAttackTime = currentTime;
 		}
 	}
@@ -274,7 +278,10 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 		for (Entity e : entities) {
 			if (currentLocation.distanceSquared(e.getLocation()) < 0.5625d) { //0.75^2
 				moveTo(currentLocation.clone().subtract(e.getLocation().toVector().subtract(currentLocation.toVector()).multiply(0.25d)));
-				e.setVelocity(currentLocation.toVector().subtract(e.getLocation().toVector()).multiply(0.25d));
+				Vector v = currentLocation.toVector().subtract(e.getLocation().toVector()).multiply(0.25d);
+				if (LocationUtil.isFinite(v)) {
+					e.setVelocity(v);
+				}
 			}
 		}
 	}
@@ -295,7 +302,10 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 		
 		if (currentLocation.distanceSquared(entity.getLocation()) < 0.5625d) { //0.75^2
 			moveTo(currentLocation.clone().subtract(entity.getLocation().toVector().subtract(currentLocation.toVector()).multiply(0.25d)));
-			entity.setVelocity(currentLocation.toVector().subtract(entity.getLocation().toVector()).multiply(0.25d));
+			Vector v = currentLocation.toVector().subtract(entity.getLocation().toVector()).multiply(0.25d);
+			if (LocationUtil.isFinite(v)) {
+				entity.setVelocity(v);
+			}
 		}
 	}
 	
