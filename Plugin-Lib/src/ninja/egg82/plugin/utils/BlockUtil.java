@@ -353,7 +353,7 @@ public final class BlockUtil {
 			
 		}
 		
-		if (block instanceof InventoryHolder) {
+		if (block instanceof InventoryHolder && data instanceof InventoryHolder) {
 			((InventoryHolder) block).getInventory().setContents(((InventoryHolder) data).getInventory().getContents());
 		}
 		

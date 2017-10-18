@@ -1,33 +1,32 @@
-package ninja.egg82.bungeecord.handlers;
+package ninja.egg82.plugin.reflection.event;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-import net.md_5.bungee.api.event.*;
-import net.md_5.bungee.api.plugin.Event;
-import net.md_5.bungee.api.plugin.Listener;
-import net.md_5.bungee.api.plugin.Plugin;
-import net.md_5.bungee.event.EventHandler;
-import ninja.egg82.bungeecord.commands.EventCommand;
+import org.bukkit.Bukkit;
+import org.bukkit.event.Event;
+import org.bukkit.event.Listener;
+import org.bukkit.plugin.java.JavaPlugin;
+
 import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.DynamicObjectPool;
 import ninja.egg82.patterns.IObjectPool;
 import ninja.egg82.patterns.ServiceLocator;
+import ninja.egg82.plugin.commands.EventCommand;
 import ninja.egg82.utils.CollectionUtil;
 import ninja.egg82.utils.ReflectUtil;
 
-public class EventListener implements Listener {
+public abstract class AbstractEventListener implements IEventListener, Listener {
 	//vars
 	private ConcurrentHashMap<String, IObjectPool<Class<EventCommand<? extends Event>>>> events = new ConcurrentHashMap<String, IObjectPool<Class<EventCommand<? extends Event>>>>();
 	private ConcurrentHashMap<String, IObjectPool<EventCommand<? extends Event>>> initializedEvents = new ConcurrentHashMap<String, IObjectPool<EventCommand<? extends Event>>>();
 	
 	//constructor
-	public EventListener() {
-		Plugin plugin = ServiceLocator.getService(Plugin.class);
-		plugin.getProxy().getPluginManager().registerListener(plugin, this);
+	public AbstractEventListener() {
+		Bukkit.getServer().getPluginManager().registerEvents(this, ServiceLocator.getService(JavaPlugin.class));
 	}
 	
 	//public
@@ -115,97 +114,9 @@ public class EventListener implements Listener {
 		return numEvents;
 	}
 	
-	//generic events
-	@EventHandler
-	public void onAsync(AsyncEvent<?> e) {
-		onAnyEvent(e, e.getClass());
-	}
-	
-	//player events
-	@EventHandler
-	public void onPreLogin(PreLoginEvent e) {
-		onAnyEvent(e, e.getClass());
-	}
-	@EventHandler
-	public void onLogin(LoginEvent e) {
-		onAnyEvent(e, e.getClass());
-	}
-	@EventHandler
-	public void onPostLogin(PostLoginEvent e) {
-		onAnyEvent(e, e.getClass());
-	}
-	@EventHandler
-	public void onPlayerHandshake(PlayerHandshakeEvent e) {
-		onAnyEvent(e, e.getClass());
-	}
-	@EventHandler
-	public void onPlayerDisconnect(PlayerDisconnectEvent e) {
-		onAnyEvent(e, e.getClass());
-	}
-	@EventHandler
-	public void onServerConnect(ServerConnectEvent e) {
-		onAnyEvent(e, e.getClass());
-	}
-	@EventHandler
-	public void onServerDisconnect(ServerDisconnectEvent e) {
-		onAnyEvent(e, e.getClass());
-	}
-	@EventHandler
-	public void onServerKick(ServerKickEvent e) {
-		onAnyEvent(e, e.getClass());
-	}
-	@EventHandler
-	public void onServerSwitch(ServerSwitchEvent e) {
-		onAnyEvent(e, e.getClass());
-	}
-	
-	//chat events
-	@EventHandler
-	public void onChat(ChatEvent e) {
-		onAnyEvent(e, e.getClass());
-	}
-	@EventHandler
-	public void onPermissionCheck(PermissionCheckEvent e) {
-		onAnyEvent(e, e.getClass());
-	}
-	@EventHandler
-	public void onTabComplete(TabCompleteEvent e) {
-		onAnyEvent(e, e.getClass());
-	}
-	@EventHandler
-	public void onTabCompleteResponse(TabCompleteResponseEvent e) {
-		onAnyEvent(e, e.getClass());
-	}
-	
-	//plugin events
-	@EventHandler
-	public void onPluginMessage(PluginMessageEvent e) {
-		onAnyEvent(e, e.getClass());
-	}
-	
-	//proxy events
-	@EventHandler
-	public void onProxyPing(ProxyPingEvent e) {
-		onAnyEvent(e, e.getClass());
-	}
-	@EventHandler
-	public void onProxyReload(ProxyReloadEvent e) {
-		onAnyEvent(e, e.getClass());
-	}
-	
-	//server events
-	@EventHandler
-	public void onServerConnected(ServerConnectedEvent e) {
-		onAnyEvent(e, e.getClass());
-	}
-	@EventHandler
-	public void onTargeted(TargetedEvent e) {
-		onAnyEvent(e, e.getClass());
-	}
-	
 	//private
 	@SuppressWarnings("unchecked")
-	private <T extends Event> void onAnyEvent(T event, Class<? extends Event> clazz) {
+	protected final <T extends Event> void onAnyEvent(T event, Class<? extends Event> clazz) {
 		String key = clazz.getName();
 		
 		/*if (EventUtil.isDuplicate(key, event)) {

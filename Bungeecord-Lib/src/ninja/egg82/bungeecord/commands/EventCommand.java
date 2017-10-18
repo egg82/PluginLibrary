@@ -8,9 +8,8 @@ public abstract class EventCommand<T extends Event> extends SynchronousCommand {
 	protected T event = null;
 	
 	//constructor
-	public EventCommand(T event) {
+	public EventCommand() {
 		super();
-		this.event = event;
 	}
 	
 	//public

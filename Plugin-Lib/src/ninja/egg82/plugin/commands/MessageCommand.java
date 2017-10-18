@@ -11,11 +11,8 @@ public abstract class MessageCommand extends SynchronousCommand {
 	protected byte[] data = null;
 	
 	//constructor
-	public MessageCommand(String channelName, Player player, byte[] data) {
+	public MessageCommand() {
 		super();
-		this.channelName = channelName;
-		this.player = player;
-		this.data = data;
 	}
 	
 	//public

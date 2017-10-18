@@ -57,7 +57,7 @@ public class BungeeCommand extends Command implements TabExecutor {
 		}
 		
 		try {
-			return initializedCommand.tabComplete(sender, args);
+			return initializedCommand.tabComplete();
 		} catch (Exception ex) {
 			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 			throw ex;
@@ -70,14 +70,13 @@ public class BungeeCommand extends Command implements TabExecutor {
 		if (initializedCommand == null) {
 			// Create a new command and store it
 			try {
-				initializedCommand = command.getDeclaredConstructor(CommandSender.class, Command.class, String[].class).newInstance(sender, this, args);
+				initializedCommand = command.newInstance();
 			} catch (Exception ex) {
 				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 			}
-		} else {
-			// We already have the command initialized, no need to create a new one
-			initializedCommand.setSender(sender);
-			initializedCommand.setArgs(args);
 		}
+		
+		initializedCommand.setSender(sender);
+		initializedCommand.setArgs(args);
 	}
 }

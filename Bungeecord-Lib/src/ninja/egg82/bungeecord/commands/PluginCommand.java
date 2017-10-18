@@ -13,11 +13,8 @@ public abstract class PluginCommand extends SynchronousCommand {
 	protected String[] args = null;
 	
 	//constructor
-	public PluginCommand(CommandSender sender, Command command, String[] args) {
+	public PluginCommand() {
 		super();
-		this.sender = sender;
-		this.command = command;
-		this.args = args;
 	}
 	
 	//public
@@ -43,7 +40,7 @@ public abstract class PluginCommand extends SynchronousCommand {
 		onUndo();
 	}
 	
-	public List<String> tabComplete(CommandSender sender, String[] args) {
+	public List<String> tabComplete() {
 		return null;
 	}
 	

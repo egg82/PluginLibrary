@@ -1,20 +1,26 @@
-package ninja.egg82.bungeecord.utils;
+package ninja.egg82.plugin.utils;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ninja.egg82.bungeecord.handlers.CommandHandler;
-import ninja.egg82.bungeecord.handlers.EventListener;
+import org.bukkit.Bukkit;
+
 import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.ServiceLocator;
+import ninja.egg82.plugin.handlers.CommandHandler;
+import ninja.egg82.plugin.handlers.MessageHandler;
+import ninja.egg82.plugin.handlers.PermissionsManager;
+import ninja.egg82.plugin.handlers.TickHandler;
+import ninja.egg82.plugin.reflection.event.IEventListener;
 import ninja.egg82.utils.ReflectUtil;
 
-public final class BungeeReflectUtil {
+public final class BukkitReflectUtil {
 	//vars
+	private static String gameVersion = null;
 	
 	//constructor
-	public BungeeReflectUtil() {
+	public BukkitReflectUtil() {
 		
 	}
 	
@@ -87,8 +93,28 @@ public final class BungeeReflectUtil {
 	}
 	
 	public static void clearAll() {
+		ServiceLocator.getService(MessageHandler.class).clearCommands();
+		ServiceLocator.getService(MessageHandler.class).clearChannels();
 		ServiceLocator.getService(CommandHandler.class).clear();
-		ServiceLocator.getService(EventListener.class).clear();
+		ServiceLocator.getService(IEventListener.class).clear();
+		ServiceLocator.getService(PermissionsManager.class).clear();
+		ServiceLocator.getService(TickHandler.class).clear();
+	}
+	
+	public static Class<?> getNms(String className) {
+		if (className == null) {
+			throw new ArgumentNullException("className");
+		}
+		
+		if (gameVersion == null) {
+			gameVersion = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
+		}
+		
+		try {
+			return Class.forName("net.minecraft.server." + gameVersion + "." + className);
+		} catch (Exception ex) {
+			return null;
+		}
 	}
 	
 	//private

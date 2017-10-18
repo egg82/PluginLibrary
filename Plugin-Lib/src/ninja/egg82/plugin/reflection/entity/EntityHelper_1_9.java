@@ -21,7 +21,7 @@ import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableMap;
 
 import ninja.egg82.exceptions.ArgumentNullException;
-import ninja.egg82.plugin.utils.SpigotReflectUtil;
+import ninja.egg82.plugin.utils.BukkitReflectUtil;
 
 @SuppressWarnings("deprecation")
 public class EntityHelper_1_9 implements IEntityHelper {
@@ -91,8 +91,8 @@ public class EntityHelper_1_9 implements IEntityHelper {
 		Class<?> eentity;
 		Class<?> mountPacket;
 		try {
-			eentity = SpigotReflectUtil.getNms("Entity");
-			mountPacket = SpigotReflectUtil.getNms("PacketPlayOutMount");
+			eentity = BukkitReflectUtil.getNms("Entity");
+			mountPacket = BukkitReflectUtil.getNms("PacketPlayOutMount");
 			Constructor<?> mPacketConstructor = mountPacket.getConstructor(eentity);
 			for(Player player : Bukkit.getServer().getOnlinePlayers()){
 				Method getHandle = player.getClass().getMethod("getHandle");
@@ -100,7 +100,7 @@ public class EntityHelper_1_9 implements IEntityHelper {
 				Field conField = nmsPlayer.getClass().getField("playerConnection");
 				Object con = conField.get(nmsPlayer);
 				Object packet = mPacketConstructor.newInstance(nmsPlayer);
-				Method sendPacket = SpigotReflectUtil.getNms("PlayerConnection").getMethod("sendPacket", SpigotReflectUtil.getNms("Packet"));
+				Method sendPacket = BukkitReflectUtil.getNms("PlayerConnection").getMethod("sendPacket", BukkitReflectUtil.getNms("Packet"));
 				sendPacket.invoke(con, packet);
 			}
 		} catch (Exception ex) {

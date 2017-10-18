@@ -6,8 +6,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.ServiceLocator;
-import ninja.egg82.plugin.enums.SpigotInitType;
-import ninja.egg82.startup.InitRegistry;
 
 public class TaskUtil {
 	//vars
@@ -29,7 +27,7 @@ public class TaskUtil {
 		}
 		
 		if (plugin == null) {
-			plugin = ServiceLocator.getService(InitRegistry.class).getRegister(SpigotInitType.PLUGIN, JavaPlugin.class);
+			plugin = ServiceLocator.getService(JavaPlugin.class);
 		}
 		
 		if (delay <= 0L) {
@@ -64,7 +62,7 @@ public class TaskUtil {
 		}
 		
 		if (plugin == null) {
-			plugin = ServiceLocator.getService(InitRegistry.class).getRegister(SpigotInitType.PLUGIN, JavaPlugin.class);
+			plugin = ServiceLocator.getService(JavaPlugin.class);
 		}
 		
 		if (delay <= 0L) {

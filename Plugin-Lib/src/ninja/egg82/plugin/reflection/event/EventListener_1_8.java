@@ -1,11 +1,6 @@
 package ninja.egg82.plugin.reflection.event;
 
-import java.util.HashMap;
-
-import org.bukkit.Bukkit;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.enchantment.*;
 import org.bukkit.event.entity.*;
@@ -16,51 +11,16 @@ import org.bukkit.event.server.*;
 import org.bukkit.event.vehicle.*;
 import org.bukkit.event.weather.*;
 import org.bukkit.event.world.*;
-import org.bukkit.plugin.java.JavaPlugin;
 
-import ninja.egg82.exceptionHandlers.IExceptionHandler;
-import ninja.egg82.exceptions.ArgumentNullException;
-import ninja.egg82.patterns.ServiceLocator;
-import ninja.egg82.plugin.commands.EventCommand;
-import ninja.egg82.plugin.enums.SpigotInitType;
-import ninja.egg82.plugin.utils.EventUtil;
-import ninja.egg82.startup.InitRegistry;
-
-public final class EventListener_1_8 implements IEventListener, Listener {
+public final class EventListener_1_8 extends AbstractEventListener {
 	//vars
-	private HashMap<String, Class<? extends EventCommand<? extends Event>>> events = new HashMap<String, Class<? extends EventCommand<? extends Event>>>();
-	private HashMap<String, EventCommand<? extends Event>> initializedEvents = new HashMap<String, EventCommand<? extends Event>>();
 	
 	//constructor
 	public EventListener_1_8() {
-		Bukkit.getServer().getPluginManager().registerEvents(this, ServiceLocator.getService(InitRegistry.class).getRegister(SpigotInitType.PLUGIN, JavaPlugin.class));
+		super();
 	}
 	
 	//public
-	public synchronized void setEvent(Class<? extends Event> event, Class<? extends EventCommand<? extends Event>> clazz) {
-		if (event == null) {
-			throw new ArgumentNullException("event");
-		}
-		
-		String key = event.getName();
-		
-		if (clazz == null) {
-			// Remove event
-			initializedEvents.remove(key);
-			events.remove(key);
-		} else {
-			// Add/Replace event
-			initializedEvents.remove(key);
-			events.put(key, clazz);
-		}
-	}
-	public synchronized boolean hasEvent(Class<? extends Event> event) {
-		return events.containsKey(event.getName());
-	}
-	public synchronized void clear() {
-		initializedEvents.clear();
-		events.clear();
-	}
 	
 	//block events
 	@EventHandler
@@ -765,42 +725,5 @@ public final class EventListener_1_8 implements IEventListener, Listener {
 	}
 	
 	//private
-	@SuppressWarnings("unchecked")
-	private synchronized <T extends Event> void onAnyEvent(T event, Class<? extends Event> clazz) {
-		String key = clazz.getName();
-		
-		/*if (EventUtil.isDuplicate(key, event)) {
-			return;
-		}*/
-		
-		EventCommand<T> run = (EventCommand<T>) initializedEvents.get(key);
-		Class<? extends EventCommand<T>> c = (Class<? extends EventCommand<T>>) events.get(key);
-		
-		// run might be null, but c will never be as long as the event actually exists
-		if (c == null) {
-			return;
-		}
-		
-		// Lazy initialize. No need to create an event that's never been used
-		if (run == null) {
-			// Create a new event and store it
-			try {
-				run = c.getDeclaredConstructor(clazz).newInstance(event);
-			} catch (Exception ex) {
-				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
-				return;
-			}
-			initializedEvents.put(key, run);
-		} else {
-			// We already have the event initialized, no need to create a new one
-			run.setEvent(event);
-		}
-		
-		try {
-			run.start();
-		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
-			throw ex;
-		}
-	}
+	
 }

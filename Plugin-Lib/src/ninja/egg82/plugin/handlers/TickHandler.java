@@ -1,6 +1,7 @@
 package ninja.egg82.plugin.handlers;
 
-import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -9,14 +10,14 @@ import org.bukkit.scheduler.BukkitScheduler;
 import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.commands.TickCommand;
-import ninja.egg82.plugin.enums.SpigotInitType;
-import ninja.egg82.startup.InitRegistry;
+import ninja.egg82.utils.CollectionUtil;
+import ninja.egg82.utils.ReflectUtil;
 
 public final class TickHandler {
 	//vars
-	private HashMap<Class<? extends TickCommand>, Integer> tasks = new HashMap<Class<? extends TickCommand>, Integer>();
+	private ConcurrentHashMap<Class<TickCommand>, Integer> tasks = new ConcurrentHashMap<Class<TickCommand>, Integer>();
 	
-	private JavaPlugin plugin = ServiceLocator.getService(InitRegistry.class).getRegister(SpigotInitType.PLUGIN, JavaPlugin.class);
+	private JavaPlugin plugin = ServiceLocator.getService(JavaPlugin.class);
 	private BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
 	
 	//constructor
@@ -25,18 +26,18 @@ public final class TickHandler {
 	}
 	
 	//public
-	public synchronized void addTickCommand(Class<? extends TickCommand> clazz) {
+	public int addTickCommand(Class<TickCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
 		
 		if (tasks.containsKey(clazz)) {
-			return;
+			return -1;
 		}
 		
 		TickCommand c = getCommand(clazz);
 		if (c == null) {
-			return;
+			return -1;
 		}
 		
 		long ticks = c.getTicks();
@@ -46,22 +47,27 @@ public final class TickHandler {
 		
 		int taskId = scheduler.scheduleSyncRepeatingTask(plugin, new TickRunner(c), ticks, ticks);
 		if (taskId > -1) {
-			tasks.put(clazz, taskId);
+			int id = CollectionUtil.putIfAbsent(tasks, clazz, taskId);
+			if (id != taskId) {
+				scheduler.cancelTask(taskId);
+				taskId = id;
+			}
 		}
+		return taskId;
 	}
 	@SuppressWarnings("deprecation")
-	public synchronized void addAsyncTickCommand(Class<? extends TickCommand> clazz) {
+	public int addAsyncTickCommand(Class<TickCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
 		
 		if (tasks.containsKey(clazz)) {
-			return;
+			return -1;
 		}
 		
 		TickCommand c = getCommand(clazz);
 		if (c == null) {
-			return;
+			return -1;
 		}
 		
 		long ticks = c.getTicks();
@@ -72,58 +78,15 @@ public final class TickHandler {
 		// Not deprecated. @Deprecated was used as a warning.
 		int taskId = scheduler.scheduleAsyncRepeatingTask(plugin, new TickRunner(c), ticks, ticks);
 		if (taskId > -1) {
-			tasks.put(clazz, taskId);
+			int id = tasks.put(clazz, taskId);
+			if (id != taskId) {
+				scheduler.cancelTask(taskId);
+				taskId = id;
+			}
 		}
+		return taskId;
 	}
-	public synchronized void addDelayedTickCommand(Class<? extends TickCommand> clazz, long delay) {
-		if (clazz == null) {
-			throw new ArgumentNullException("clazz");
-		}
-		
-		if (tasks.containsKey(clazz)) {
-			return;
-		}
-		
-		TickCommand c = getCommand(clazz);
-		if (c == null) {
-			return;
-		}
-		
-		if (delay < 1L) {
-			delay = 1L;
-		}
-		
-		int taskId = scheduler.scheduleSyncDelayedTask(plugin, new DelayedTickRunner(c, v -> tasks.remove(v)), delay);
-		if (taskId > -1) {
-			tasks.put(clazz, taskId);
-		}
-	}
-	@SuppressWarnings("deprecation")
-	public synchronized void addAsyncDelayedTickCommand(Class<? extends TickCommand> clazz, long delay) {
-		if (clazz == null) {
-			throw new ArgumentNullException("clazz");
-		}
-		
-		if (tasks.containsKey(clazz)) {
-			return;
-		}
-		
-		TickCommand c = getCommand(clazz);
-		if (c == null) {
-			return;
-		}
-		
-		if (delay < 1L) {
-			delay = 1L;
-		}
-		
-		// Not deprecated. @Deprecated was used as a warning.
-		int taskId = scheduler.scheduleAsyncDelayedTask(plugin, new DelayedTickRunner(c, v -> tasks.remove(v)), delay);
-		if (taskId > -1) {
-			tasks.put(clazz, taskId);
-		}
-	}
-	public synchronized void removeTickCommand(Class<? extends TickCommand> clazz) {
+	public int removeTickCommand(Class<TickCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
@@ -133,22 +96,50 @@ public final class TickHandler {
 		if (taskId > -1) {
 			scheduler.cancelTask(taskId);
 		}
+		return taskId;
 	}
-	public synchronized boolean hasTickCommand(Class<? extends TickCommand> clazz) {
+	public boolean hasTickCommand(Class<TickCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
 		return tasks.containsKey(clazz);
 	}
-	public synchronized void clear() {
+	public int getTickCommand(Class<TickCommand> clazz) {
+		if (clazz == null) {
+			throw new ArgumentNullException("clazz");
+		}
+		Integer id = tasks.get(clazz);
+		return (id == null) ? -1 : id;
+	}
+	public void clear() {
 		tasks.forEach((k, v) -> {
 			scheduler.cancelTask(v);
 		});
 		tasks.clear();
 	}
 	
+	public int addTicksFromPackage(String packageName) {
+		return addTicksFromPackage(packageName, true);
+	}
+	public int addTicksFromPackage(String packageName, boolean recursive) {
+		if (packageName == null) {
+			throw new ArgumentNullException("packageName");
+		}
+		
+		int numTicks = 0;
+		
+		List<Class<TickCommand>> enums = ReflectUtil.getClasses(TickCommand.class, packageName, recursive, false, false);
+		for (Class<TickCommand> t : enums) {
+			if (addTickCommand(t) > -1) {
+				numTicks++;
+			}
+		}
+		
+		return numTicks;
+	}
+	
 	//private
-	private TickCommand getCommand(Class<? extends TickCommand> clazz) {
+	private TickCommand getCommand(Class<TickCommand> clazz) {
 		TickCommand run = null;
 		try {
 			run = clazz.newInstance();

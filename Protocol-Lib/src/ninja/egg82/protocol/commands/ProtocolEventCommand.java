@@ -14,8 +14,6 @@ import com.comphenix.protocol.injector.GamePhase;
 
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.patterns.SynchronousCommand;
-import ninja.egg82.plugin.enums.SpigotInitType;
-import ninja.egg82.startup.InitRegistry;
 
 public abstract class ProtocolEventCommand extends SynchronousCommand implements PacketListener {
 	//vars
@@ -26,7 +24,7 @@ public abstract class ProtocolEventCommand extends SynchronousCommand implements
 	private ListenerPriority priority = null;
 	protected PacketEvent event = null;
 	
-	private JavaPlugin plugin = ServiceLocator.getService(InitRegistry.class).getRegister(SpigotInitType.PLUGIN, JavaPlugin.class);
+	private JavaPlugin plugin = ServiceLocator.getService(JavaPlugin.class);
 	
 	//constructor
 	public ProtocolEventCommand(PacketType packetType, ListenerPriority priority) {

@@ -11,16 +11,13 @@ public abstract class PluginCommand extends SynchronousCommand {
 	//vars
 	protected CommandSender sender = null;
 	protected Command command = null;
+	protected String commandName = null;
 	protected String label = null;
 	protected String[] args = null;
 	
 	//constructor
-	public PluginCommand(CommandSender sender, Command command, String label, String[] args) {
+	public PluginCommand() {
 		super();
-		this.sender = sender;
-		this.command = command;
-		this.label = label;
-		this.args = args;
 	}
 	
 	//public
@@ -36,6 +33,13 @@ public abstract class PluginCommand extends SynchronousCommand {
 	}
 	public final void setCommand(Command command) {
 		this.command = command;
+	}
+	
+	public final String getCommandName() {
+		return commandName;
+	}
+	public final void setCommandName(String commandName) {
+		this.commandName = commandName;
 	}
 	
 	public final String getLabel() {
@@ -56,7 +60,7 @@ public abstract class PluginCommand extends SynchronousCommand {
 		onUndo();
 	}
 	
-	public List<String> tabComplete(CommandSender sender, Command command, String label, String[] args) {
+	public List<String> tabComplete() {
 		return null;
 	}
 	

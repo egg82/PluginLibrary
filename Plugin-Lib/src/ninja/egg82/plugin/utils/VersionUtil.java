@@ -15,7 +15,30 @@ public final class VersionUtil {
 	}
 	
 	//public
-	public static Class<?> getBestMatch(String version, String pkg) {
+	
+	/**
+	 * Returns a single real (not an interface or an abstract) class in a package that best
+	 * matches the version you are targeting.
+	 * The classes must be named as such: 'ClassName_v1_v2_v3_etc'
+	 * The version must be named as such: 'v1.v2.v3.etc'
+	 * 
+	 * For example, if you have a version "1.11.2" that you want to match against you'll have
+	 * a package full of classes with names like the ones below:
+	 * DynamicClass_1_12
+	 * DynamicClass_1_8
+	 * DynamicClass_1_10_2
+	 * In which case this function will return "DynamicClass_1_10_2" since it is the closest (lower-bounded) match.
+	 * If you instead used "1.8" as your matching string it would return "DynamicClass_1_8"
+	 * If you used "1.7" as your version string you would get null, as there's no lower-bound match against that version.
+	 * Finally, if "1.14.2.10.6.12" was your version string you would end up with "DynamicClass_1_12"
+	 * 
+	 * @param clazz The class type to search for. Can be an interface, abstract, or real class
+	 * @param version The current version to match against
+	 * @param pkg The package name to search
+	 * @param recursive Whether or not to search the package recursively
+	 * @return The closest-matching class found matching the criteria, or null if none were found
+	 */
+	public static <T> Class<T> getBestMatch(Class<T> clazz, String version, String pkg, boolean recursive) {
 		if (version == null) {
 			throw new ArgumentNullException("version");
 		}
@@ -23,7 +46,7 @@ public final class VersionUtil {
 			throw new ArgumentNullException("pkg");
 		}
 		
-		List<Class<?>> enums = ReflectUtil.getClasses(Object.class, pkg);
+		List<Class<T>> enums = ReflectUtil.getClasses(clazz, pkg, recursive, false, false);
 		
 		// Sort by version, ascending
 		enums.sort((v1, v2) -> {
@@ -50,10 +73,10 @@ public final class VersionUtil {
 		
 		int[] currentVersion = parseVersion(version, '.');
 		
-		Class<?> bestMatch = null;
+		Class<T> bestMatch = null;
 		
 		// Ascending order means it will naturally try to get the highest possible value (lowest->highest)
-		for (Class<?> c : enums) {
+		for (Class<T> c : enums) {
 			String name = c.getSimpleName();
 		    
 		    int[] reflectVersion = parseVersion(name, '_');

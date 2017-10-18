@@ -4,7 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 
 import ninja.egg82.patterns.ServiceLocator;
-import ninja.egg82.plugin.enums.SpigotInitType;
+import ninja.egg82.plugin.enums.BukkitInitType;
 import ninja.egg82.plugin.utils.VersionUtil;
 import ninja.egg82.protocol.core.IFakeLivingEntity;
 import ninja.egg82.protocol.core.ProtocolLibFakeLivingEntity;
@@ -15,7 +15,7 @@ public class ProtocolLibFakeEntityHelper implements IFakeEntityHelper {
 	
 	//constructor
 	public ProtocolLibFakeEntityHelper() {
-		String gameVersion = ServiceLocator.getService(InitRegistry.class).getRegister(SpigotInitType.GAME_VERSION, String.class);
+		String gameVersion = ServiceLocator.getService(InitRegistry.class).getRegister(BukkitInitType.GAME_VERSION, String.class);
 		reflect(gameVersion, "ninja.egg82.protocol.reflection.wrappers.entityLiving");
 	}
 	
@@ -33,7 +33,7 @@ public class ProtocolLibFakeEntityHelper implements IFakeEntityHelper {
 		reflect(version, pkg, true);
 	}
 	private void reflect(String version, String pkg, boolean lazyInitialize) {
-		Class<?> bestMatch = VersionUtil.getBestMatch(version, pkg);
+		Class<Object> bestMatch = VersionUtil.getBestMatch(Object.class, version, pkg, false);
 		
 		if (bestMatch != null) {
 			ServiceLocator.provideService(bestMatch, lazyInitialize);

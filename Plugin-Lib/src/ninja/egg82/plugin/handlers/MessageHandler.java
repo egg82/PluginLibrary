@@ -1,9 +1,8 @@
 package ninja.egg82.plugin.handlers;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -12,17 +11,20 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 
 import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.exceptions.ArgumentNullException;
+import ninja.egg82.patterns.DynamicObjectPool;
+import ninja.egg82.patterns.IObjectPool;
 import ninja.egg82.patterns.ServiceLocator;
+import ninja.egg82.patterns.tuples.Unit;
 import ninja.egg82.plugin.commands.MessageCommand;
-import ninja.egg82.plugin.enums.SpigotInitType;
-import ninja.egg82.startup.InitRegistry;
+import ninja.egg82.utils.CollectionUtil;
+import ninja.egg82.utils.ReflectUtil;
 
 public final class MessageHandler implements PluginMessageListener {
 	//vars
-	private HashSet<String> channels = new HashSet<String>();
-	private HashMap<Class<? extends MessageCommand>, MessageCommand> commands = new HashMap<Class<? extends MessageCommand>, MessageCommand>();
+	private IObjectPool<String> channels = new DynamicObjectPool<String>();
+	private ConcurrentHashMap<Class<MessageCommand>, Unit<MessageCommand>> commands = new ConcurrentHashMap<Class<MessageCommand>, Unit<MessageCommand>>();
 	
-	private JavaPlugin plugin = ServiceLocator.getService(InitRegistry.class).getRegister(SpigotInitType.PLUGIN, JavaPlugin.class);
+	private JavaPlugin plugin = ServiceLocator.getService(JavaPlugin.class);
 	
 	//constructor
 	public MessageHandler() {
@@ -30,40 +32,41 @@ public final class MessageHandler implements PluginMessageListener {
 	}
 	
 	//public
-	public synchronized void addChannel(String name) {
+	public boolean addChannel(String name) {
 		if (name == null) {
 			throw new ArgumentNullException("name");
 		}
 		
 		if (channels.contains(name)) {
-			return;
+			return false;
 		}
 		
 		Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(plugin, name);
 		Bukkit.getServer().getMessenger().registerIncomingPluginChannel(plugin, name, this);
 		channels.add(name);
+		return true;
 	}
-	public synchronized void removeChannel(String name) {
+	public boolean removeChannel(String name) {
 		if (name == null) {
 			throw new ArgumentNullException("name");
 		}
 		
 		if (!channels.contains(name)) {
-			return;
+			return false;
 		}
 		
 		Bukkit.getServer().getMessenger().unregisterOutgoingPluginChannel(plugin, name);
 		Bukkit.getServer().getMessenger().unregisterIncomingPluginChannel(plugin, name, this);
-		
 		channels.remove(name);
+		return true;
 	}
-	public synchronized boolean hasChannel(String name) {
+	public boolean hasChannel(String name) {
 		if (name == null) {
 			return false;
 		}
 		return channels.contains(name);
 	}
-	public synchronized void clearChannels() {
+	public void clearChannels() {
 		channels.forEach((v) -> {
 			Bukkit.getServer().getMessenger().unregisterOutgoingPluginChannel(plugin, v);
 			Bukkit.getServer().getMessenger().unregisterIncomingPluginChannel(plugin, v, this);
@@ -71,27 +74,46 @@ public final class MessageHandler implements PluginMessageListener {
 		channels.clear();
 	}
 	
-	public synchronized void addCommand(Class<? extends MessageCommand> clazz) {
+	public boolean addCommand(Class<MessageCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
-		}
-		if (commands.containsKey(clazz)) {
-			return;
 		}
 		
-		commands.put(clazz, null);
+		Unit<MessageCommand> unit = new Unit<MessageCommand>(null);
+		return (CollectionUtil.putIfAbsent(commands, clazz, unit).hashCode() == unit.hashCode()) ? true : false;
 	}
-	public synchronized void removeCommand(Class<? extends MessageCommand> clazz) {
+	public boolean removeCommand(Class<MessageCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
-		commands.remove(clazz);
+		
+		return (commands.remove(clazz) != null) ? true : false;
 	}
-	public synchronized void clearCommands() {
+	public void clearCommands() {
 		commands.clear();
 	}
 	
-	public synchronized void sendMessage(Player player, String channelName, byte[] data) {
+	public int addMessagesFromPackage(String packageName) {
+		return addMessagesFromPackage(packageName, true);
+	}
+	public int addMessagesFromPackage(String packageName, boolean recursive) {
+		if (packageName == null) {
+			throw new ArgumentNullException("packageName");
+		}
+		
+		int numMessages = 0;
+		
+		List<Class<MessageCommand>> enums = ReflectUtil.getClasses(MessageCommand.class, packageName, recursive, false, false);
+		for (Class<MessageCommand> c : enums) {
+			if (addCommand(c)) {
+				numMessages++;
+			}
+		}
+		
+		return numMessages;
+	}
+	
+	public void sendMessage(Player player, String channelName, byte[] data) {
 		if (player == null) {
 			throw new ArgumentNullException("player");
 		}
@@ -107,18 +129,15 @@ public final class MessageHandler implements PluginMessageListener {
 		
 		player.sendPluginMessage(plugin, channelName, data);
 	}
-	public synchronized void onPluginMessageReceived(String channelName, Player player, byte[] message) {
-		Iterator<Entry<Class<? extends MessageCommand>, MessageCommand>> i = commands.entrySet().iterator();
-		
-		while (i.hasNext()) {
-			Entry<Class<? extends MessageCommand>, MessageCommand> kvp = i.next();
+	public  void onPluginMessageReceived(String channelName, Player player, byte[] message) {
+		for (Entry<Class<MessageCommand>, Unit<MessageCommand>> kvp : commands.entrySet()) {
 			MessageCommand c = null;
 			
-			if (kvp.getValue() == null) {
+			if (kvp.getValue().getType() == null) {
 				c = createCommand(kvp.getKey(), channelName, player, message);
-				kvp.setValue(c);
+				kvp.getValue().setType(c);
 			} else {
-				c = kvp.getValue();
+				c = kvp.getValue().getType();
 				c.setChannelName(channelName);
 				c.setPlayer(player);
 				c.setData(message);
@@ -133,11 +152,11 @@ public final class MessageHandler implements PluginMessageListener {
 	}
 	
 	//private
-	private synchronized MessageCommand createCommand(Class<? extends MessageCommand> c, String channelName, Player player, byte[] message) {
+	private MessageCommand createCommand(Class<? extends MessageCommand> c, String channelName, Player player, byte[] message) {
 		MessageCommand run = null;
 		
 		try {
-			run = c.getDeclaredConstructor(String.class, Player.class, byte[].class).newInstance(channelName, player, message);
+			run = c.newInstance();
 		} catch (Exception ex) {
 			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 			return null;

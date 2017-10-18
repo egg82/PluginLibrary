@@ -14,7 +14,7 @@ import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.exceptionHandlers.NullExceptionHandler;
 import ninja.egg82.patterns.IRegistry;
 import ninja.egg82.patterns.ServiceLocator;
-import ninja.egg82.plugin.enums.SpigotInitType;
+import ninja.egg82.plugin.enums.BukkitInitType;
 import ninja.egg82.plugin.handlers.CommandHandler;
 import ninja.egg82.plugin.handlers.MessageHandler;
 import ninja.egg82.plugin.handlers.PermissionsManager;
@@ -42,6 +42,10 @@ public class BasePlugin extends JavaPlugin {
 		Start.init();
 		
 		logger = getLogger();
+		
+		ServiceLocator.provideService(this);
+		ServiceLocator.provideService(logger);
+		
 		ServiceLocator.provideService(NullExceptionHandler.class);
 		logger.addHandler((Handler) ServiceLocator.getService(IExceptionHandler.class));
 		
@@ -51,10 +55,8 @@ public class BasePlugin extends JavaPlugin {
 		gameVersion = gameVersion.trim().replace('_', '.');
 		
 		IRegistry<String> initRegistry = ServiceLocator.getService(InitRegistry.class);
-		initRegistry.setRegister(SpigotInitType.GAME_VERSION, gameVersion);
-		initRegistry.setRegister(SpigotInitType.PLUGIN, this);
-		initRegistry.setRegister(SpigotInitType.PLUGIN_VERSION, getDescription().getVersion());
-		initRegistry.setRegister(SpigotInitType.PLUGIN_LOGGER, getLogger());
+		initRegistry.setRegister(BukkitInitType.GAME_VERSION, gameVersion);
+		initRegistry.setRegister(BukkitInitType.PLUGIN_VERSION, getDescription().getVersion());
 	}
 	
 	//public
@@ -95,8 +97,7 @@ public class BasePlugin extends JavaPlugin {
 		return commandHandler.tabComplete(sender, command, label, args);
 	}
 	
-	//private
-	protected final void info(String message) {
+	public final void printInfo(String message) {
 		if (consoleSender == null) {
 			consoleSender = getServer().getConsoleSender();
 		}
@@ -107,7 +108,7 @@ public class BasePlugin extends JavaPlugin {
 			logger.info(message);
 		}
 	}
-	protected final void warning(String message) {
+	public final void printWarning(String message) {
 		if (consoleSender == null) {
 			consoleSender = getServer().getConsoleSender();
 		}
@@ -118,7 +119,7 @@ public class BasePlugin extends JavaPlugin {
 			logger.warning(message);
 		}
 	}
-	protected final void error(String message) {
+	public final void printError(String message) {
 		if (consoleSender == null) {
 			consoleSender = getServer().getConsoleSender();
 		}
@@ -130,11 +131,12 @@ public class BasePlugin extends JavaPlugin {
 		}
 	}
 	
+	//private
 	private void reflect(String version, String pkg) {
 		reflect(version, pkg, true);
 	}
 	private void reflect(String version, String pkg, boolean lazyInitialize) {
-		Class<?> bestMatch = VersionUtil.getBestMatch(version, pkg);
+		Class<Object> bestMatch = VersionUtil.getBestMatch(Object.class, version, pkg, false);
 		
 		if (bestMatch != null) {
 			ServiceLocator.provideService(bestMatch, lazyInitialize);

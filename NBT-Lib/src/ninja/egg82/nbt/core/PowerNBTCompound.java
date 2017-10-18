@@ -294,7 +294,7 @@ public class PowerNBTCompound implements INBTCompound {
 	}
 	
 	//private
-	private NBTCompound readCompound() {
+	private synchronized NBTCompound readCompound() {
 		try {
 			if (stack != null) {
 				last = manager.read(stack);
@@ -335,7 +335,7 @@ public class PowerNBTCompound implements INBTCompound {
 		}
 		return last;
 	}
-	private void writeCompound(NBTCompound compound) {
+	private synchronized void writeCompound(NBTCompound compound) {
 		if (parent != null) {
 			getRoot().writeLast();
 		}

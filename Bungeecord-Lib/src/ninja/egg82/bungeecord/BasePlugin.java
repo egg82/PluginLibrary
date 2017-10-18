@@ -31,14 +31,15 @@ public class BasePlugin extends Plugin {
 		
 		Start.init();
 		
+		ServiceLocator.provideService(this);
+		ServiceLocator.provideService(logger);
+		
 		logger = getLogger();
 		ServiceLocator.provideService(NullExceptionHandler.class);
 		logger.addHandler((Handler) ServiceLocator.getService(IExceptionHandler.class));
 		
 		IRegistry<String> initRegistry = ServiceLocator.getService(InitRegistry.class);
-		initRegistry.setRegister(BungeeInitType.PLUGIN, this);
 		initRegistry.setRegister(BungeeInitType.PLUGIN_VERSION, getDescription().getVersion());
-		initRegistry.setRegister(BungeeInitType.PLUGIN_LOGGER, getLogger());
 	}
 	
 	//public

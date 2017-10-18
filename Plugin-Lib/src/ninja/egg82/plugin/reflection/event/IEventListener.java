@@ -6,7 +6,12 @@ import ninja.egg82.plugin.commands.EventCommand;
 
 public interface IEventListener {
 	//functions
-	void setEvent(Class<? extends Event> event, Class<? extends EventCommand<? extends Event>> clazz);
-	boolean hasEvent(Class<? extends Event> event);
+	boolean addEventHandler(Class<? extends Event> event, Class<EventCommand<? extends Event>> clazz);
+	boolean removeEventHandler(Class<EventCommand<? extends Event>> clazz);
+	boolean removeEventHandler(Class<? extends Event> event, Class<EventCommand<? extends Event>> clazz);
+	boolean hasEventHandler(Class<? extends Event> event);
 	void clear();
+	
+	int addEventsFromPackage(String packageName);
+	int addEventsFromPackage(String packageName, boolean recursive);
 }
