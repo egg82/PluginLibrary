@@ -103,6 +103,7 @@ public abstract class AbstractEventListener implements IEventListener, Listener 
 			try {
 				eventType = (Class<? extends Event>) ((ParameterizedType) c.getGenericSuperclass()).getActualTypeArguments()[0];
 			} catch (Exception ex) {
+				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 				continue;
 			}
 			
@@ -142,19 +143,25 @@ public abstract class AbstractEventListener implements IEventListener, Listener 
 					run.add((EventCommand<T>) e.newInstance());
 				} catch (Exception ex) {
 					ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+					throw new RuntimeException("Cannot initialize event command.", ex);
 				}
 			}
 			
 			run = CollectionUtil.putIfAbsent(initializedEvents, key, run);
 		}
 		
+		Exception lastEx = null;
 		for (EventCommand<? extends Event> e : run) {
 			((EventCommand<T>) e).setEvent(event);
 			try {
 				e.start();
 			} catch (Exception ex) {
 				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				lastEx = ex;
 			}
+		}
+		if (lastEx != null) {
+			throw new RuntimeException("Cannot undo command.", lastEx);
 		}
 	}
 }

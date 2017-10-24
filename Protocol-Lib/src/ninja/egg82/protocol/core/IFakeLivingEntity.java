@@ -1,19 +1,13 @@
 package ninja.egg82.protocol.core;
 
 import java.util.Collection;
-import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 
-public interface IFakeLivingEntity {
+public interface IFakeLivingEntity extends IFakeEntity {
 	//functions
-	void addPlayer(Player player);
-	void removePlayer(Player player);
-	void removeAllPlayers();
-	
 	double getHealth();
 	void setHealth(double health);
 	
@@ -29,9 +23,4 @@ public interface IFakeLivingEntity {
 	void collideE(Collection<Entity> entities);
 	void collide(IFakeLivingEntity entity);
 	void collide(Entity entity);
-	
-	int getId();
-	UUID getUuid();
-	
-	void destroy();
 }

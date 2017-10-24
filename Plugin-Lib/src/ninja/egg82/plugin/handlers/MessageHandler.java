@@ -51,13 +51,12 @@ public final class MessageHandler implements PluginMessageListener {
 			throw new ArgumentNullException("name");
 		}
 		
-		if (!channels.contains(name)) {
+		if (!channels.remove(name)) {
 			return false;
 		}
 		
 		Bukkit.getServer().getMessenger().unregisterOutgoingPluginChannel(plugin, name);
 		Bukkit.getServer().getMessenger().unregisterIncomingPluginChannel(plugin, name, this);
-		channels.remove(name);
 		return true;
 	}
 	public boolean hasChannel(String name) {
@@ -130,6 +129,7 @@ public final class MessageHandler implements PluginMessageListener {
 		player.sendPluginMessage(plugin, channelName, data);
 	}
 	public  void onPluginMessageReceived(String channelName, Player player, byte[] message) {
+		Exception lastEx = null;
 		for (Entry<Class<MessageCommand>, Unit<MessageCommand>> kvp : commands.entrySet()) {
 			MessageCommand c = null;
 			
@@ -147,7 +147,11 @@ public final class MessageHandler implements PluginMessageListener {
 				c.start();
 			} catch (Exception ex) {
 				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				lastEx = ex;
 			}
+		}
+		if (lastEx != null) {
+			throw new RuntimeException("Cannot run message command.", lastEx);
 		}
 	}
 	
@@ -159,7 +163,7 @@ public final class MessageHandler implements PluginMessageListener {
 			run = c.newInstance();
 		} catch (Exception ex) {
 			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
-			return null;
+			throw new RuntimeException("Cannot initialize message command.", ex);
 		}
 		
 		return run;

@@ -1,11 +1,9 @@
 package ninja.egg82.protocol.reflection.wrappers.block;
 
 import java.util.HashSet;
-import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import com.comphenix.protocol.PacketType;
@@ -124,41 +122,6 @@ public class PacketBlockHelper_1_8 implements IPacketBlockHelper {
 			.write(0, info.toArray(new MultiBlockChangeInfo[0]));
 		
 		return packet;
-	}
-	
-	public void send(PacketContainer packet, Player player) {
-		if (player == null) {
-			return;
-		}
-		
-		try {
-			protocolManager.sendServerPacket(player, packet);
-		} catch (Exception ex) {
-			
-		}
-	}
-	public void send(PacketContainer packet, List<Player> players) {
-		if (players == null) {
-			throw new ArgumentNullException("players");
-		}
-		
-		send(packet, players.toArray(new Player[0]));
-	}
-	public void send(PacketContainer packet, Player[] players) {
-		if (players == null) {
-			throw new ArgumentNullException("players");
-		}
-		
-		try {
-			for (int i = 0; i < players.length; i++) {
-				if (players[i] == null) {
-					continue;
-				}
-				protocolManager.sendServerPacket(players[i], packet);
-			}
-		} catch (Exception ex) {
-			
-		}
 	}
 	
 	//private

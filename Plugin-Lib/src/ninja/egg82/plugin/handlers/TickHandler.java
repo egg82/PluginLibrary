@@ -144,7 +144,7 @@ public final class TickHandler {
 		try {
 			run = clazz.newInstance();
 		} catch (Exception ex) {
-			return null;
+			throw new RuntimeException("Cannot initialize tick command.", ex);
 		}
 		return run;
 	}

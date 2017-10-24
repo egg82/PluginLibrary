@@ -205,7 +205,7 @@ public final class CommandHandler {
 			return null;
 		}
 		
-		BungeeCommand peek = run.peek();
+		BungeeCommand peek = run.peekFirst();
 		if (peek != null && run.size() == 1) {
 			return peek.onTabComplete(sender, args);
 		}

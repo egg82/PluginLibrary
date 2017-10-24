@@ -8,18 +8,14 @@ import org.bukkit.Location;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.util.Vector;
 
 import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.reflect.accessors.Accessors;
-import com.comphenix.protocol.reflect.accessors.FieldAccessor;
-import com.comphenix.protocol.utility.MinecraftReflection;
 
 import ninja.egg82.exceptions.ArgumentNullException;
-import ninja.egg82.patterns.DynamicObjectPool;
-import ninja.egg82.patterns.IObjectPool;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.enums.BukkitInitType;
 import ninja.egg82.plugin.reflection.entity.IEntityHelper;
@@ -27,32 +23,41 @@ import ninja.egg82.plugin.utils.BlockUtil;
 import ninja.egg82.plugin.utils.CommandUtil;
 import ninja.egg82.plugin.utils.LocationUtil;
 import ninja.egg82.protocol.reflection.wrappers.entityLiving.IPacketEntityLivingHelper;
+import ninja.egg82.protocol.utils.ProtocolReflectUtil;
 import ninja.egg82.startup.InitRegistry;
 
-public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
+public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implements IFakeLivingEntity {
 	//vars
 	private IPacketEntityLivingHelper packetHelper = ServiceLocator.getService(IPacketEntityLivingHelper.class);
-	private PacketContainer spawnPacket = null;
 	private PacketContainer teleportSpawnPacket = null;
-	private PacketContainer destroyPacket = null;
-	private FieldAccessor nextEntityId = Accessors.getFieldAccessor(MinecraftReflection.getEntityClass(), "entityCount", true);
 	
 	private String gameVersion = ServiceLocator.getService(InitRegistry.class).getRegister(BukkitInitType.GAME_VERSION, String.class);
 	private IEntityHelper entityHelper = ServiceLocator.getService(IEntityHelper.class);
 	
-	private static int currentEntityId = Integer.MAX_VALUE;
-	
-	private Location currentLocation = null;
-	private int id = -1;
-	private UUID uuid = UUID.randomUUID();
-	
-	private long lastAttackTime = -1L;
-	private double health = 20.0d;
-	
-	private IObjectPool<UUID> players = new DynamicObjectPool<UUID>();
+	private volatile long lastAttackTime = -1L;
+	private volatile double health = 20.0d;
 	
 	//constructor
+	public ProtocolLibFakeLivingEntity(LivingEntity entity) {
+		super();
+		
+		if (entity == null) {
+			throw new ArgumentNullException("entity");
+		}
+		
+		currentLocation = entity.getLocation().clone();
+		id = entity.getEntityId();
+		uuid = entity.getUniqueId();
+		
+		health = entity.getHealth();
+		
+		spawnPacket = null;
+		teleportSpawnPacket = null;
+		destroyPacket = null;
+	}
 	public ProtocolLibFakeLivingEntity(Location loc, EntityType type) {
+		super();
+		
 		if (loc == null) {
 			throw new ArgumentNullException("loc");
 		}
@@ -61,12 +66,8 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 		}
 		
 		currentLocation = loc.clone();
-		if (currentEntityId <= (Integer) nextEntityId.get(null)) {
-			currentEntityId = Integer.MAX_VALUE;
-		}
-		
-		id = currentEntityId;
-		currentEntityId--;
+		id = getNextEntityId();
+		uuid = UUID.randomUUID();
 		
 		spawnPacket = packetHelper.spawn(id, uuid, type, loc);
 		teleportSpawnPacket = packetHelper.teleport(id, loc, (BlockUtil.getTopWalkableBlock(loc).getY() == loc.getY()) ? false : true);
@@ -74,39 +75,17 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 	}
 	
 	//public
-	public void addPlayer(Player player) {
-		if (player == null) {
-			throw new ArgumentNullException("player");
-		}
-		
-		UUID uuid = player.getUniqueId();
-		
-		if (!players.contains(uuid)) {
-			players.add(uuid);
-			packetHelper.send(spawnPacket, player);
-			// Bit of a hack since the spawn packet for 1.8 seems to always spawn at 0,0,0 regardless of input
-			if (gameVersion == "1.8" || gameVersion == "1.8.1" || gameVersion == "1.8.3" || gameVersion == "1.8.8") {
-				packetHelper.send(teleportSpawnPacket, player);
+	public boolean addPlayer(Player player) {
+		if (super.addPlayer(player)) {
+			if (teleportSpawnPacket != null) {
+				// Bit of a hack since the spawn packet for 1.8 seems to always spawn at 0,0,0 regardless of input
+				if (gameVersion == "1.8" || gameVersion == "1.8.1" || gameVersion == "1.8.3" || gameVersion == "1.8.8") {
+					ProtocolReflectUtil.sendPacket(teleportSpawnPacket, player);
+				}
 			}
+			return true;
 		}
-	}
-	public void removePlayer(Player player) {
-		if (player == null) {
-			throw new ArgumentNullException("player");
-		}
-		
-		UUID uuid = player.getUniqueId();
-		
-		if (players.contains(uuid)) {
-			players.remove(uuid);
-			packetHelper.send(destroyPacket, player);
-		}
-	}
-	public void removeAllPlayers() {
-		for (UUID uuid : players) {
-			packetHelper.send(destroyPacket, CommandUtil.getPlayerByUuid(uuid));
-		}
-		players.clear();
+		return false;
 	}
 	
 	public void damage(double damage) {
@@ -124,7 +103,7 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 		}
 		
 		for (UUID uuid : players) {
-			packetHelper.send(packet, CommandUtil.getPlayerByUuid(uuid));
+			ProtocolReflectUtil.sendPacket(packet, CommandUtil.getPlayerByUuid(uuid));
 		}
 	}
 	
@@ -141,7 +120,7 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 			PacketContainer deathPacket = packetHelper.death(id);
 			
 			for (UUID uuid : players) {
-				packetHelper.send(deathPacket, CommandUtil.getPlayerByUuid(uuid));
+				ProtocolReflectUtil.sendPacket(deathPacket, CommandUtil.getPlayerByUuid(uuid));
 			}
 		}
 	}
@@ -164,8 +143,8 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 		currentLocation.setYaw(yaw);
 		
 		for (UUID uuid : players) {
-			packetHelper.send(lookPacket, CommandUtil.getPlayerByUuid(uuid));
-			packetHelper.send(headLookPacket, CommandUtil.getPlayerByUuid(uuid));
+			ProtocolReflectUtil.sendPacket(lookPacket, CommandUtil.getPlayerByUuid(uuid));
+			ProtocolReflectUtil.sendPacket(headLookPacket, CommandUtil.getPlayerByUuid(uuid));
 		}
 	}
 	public void moveTo(Location loc) {
@@ -178,7 +157,7 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 		currentLocation = LocationUtil.makeEqualXYZ(loc, currentLocation);
 		
 		for (UUID uuid : players) {
-			packetHelper.send(movePacket, CommandUtil.getPlayerByUuid(uuid));
+			ProtocolReflectUtil.sendPacket(movePacket, CommandUtil.getPlayerByUuid(uuid));
 		}
 	}
 	public void teleportTo(Location loc) {
@@ -191,17 +170,14 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 		currentLocation = loc.clone();
 		
 		for (UUID uuid : players) {
-			packetHelper.send(teleportPacket, CommandUtil.getPlayerByUuid(uuid));
+			ProtocolReflectUtil.sendPacket(teleportPacket, CommandUtil.getPlayerByUuid(uuid));
 		}
-	}
-	public Location getLocation() {
-		return currentLocation.clone();
 	}
 	
 	public void animate(int animationId) {
 		PacketContainer animatePacket = packetHelper.animate(id, animationId);
 		for (UUID uuid : players) {
-			packetHelper.send(animatePacket, CommandUtil.getPlayerByUuid(uuid));
+			ProtocolReflectUtil.sendPacket(animatePacket, CommandUtil.getPlayerByUuid(uuid));
 		}
 	}
 	public void attack(Damageable entity, double damage) {
@@ -277,13 +253,6 @@ public class ProtocolLibFakeLivingEntity implements IFakeLivingEntity {
 				entity.setVelocity(v);
 			}
 		}
-	}
-	
-	public int getId() {
-		return id;
-	}
-	public UUID getUuid() {
-		return uuid;
 	}
 	
 	public void destroy() {

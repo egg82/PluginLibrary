@@ -7,12 +7,16 @@ import org.bukkit.Location;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 public class NullFakeLivingEntity implements IFakeLivingEntity {
 	//vars
 	
 	//constructor
+	public NullFakeLivingEntity(LivingEntity entity) {
+		
+	}
 	public NullFakeLivingEntity(Location loc, EntityType type) {
 		
 	}
@@ -20,11 +24,11 @@ public class NullFakeLivingEntity implements IFakeLivingEntity {
 	//public
 	
 	//private
-	public void addPlayer(Player player) {
-		
+	public boolean addPlayer(Player player) {
+		return false;
 	}
-	public void removePlayer(Player player) {
-		
+	public boolean removePlayer(Player player) {
+		return false;
 	}
 	public void removeAllPlayers() {
 		

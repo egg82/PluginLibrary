@@ -14,6 +14,8 @@ import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.exceptionHandlers.NullExceptionHandler;
 import ninja.egg82.patterns.IRegistry;
 import ninja.egg82.patterns.ServiceLocator;
+import ninja.egg82.plugin.core.OfflinePlayerRegistry;
+import ninja.egg82.plugin.core.OfflinePlayerReverseRegistry;
 import ninja.egg82.plugin.enums.BukkitInitType;
 import ninja.egg82.plugin.handlers.CommandHandler;
 import ninja.egg82.plugin.handlers.MessageHandler;
@@ -70,6 +72,9 @@ public class BasePlugin extends JavaPlugin {
 		ConfigUtil.setRegistry(ServiceLocator.getService(ConfigRegistry.class));
 		ServiceLocator.provideService(LanguageRegistry.class, false);
 		LanguageUtil.setRegistry(ServiceLocator.getService(LanguageRegistry.class));
+		
+		ServiceLocator.provideService(OfflinePlayerRegistry.class);
+		ServiceLocator.provideService(OfflinePlayerReverseRegistry.class);
 		
 		ServiceLocator.provideService(PermissionsManager.class, false);
 		ServiceLocator.provideService(CommandHandler.class, false);

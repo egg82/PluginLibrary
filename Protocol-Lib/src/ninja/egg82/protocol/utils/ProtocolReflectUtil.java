@@ -4,10 +4,15 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.bukkit.entity.Player;
+
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
+import com.comphenix.protocol.events.PacketContainer;
 
 import ninja.egg82.exceptions.ArgumentNullException;
+import ninja.egg82.patterns.ServiceLocator;
+import ninja.egg82.plugin.utils.VersionUtil;
 import ninja.egg82.protocol.commands.ProtocolEventCommand;
 import ninja.egg82.utils.CollectionUtil;
 import ninja.egg82.utils.ReflectUtil;
@@ -23,6 +28,60 @@ public class ProtocolReflectUtil {
 	}
 	
 	//public
+	public static void reflect(String version, String pkg) {
+		reflect(version, pkg, true);
+	}
+	public static void reflect(String version, String pkg, boolean lazyInitialize) {
+		Class<Object> bestMatch = VersionUtil.getBestMatch(Object.class, version, pkg, false);
+		
+		if (bestMatch != null) {
+			ServiceLocator.provideService(bestMatch, lazyInitialize);
+		}
+	}
+	
+	public static void sendPacket(PacketContainer packet, Player player) {
+		if (player == null) {
+			return;
+		}
+		
+		if (manager == null) {
+			manager = ProtocolLibrary.getProtocolManager();
+		}
+		
+		try {
+			manager.sendServerPacket(player, packet);
+		} catch (Exception ex) {
+			
+		}
+	}
+	public static void sendPacket(PacketContainer packet, List<Player> players) {
+		if (players == null) {
+			throw new ArgumentNullException("players");
+		}
+		
+		sendPacket(packet, players.toArray(new Player[0]));
+	}
+	public static void sendPacket(PacketContainer packet, Player[] players) {
+		if (players == null) {
+			throw new ArgumentNullException("players");
+		}
+		
+		if (manager == null) {
+			manager = ProtocolLibrary.getProtocolManager();
+		}
+		
+		try {
+			for (int i = 0; i < players.length; i++) {
+				if (players[i] == null) {
+					continue;
+				}
+				manager.sendServerPacket(players[i], packet);
+			}
+		} catch (Exception ex) {
+			
+		}
+	}
+	
 	public static boolean addEventHandler(Class<ProtocolEventCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");

@@ -169,17 +169,23 @@ public final class CommandHandler {
 			return;
 		}
 		
+		Exception lastEx = null;
 		for (PluginCommand c : run) {
 			try {
 				c.start();
 			} catch (Exception ex) {
 				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				lastEx = ex;
 			}
+		}
+		if (lastEx != null) {
+			throw new RuntimeException("Cannot run command.", lastEx);
 		}
 	}
 	public void undoInitializedCommands(CommandSender sender, String[] args) {
-		initializedCommands.forEach((k, run) -> {
-			for (PluginCommand c : run) {
+		Exception lastEx = null;
+		for (Entry<String, IObjectPool<PluginCommand>> kvp : initializedCommands.entrySet()) {
+			for (PluginCommand c : kvp.getValue()) {
 				c.setSender(sender);
 				c.setCommand(null);
 				c.setCommandName(null);
@@ -190,9 +196,13 @@ public final class CommandHandler {
 					c.undo();
 				} catch (Exception ex) {
 					ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+					lastEx = ex;
 				}
 			}
-		});
+		}
+		if (lastEx != null) {
+			throw new RuntimeException("Cannot undo command.", lastEx);
+		}
 	}
 	public List<String> tabComplete(CommandSender sender, Command command, String label, String[] args) {
 		IObjectPool<PluginCommand> run = getCommands(sender, command, label, args);
@@ -201,7 +211,7 @@ public final class CommandHandler {
 			return null;
 		}
 		
-		PluginCommand peek = run.peek();
+		PluginCommand peek = run.peekFirst();
 		if (peek != null && run.size() == 1) {
 			return peek.tabComplete();
 		}
@@ -214,6 +224,7 @@ public final class CommandHandler {
 				complete = c.tabComplete();
 			} catch (Exception ex) {
 				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				throw ex;
 			}
 			if (complete != null) {
 				retVal.addAll(complete);
@@ -249,6 +260,7 @@ public final class CommandHandler {
 					run.add(e.newInstance());
 				} catch (Exception ex) {
 					ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+					throw new RuntimeException("Cannot initialize command.", ex);
 				}
 			}
 			

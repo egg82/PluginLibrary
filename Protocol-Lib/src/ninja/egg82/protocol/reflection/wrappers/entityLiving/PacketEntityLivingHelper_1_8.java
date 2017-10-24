@@ -1,11 +1,9 @@
 package ninja.egg82.protocol.reflection.wrappers.entityLiving;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import com.comphenix.protocol.PacketType;
@@ -14,8 +12,9 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 
 import ninja.egg82.exceptions.ArgumentNullException;
+import ninja.egg82.protocol.reflection.wrappers.entity.PacketEntityHelper_1_8;
 
-public class PacketEntityLivingHelper_1_8 implements IPacketEntityLivingHelper {
+public class PacketEntityLivingHelper_1_8 extends PacketEntityHelper_1_8 implements IPacketEntityLivingHelper {
 	//vars
 	private ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
 	
@@ -58,29 +57,6 @@ public class PacketEntityLivingHelper_1_8 implements IPacketEntityLivingHelper {
 			.write(0, (byte) ((spawnLoc.getYaw() / 360.0f) * 255.0f))
 			.write(1, (byte) ((spawnLoc.getPitch() / 360.0f) * 255.0f))
 			.write(2, (byte) ((spawnLoc.getPitch() / 360.0f) * 255.0f));
-		
-		return packet;
-	}
-	
-	public PacketContainer destroy(List<Integer> entityIds) {
-		if (entityIds == null) {
-			throw new ArgumentNullException("entityIds");
-		}
-		
-		return destroy(entityIds.stream().mapToInt(i -> i).toArray());
-	}
-	public PacketContainer destroy(int entityId) {
-		return destroy(new int[] {entityId});
-	}
-	public PacketContainer destroy(int[] entityIds) {
-		if (entityIds == null) {
-			throw new ArgumentNullException("entityIds");
-		}
-		
-		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_DESTROY);
-		
-		packet.getIntegerArrays()
-			.write(0, entityIds);
 		
 		return packet;
 	}
@@ -175,41 +151,6 @@ public class PacketEntityLivingHelper_1_8 implements IPacketEntityLivingHelper {
 		packet.getBytes()
 			.write(0, (byte) 3);
 		return packet;
-	}
-	
-	public void send(PacketContainer packet, Player player) {
-		if (player == null) {
-			return;
-		}
-		
-		try {
-			protocolManager.sendServerPacket(player, packet);
-		} catch (Exception ex) {
-			
-		}
-	}
-	public void send(PacketContainer packet, List<Player> players) {
-		if (players == null) {
-			throw new ArgumentNullException("players");
-		}
-		
-		send(packet, players.toArray(new Player[0]));
-	}
-	public void send(PacketContainer packet, Player[] players) {
-		if (players == null) {
-			throw new ArgumentNullException("players");
-		}
-		
-		try {
-			for (int i = 0; i < players.length; i++) {
-				if (players[i] == null) {
-					continue;
-				}
-				protocolManager.sendServerPacket(players[i], packet);
-			}
-		} catch (Exception ex) {
-			
-		}
 	}
 	
 	//private

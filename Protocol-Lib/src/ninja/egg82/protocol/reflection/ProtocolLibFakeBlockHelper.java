@@ -13,8 +13,8 @@ import com.comphenix.protocol.events.PacketContainer;
 import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.enums.BukkitInitType;
-import ninja.egg82.plugin.utils.VersionUtil;
 import ninja.egg82.protocol.reflection.wrappers.block.IPacketBlockHelper;
+import ninja.egg82.protocol.utils.ProtocolReflectUtil;
 import ninja.egg82.startup.InitRegistry;
 
 public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
@@ -25,7 +25,7 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 	//constructor
 	public ProtocolLibFakeBlockHelper() {
 		String gameVersion = ServiceLocator.getService(InitRegistry.class).getRegister(BukkitInitType.GAME_VERSION, String.class);
-		reflect(gameVersion, "ninja.egg82.protocol.reflection.wrappers.block");
+		ProtocolReflectUtil.reflect(gameVersion, "ninja.egg82.protocol.reflection.wrappers.block");
 		packetHelper = ServiceLocator.getService(IPacketBlockHelper.class);
 	}
 	
@@ -45,7 +45,7 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 		}
 		
 		if (blockLocation.getWorld().getName() == player.getWorld().getName()) {
-			packetHelper.send(packetHelper.blockChange(blockLocation, newMaterial, newMetadata), player);
+			ProtocolReflectUtil.sendPacket(packetHelper.blockChange(blockLocation, newMaterial, newMetadata), player);
 		}
 	}
 	public void updateBlock(Player[] players, Location blockLocation, Material newMaterial) {
@@ -109,7 +109,7 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 		}
 		
 		for (int i = 0; i < packets.size(); i++) {
-			packetHelper.send(packets.get(i), player);
+			ProtocolReflectUtil.sendPacket(packets.get(i), player);
 		}
 	}
 	public void updateBlocks(Player player, Location[] blockLocations, Material[] newMaterials) {
@@ -180,7 +180,7 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 		}
 		
 		for (int i = 0; i < packets.size(); i++) {
-			packetHelper.send(packets.get(i), player);
+			ProtocolReflectUtil.sendPacket(packets.get(i), player);
 		}
 	}
 	public void updateBlocks(Player[] players, Location[] blockLocations, Material newMaterial) {
@@ -252,14 +252,5 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 	}
 	
 	//private
-	private void reflect(String version, String pkg) {
-		reflect(version, pkg, true);
-	}
-	private void reflect(String version, String pkg, boolean lazyInitialize) {
-		Class<Object> bestMatch = VersionUtil.getBestMatch(Object.class, version, pkg, false);
-		
-		if (bestMatch != null) {
-			ServiceLocator.provideService(bestMatch, lazyInitialize);
-		}
-	}
+	
 }
