@@ -1,5 +1,7 @@
 package ninja.egg82.plugin.utils;
 
+import org.bukkit.configuration.file.YamlConfiguration;
+
 import ninja.egg82.patterns.IRegistry;
 
 public class ConfigUtil {
@@ -19,11 +21,16 @@ public class ConfigUtil {
 		return configRegistry;
 	}
 	
-	public static <T> T getObject(String key, Class<T> objectType) {
+	public static void fillRegistry(YamlConfiguration config) {
 		if (configRegistry == null) {
-			return null;
+			return;
 		}
-		return configRegistry.getRegister(key, objectType);
+		
+		for (String key : config.getKeys(true)) {
+			if (!config.isConfigurationSection(key)) {
+				configRegistry.setRegister(key, config.get(key));
+			}
+		}
 	}
 	
 	//private

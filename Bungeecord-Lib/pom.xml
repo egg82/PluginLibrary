@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <artifactId>bungeecord-lib</artifactId>
-  <version>2.1.4</version>
+  <version>2.1.5</version>
   <name>egg82-bungeecord-lib</name>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -25,6 +25,9 @@
               <goal>shade</goal>
             </goals>
             <configuration>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+              </transformers>
               <filters>
                 <filter>
                   <artifact>*:*</artifact>
@@ -83,12 +86,12 @@
     <dependency>
       <groupId>ninja.egg82.lib</groupId>
       <artifactId>egg82-lib</artifactId>
-      <version>[2.6.26,)</version>
+      <version>[2.6.27,)</version>
     </dependency>
     <dependency>
       <groupId>ninja.egg82.lib</groupId>
       <artifactId>exception-lib</artifactId>
-      <version>[1.1.6,)</version>
+      <version>[1.1.7,)</version>
     </dependency>
     <dependency>
       <groupId>commons-lang</groupId>

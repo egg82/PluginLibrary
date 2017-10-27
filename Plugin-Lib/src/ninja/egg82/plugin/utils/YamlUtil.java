@@ -42,33 +42,42 @@ public class YamlUtil {
 		try {
 			defaultConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(plugin.getResource(resourceName)));
 		} catch (Exception ex) {
-			return YamlConfiguration.loadConfiguration(new StringReader(""));
+			defaultConfig = YamlConfiguration.loadConfiguration(new StringReader(""));
 		}
 		if (defaultConfig == null) {
-			return YamlConfiguration.loadConfiguration(new StringReader(""));
+			defaultConfig = YamlConfiguration.loadConfiguration(new StringReader(""));
 		}
 		
 		if (FileUtil.pathExists(yamlFile) && !FileUtil.pathIsFile(yamlFile)) {
 			return defaultConfig;
 		}
-		if (!FileUtil.pathExists(yamlFile)) {
-			try {
-				FileUtil.createFile(yamlFile);
-			} catch (Exception ex) {
-				return defaultConfig;
+		
+		File file = new File(yamlFile);
+		YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+		
+		boolean changed = false;
+		for (String key : defaultConfig.getKeys(true)) {
+			if (!config.contains(key)) {
+				changed = true;
+				if (defaultConfig.isConfigurationSection(key)) {
+					config.createSection(key);
+				} else {
+					config.set(key, defaultConfig.get(key));
+				}
 			}
 		}
 		
-		File file = new File(yamlFile);
-		
-		YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-		config.setDefaults(defaultConfig);
-		
 		if (saveFile) {
-			try {
-				config.save(file);
-			} catch (Exception ex) {
-				
+			if (!FileUtil.pathExists(yamlFile)) {
+				plugin.saveResource(resourceName, true);
+			} else {
+				if (changed) {
+					try {
+						config.save(file);
+					} catch (Exception ex) {
+						
+					}
+				}
 			}
 		}
 		
