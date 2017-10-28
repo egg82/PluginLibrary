@@ -14,6 +14,4 @@ public interface INBTHelper {
 	INBTCompound getCompound(String filePath);
 	
 	boolean isValidLibrary();
-	boolean supportsBlocks();
-	boolean supportsFiles();
 }

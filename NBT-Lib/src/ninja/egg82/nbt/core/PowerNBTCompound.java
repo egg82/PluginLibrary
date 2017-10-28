@@ -21,7 +21,8 @@ public class PowerNBTCompound implements INBTCompound {
 	private Block block = null;
 	private File file = null;
 	
-	private PowerNBTCompound parent = null;
+	private PowerNBTCompound parentCompound = null;
+	private PowerNBTList parentList = null;
 	private NBTCompound compound = null;
 	private NBTCompound last = null;
 	
@@ -39,7 +40,11 @@ public class PowerNBTCompound implements INBTCompound {
 		this.file = new File(filePath);
 	}
 	public PowerNBTCompound(PowerNBTCompound parent, NBTCompound compound) {
-		this.parent = parent;
+		this.parentCompound = parent;
+		this.compound = compound;
+	}
+	public PowerNBTCompound(PowerNBTList parent, NBTCompound compound) {
+		this.parentList = parent;
 		this.compound = compound;
 	}
 	
@@ -282,12 +287,33 @@ public class PowerNBTCompound implements INBTCompound {
 		return new PowerNBTCompound(this, readCompound().getCompound(name));
 	}
 	
+	public INBTList addList(String name) {
+		if (name == null) {
+			throw new ArgumentNullException("name");
+		}
+		
+		NBTCompound compound = readCompound();
+		PowerNBTList retVal = new PowerNBTList(this, compound.list(name));
+		writeCompound(compound);
+		return retVal;
+	}
+	public INBTList getList(String name) {
+		if (name == null) {
+			throw new ArgumentNullException("name");
+		}
+		
+		return new PowerNBTList(this, readCompound().getList(name));
+	}
+	
 	public boolean isValidCompound() {
 		return true;
 	}
 	
 	public PowerNBTCompound getRoot() {
-		return (parent != null) ? parent.getRoot() : this;
+		return (parentCompound != null) ? parentCompound.getRoot() : (parentList != null) ? parentList.getRoot() : this;
+	}
+	public NBTCompound getSelf() {
+		return readCompound();
 	}
 	public void writeLast() {
 		writeCompound(last);
@@ -336,8 +362,9 @@ public class PowerNBTCompound implements INBTCompound {
 		return last;
 	}
 	private synchronized void writeCompound(NBTCompound compound) {
-		if (parent != null) {
+		if (parentCompound != null || parentList != null) {
 			getRoot().writeLast();
+			return;
 		}
 		
 		try {

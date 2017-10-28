@@ -35,5 +35,8 @@ public interface INBTCompound {
 	INBTCompound addCompound(String name);
 	INBTCompound getCompound(String name);
 	
+	INBTList addList(String name);
+	INBTList getList(String name);
+	
 	boolean isValidCompound();
 }

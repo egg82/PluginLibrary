@@ -1,10 +1,10 @@
 package ninja.egg82.nbt.core;
 
-public class NullCompound implements INBTCompound {
+public class NullNBTCompound implements INBTCompound {
 	//vars
 	
 	//constructor
-	public NullCompound() {
+	public NullNBTCompound() {
 		
 	}
 	
@@ -92,11 +92,19 @@ public class NullCompound implements INBTCompound {
 	}
 	
 	public INBTCompound addCompound(String name) {
-		return new NullCompound();
+		return new NullNBTCompound();
 	}
 	public INBTCompound getCompound(String name) {
-		return new NullCompound();
+		return new NullNBTCompound();
 	}
+	
+	public INBTList addList(String name) {
+		return new NullNBTList();
+	}
+	public INBTList getList(String name) {
+		return new NullNBTList();
+	}
+	
 	public boolean isValidCompound() {
 		return false;
 	}

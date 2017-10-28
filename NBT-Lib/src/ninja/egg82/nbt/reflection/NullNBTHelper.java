@@ -5,7 +5,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 
 import ninja.egg82.nbt.core.INBTCompound;
-import ninja.egg82.nbt.core.NullCompound;
+import ninja.egg82.nbt.core.NullNBTCompound;
 
 public class NullNBTHelper implements INBTHelper {
 	//vars
@@ -14,33 +14,24 @@ public class NullNBTHelper implements INBTHelper {
 	public NullNBTHelper() {
 		
 	}
-
-	@Override
+	
+	//public
 	public INBTCompound getCompound(ItemStack stack) {
-		return new NullCompound();
+		return new NullNBTCompound();
 	}
 	public INBTCompound getCompound(Entity entity) {
-		return new NullCompound();
+		return new NullNBTCompound();
 	}
 	public INBTCompound getCompound(Block block) {
-		return new NullCompound();
+		return new NullNBTCompound();
 	}
 	public INBTCompound getCompound(String filePath) {
-		return new NullCompound();
+		return new NullNBTCompound();
 	}
 	
 	public boolean isValidLibrary() {
 		return false;
 	}
-	public boolean supportsBlocks() {
-		return false;
-	}
-	public boolean supportsFiles() {
-		return false;
-	}
-	
-	//public
-	
 	
 	//private
 	

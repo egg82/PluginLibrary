@@ -57,12 +57,6 @@ public class PowerNBTHelper implements INBTHelper {
 	public boolean isValidLibrary() {
 		return true;
 	}
-	public boolean supportsBlocks() {
-		return true;
-	}
-	public boolean supportsFiles() {
-		return true;
-	}
 	
 	//private
 	
