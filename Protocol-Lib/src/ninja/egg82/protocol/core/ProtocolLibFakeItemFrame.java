@@ -68,11 +68,9 @@ public class ProtocolLibFakeItemFrame extends ProtocolLibFakeEntity implements I
 		return (item != null) ? item.clone() : item;
 	}
 	public void setItem(ItemStack item) {
-		if ((this.item == null && item == null) || (this.item != null && this.item.equals(item))) {
-			return;
+		if (!((this.item == null && item == null) || (this.item != null && this.item.equals(item)))) {
+			this.item = item.clone();
 		}
-		
-		this.item = item.clone();
 		
 		PacketContainer updatePacket = packetHelper.updateItem(id, item);
 		for (UUID uuid : players) {
@@ -88,11 +86,9 @@ public class ProtocolLibFakeItemFrame extends ProtocolLibFakeEntity implements I
 			rotation = Rotation.NONE;
 		}
 		
-		if (this.rotation.equals(rotation)) {
-			return;
+		if (!this.rotation.equals(rotation)) {
+			this.rotation = rotation;
 		}
-		
-		this.rotation = rotation;
 		
 		PacketContainer updatePacket = packetHelper.updateRotation(id, rotation);
 		for (UUID uuid : players) {
