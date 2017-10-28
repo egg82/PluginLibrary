@@ -83,6 +83,53 @@ public class LocationUtil {
 			}
 		}
 	}
+	public static double getYaw(BlockFace facing, boolean cardinal) {
+		if (cardinal) {
+			if (facing == BlockFace.NORTH) {
+				return 0.0d + 180.0d;
+			} else if (facing == BlockFace.EAST) {
+				return 90.0d + 180.0d;
+			} else if (facing == BlockFace.SOUTH) {
+				return 180.0d + 180.0d;
+			} else {
+				return 270.0d + 180.0d;
+			}
+		} else {
+			if (facing == BlockFace.NORTH) {
+				return 0.0d + 180.0d;
+			} else if (facing == BlockFace.NORTH_NORTH_EAST) {
+				return 22.5d + 180.0d;
+			} else if (facing == BlockFace.NORTH_EAST) {
+				return 45.0d + 180.0d;
+			} else if (facing == BlockFace.EAST_NORTH_EAST) {
+				return 67.5d + 180.0d;
+			} else if (facing == BlockFace.EAST) {
+				return 90.0d + 180.0d;
+			} else if (facing == BlockFace.EAST_SOUTH_EAST) {
+				return 112.5d + 180.0d;
+			} else if (facing == BlockFace.SOUTH_EAST) {
+				return 135.0d + 180.0d;
+			} else if (facing == BlockFace.SOUTH_SOUTH_EAST) {
+				return 157.5d + 180.0d;
+			} else if (facing == BlockFace.SOUTH) {
+				return 180.0d + 180.0d;
+			} else if (facing == BlockFace.SOUTH_SOUTH_WEST) {
+				return 202.5d + 180.0d;
+			} else if (facing == BlockFace.SOUTH_WEST) {
+				return 225.0d + 180.0d;
+			} else if (facing == BlockFace.WEST_SOUTH_WEST) {
+				return 247.5d + 180.0d;
+			} else if (facing == BlockFace.WEST) {
+				return 270.0d + 180.0d;
+			} else if (facing == BlockFace.WEST_NORTH_WEST) {
+				return 292.5d + 180.0d;
+			} else if (facing == BlockFace.NORTH_WEST) {
+				return 315.0d + 180.0d;
+			} else {
+				return 337.5d + 180.0d;
+			}
+		}
+	}
 	
 	public static Location getLocationInFront(Location loc, double distance) {
 		double angle = loc.getYaw();
