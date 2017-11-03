@@ -73,12 +73,12 @@
     <dependency>
       <groupId>ninja.egg82.lib</groupId>
       <artifactId>egg82-lib</artifactId>
-      <version>[2.6.28,)</version>
+      <version>[2.6.29,)</version>
     </dependency>
     <dependency>
       <groupId>ninja.egg82.lib</groupId>
       <artifactId>plugin-lib</artifactId>
-      <version>[2.2.11,)</version>
+      <version>[2.3.11,)</version>
     </dependency>
     <dependency>
       <groupId>com.comphenix.protocol</groupId>

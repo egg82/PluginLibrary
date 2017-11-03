@@ -64,6 +64,71 @@ public class PacketItemFrameHelper_1_8 extends PacketEntityHelper_1_8 implements
 		
 		return packet;
 	}
+	public PacketContainer spawnItem(int entityId, String displayName, boolean isDisplayNameVisible, boolean isSilent, ItemStack item, Rotation itemRotation) {
+		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_METADATA);
+		
+		WrappedWatchableObject index0 = new WrappedWatchableObject(new WrappedDataWatcherObject(0, Registry.get(Integer.class, false)), 0);
+		index0.setDirtyState(true);
+		WrappedWatchableObject index1 = new WrappedWatchableObject(new WrappedDataWatcherObject(1, Registry.get(Integer.class, false)), 300);
+		index1.setDirtyState(true);
+		WrappedWatchableObject name = new WrappedWatchableObject(new WrappedDataWatcherObject(2, Registry.get(String.class, false)), displayName);
+		name.setDirtyState(true);
+		WrappedWatchableObject nameVisible = new WrappedWatchableObject(new WrappedDataWatcherObject(3, Registry.get(Boolean.class, false)), isDisplayNameVisible);
+		nameVisible.setDirtyState(true);
+		WrappedWatchableObject silent = new WrappedWatchableObject(new WrappedDataWatcherObject(4, Registry.get(Boolean.class, false)), isSilent);
+		silent.setDirtyState(true);
+		WrappedWatchableObject stack = new WrappedWatchableObject(new WrappedDataWatcherObject(8, Registry.getItemStackSerializer(false)), MinecraftReflection.getMinecraftItemStack(item));
+		stack.setDirtyState(true);
+		WrappedWatchableObject rotation = new WrappedWatchableObject(new WrappedDataWatcherObject(9, Registry.get(Integer.class, false)), itemRotation.ordinal());
+		rotation.setDirtyState(true);
+		
+		packet.getIntegers()
+			.write(0, entityId);
+		packet.getWatchableCollectionModifier()
+			.write(0, Util.asList(index0, index1, name, nameVisible, silent, stack, rotation));
+		
+		return packet;
+	}
+	
+	public PacketContainer updateDisplayName(int entityId, String displayName) {
+		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_METADATA);
+		
+		WrappedWatchableObject obj = new WrappedWatchableObject(new WrappedDataWatcherObject(2, Registry.get(String.class, false)), displayName);
+		obj.setDirtyState(true);
+		
+		packet.getIntegers()
+			.write(0, entityId);
+		packet.getWatchableCollectionModifier()
+			.write(0, Util.asList(obj));
+		
+		return packet;
+	}
+	public PacketContainer updateDisplayNameVisible(int entityId, boolean isDisplayNameVisible) {
+		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_METADATA);
+		
+		WrappedWatchableObject obj = new WrappedWatchableObject(new WrappedDataWatcherObject(3, Registry.get(Boolean.class, false)), isDisplayNameVisible);
+		obj.setDirtyState(true);
+		
+		packet.getIntegers()
+			.write(0, entityId);
+		packet.getWatchableCollectionModifier()
+			.write(0, Util.asList(obj));
+		
+		return packet;
+	}
+	public PacketContainer updateSilent(int entityId, boolean isSilent) {
+		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_METADATA);
+		
+		WrappedWatchableObject obj = new WrappedWatchableObject(new WrappedDataWatcherObject(4, Registry.get(Boolean.class, false)), isSilent);
+		obj.setDirtyState(true);
+		
+		packet.getIntegers()
+			.write(0, entityId);
+		packet.getWatchableCollectionModifier()
+			.write(0, Util.asList(obj));
+		
+		return packet;
+	}
 	public PacketContainer updateItem(int entityId, ItemStack item) {
 		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_METADATA);
 		

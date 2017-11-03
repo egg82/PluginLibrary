@@ -34,6 +34,25 @@ public class NullFakeItemFrame implements IFakeItemFrame {
 		
 	}
 	
+	public String getDisplayName() {
+		return null;
+	}
+	public void setDisplayName(String displayName) {
+		
+	}
+	public boolean isDisplayNameVisible() {
+		return false;
+	}
+	public void setDisplayNameVisible(boolean value) {
+		
+	}
+	public boolean isSilent() {
+		return true;
+	}
+	public void setSilent(boolean value) {
+		
+	}
+	
 	public ItemStack getItem() {
 		return null;
 	}

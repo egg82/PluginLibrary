@@ -1,6 +1,7 @@
 package ninja.egg82.protocol.reflection;
 
 import org.bukkit.Location;
+import org.bukkit.Rotation;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.inventory.ItemStack;
@@ -23,10 +24,13 @@ public class ProtocolLibFakeItemFrameHelper implements IFakeItemFrameHelper {
 	
 	//public
 	public IFakeItemFrame createItemFrame(Location loc, BlockFace facing) {
-		return new ProtocolLibFakeItemFrame(loc, facing, null);
+		return new ProtocolLibFakeItemFrame(loc, facing, null, Rotation.NONE);
 	}
 	public IFakeItemFrame createItemFrame(Location loc, BlockFace facing, ItemStack item) {
-		return new ProtocolLibFakeItemFrame(loc, facing, item);
+		return new ProtocolLibFakeItemFrame(loc, facing, item, Rotation.NONE);
+	}
+	public IFakeItemFrame createItemFrame(Location loc, BlockFace facing, ItemStack item, Rotation itemRotation) {
+		return new ProtocolLibFakeItemFrame(loc, facing, item, itemRotation);
 	}
 	public IFakeItemFrame toItemFrame(ItemFrame frame) {
 		return new ProtocolLibFakeItemFrame(frame);

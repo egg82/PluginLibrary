@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.Rotation;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.ItemFrame;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.comphenix.protocol.events.PacketContainer;
@@ -20,6 +21,11 @@ public class ProtocolLibFakeItemFrame extends ProtocolLibFakeEntity implements I
 	//vars
 	private IPacketItemFrameHelper packetHelper = ServiceLocator.getService(IPacketItemFrameHelper.class);
 	
+	protected PacketContainer spawnDataPacket = null;
+	
+	private volatile String displayName = "";
+	private volatile boolean displayNameVisible = false;
+	private volatile boolean silent = false;
 	private volatile Rotation rotation = null;
 	private volatile ItemStack item = null;
 	private BlockFace facingDirection = null;
@@ -43,7 +49,7 @@ public class ProtocolLibFakeItemFrame extends ProtocolLibFakeEntity implements I
 		spawnPacket = null;
 		destroyPacket = null;
 	}
-	public ProtocolLibFakeItemFrame(Location loc, BlockFace facing, ItemStack item) {
+	public ProtocolLibFakeItemFrame(Location loc, BlockFace facing, ItemStack item, Rotation itemRotation) {
 		super();
 		
 		if (loc == null) {
@@ -64,6 +70,55 @@ public class ProtocolLibFakeItemFrame extends ProtocolLibFakeEntity implements I
 	}
 	
 	//public
+	public boolean addPlayer(Player player) {
+		if (super.addPlayer(player)) {
+			if (spawnDataPacket != null) {
+				ProtocolReflectUtil.sendPacket(packetHelper.spawnItem(id, displayName, displayNameVisible, silent, item, rotation), player);
+			}
+			return true;
+		}
+		return false;
+	}
+	
+	public String getDisplayName() {
+		return displayName;
+	}
+	public void setDisplayName(String displayName) {
+		if (displayName == null) {
+			displayName = "";
+		}
+		this.displayName = displayName;
+		
+		PacketContainer updatePacket = packetHelper.updateDisplayName(id, displayName);
+		for (UUID uuid : players) {
+			ProtocolReflectUtil.sendPacket(updatePacket, CommandUtil.getPlayerByUuid(uuid));
+		}
+	}
+	
+	public boolean isDisplayNameVisible() {
+		return displayNameVisible;
+	}
+	public void setDisplayNameVisible(boolean value) {
+		this.displayNameVisible = value;
+		
+		PacketContainer updatePacket = packetHelper.updateDisplayNameVisible(id, displayNameVisible);
+		for (UUID uuid : players) {
+			ProtocolReflectUtil.sendPacket(updatePacket, CommandUtil.getPlayerByUuid(uuid));
+		}
+	}
+	
+	public boolean isSilent() {
+		return silent;
+	}
+	public void setSilent(boolean value) {
+		this.silent = value;
+		
+		PacketContainer updatePacket = packetHelper.updateSilent(id, silent);
+		for (UUID uuid : players) {
+			ProtocolReflectUtil.sendPacket(updatePacket, CommandUtil.getPlayerByUuid(uuid));
+		}
+	}
+	
 	public ItemStack getItem() {
 		return (item != null) ? item.clone() : item;
 	}

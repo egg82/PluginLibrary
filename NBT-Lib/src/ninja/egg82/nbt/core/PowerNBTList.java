@@ -156,28 +156,28 @@ public class PowerNBTList implements INBTList {
 	}
 	
 	public Iterator<Object> iterator() {
-		return new PowerNBTIterator(parentCompound, parentList, list.listIterator());
+		return new PowerNBTIterator(this, list.listIterator());
 	}
 	public ListIterator<Object> listIterator() {
-		return new PowerNBTIterator(parentCompound, parentList, list.listIterator());
+		return new PowerNBTIterator(this, list.listIterator());
 	}
 	public ListIterator<Object> listIterator(int index) {
-		return new PowerNBTIterator(parentCompound, parentList, list.listIterator(index));
+		return new PowerNBTIterator(this, list.listIterator(index));
 	}
 	
 	public List<Object> subList(int fromIndex, int toIndex) {
-		return new PowerNBTSubList(parentCompound, parentList, list.subList(fromIndex, toIndex));
+		return new PowerNBTSubList(this, list.subList(fromIndex, toIndex));
 	}
 	
 	public INBTCompound addCompound(int index) {
 		PowerNBTCompound retVal = new PowerNBTCompound(this, new NBTCompound());
-		list.add(index, retVal);
+		list.add(index, retVal.getSelf());
 		writeCompound();
 		return retVal;
 	}
 	public INBTCompound addCompound() {
 		PowerNBTCompound retVal = new PowerNBTCompound(this, new NBTCompound());
-		boolean b = list.add(retVal);
+		boolean b = list.add(retVal.getSelf());
 		if (b) {
 			writeCompound();
 		}
@@ -185,7 +185,7 @@ public class PowerNBTList implements INBTList {
 	}
 	public INBTCompound setCompound(int index) {
 		PowerNBTCompound retVal = new PowerNBTCompound(this, new NBTCompound());
-		list.set(index, retVal);
+		list.set(index, retVal.getSelf());
 		writeCompound();
 		return retVal;
 	}
@@ -195,13 +195,13 @@ public class PowerNBTList implements INBTList {
 	
 	public INBTList addList(int index) {
 		PowerNBTList retVal = new PowerNBTList(this, new NBTList());
-		list.add(index, retVal);
+		list.add(index, retVal.getSelf());
 		writeCompound();
 		return retVal;
 	}
 	public INBTList addList() {
 		PowerNBTList retVal = new PowerNBTList(this, new NBTList());
-		boolean b = list.add(retVal);
+		boolean b = list.add(retVal.getSelf());
 		if (b) {
 			writeCompound();
 		}
@@ -209,7 +209,7 @@ public class PowerNBTList implements INBTList {
 	}
 	public INBTList setList(int index) {
 		PowerNBTList retVal = new PowerNBTList(this, new NBTList());
-		list.set(index, retVal);
+		list.set(index, retVal.getSelf());
 		writeCompound();
 		return retVal;
 	}
@@ -260,17 +260,9 @@ public class PowerNBTList implements INBTList {
 		}
 		
 		if (ReflectUtil.doesExtend(NBTCompound.class, obj.getClass())) {
-			if (parentCompound != null) {
-				return new PowerNBTCompound(parentCompound, (NBTCompound) obj);
-			} else {
-				return new PowerNBTCompound(parentList, (NBTCompound) obj);
-			}
+			return new PowerNBTCompound(this, (NBTCompound) obj);
 		} else if (ReflectUtil.doesExtend(NBTList.class, obj.getClass())) {
-			if (parentCompound != null) {
-				return new PowerNBTList(parentCompound, (NBTList) obj);
-			} else {
-				return new PowerNBTList(parentList, (NBTList) obj);
-			}
+			return new PowerNBTList(this, (NBTList) obj);
 		}
 		return obj;
 	}
@@ -291,13 +283,11 @@ public class PowerNBTList implements INBTList {
 
 class PowerNBTIterator implements ListIterator<Object> {
 	//vars
-	private PowerNBTCompound parentCompound = null;
 	private PowerNBTList parentList = null;
 	private ListIterator<Object> iterator = null;
 	
 	//constructor
-	public PowerNBTIterator(PowerNBTCompound parentCompound, PowerNBTList parentList, ListIterator<Object> iterator) {
-		this.parentCompound = parentCompound;
+	public PowerNBTIterator(PowerNBTList parentList, ListIterator<Object> iterator) {
 		this.parentList = parentList;
 		this.iterator = iterator;
 	}
@@ -337,7 +327,7 @@ class PowerNBTIterator implements ListIterator<Object> {
 	}
 	
 	public PowerNBTCompound getRoot() {
-		return (parentCompound != null) ? parentCompound.getRoot() : parentList.getRoot();
+		return parentList.getRoot();
 	}
 	
 	//private
@@ -351,17 +341,9 @@ class PowerNBTIterator implements ListIterator<Object> {
 		}
 		
 		if (ReflectUtil.doesExtend(NBTCompound.class, obj.getClass())) {
-			if (parentCompound != null) {
-				return new PowerNBTCompound(parentCompound, (NBTCompound) obj);
-			} else {
-				return new PowerNBTCompound(parentList, (NBTCompound) obj);
-			}
+			return new PowerNBTCompound(parentList, (NBTCompound) obj);
 		} else if (ReflectUtil.doesExtend(NBTList.class, obj.getClass())) {
-			if (parentCompound != null) {
-				return new PowerNBTList(parentCompound, (NBTList) obj);
-			} else {
-				return new PowerNBTList(parentList, (NBTList) obj);
-			}
+			return new PowerNBTList(parentList, (NBTList) obj);
 		}
 		return obj;
 	}
@@ -381,13 +363,11 @@ class PowerNBTIterator implements ListIterator<Object> {
 }
 class PowerNBTSubList implements List<Object> {
 	//vars
-	private PowerNBTCompound parentCompound = null;
 	private PowerNBTList parentList = null;
 	private List<Object> list = null;
 	
 	//constructor
-	public PowerNBTSubList(PowerNBTCompound parentCompound, PowerNBTList parentList, List<Object> list) {
-		this.parentCompound = parentCompound;
+	public PowerNBTSubList(PowerNBTList parentList, List<Object> list) {
 		this.parentList = parentList;
 		this.list = list;
 	}
@@ -522,21 +502,21 @@ class PowerNBTSubList implements List<Object> {
 	}
 	
 	public Iterator<Object> iterator() {
-		return new PowerNBTIterator(parentCompound, parentList, list.listIterator());
+		return new PowerNBTIterator(parentList, list.listIterator());
 	}
 	public ListIterator<Object> listIterator() {
-		return new PowerNBTIterator(parentCompound, parentList, list.listIterator());
+		return new PowerNBTIterator(parentList, list.listIterator());
 	}
 	public ListIterator<Object> listIterator(int index) {
-		return new PowerNBTIterator(parentCompound, parentList, list.listIterator(index));
+		return new PowerNBTIterator(parentList, list.listIterator(index));
 	}
 	
 	public List<Object> subList(int fromIndex, int toIndex) {
-		return new PowerNBTSubList(parentCompound, parentList, list.subList(fromIndex, toIndex));
+		return new PowerNBTSubList(parentList, list.subList(fromIndex, toIndex));
 	}
 	
 	public PowerNBTCompound getRoot() {
-		return (parentCompound != null) ? parentCompound.getRoot() : parentList.getRoot();
+		return parentList.getRoot();
 	}
 	
 	//private
@@ -550,17 +530,9 @@ class PowerNBTSubList implements List<Object> {
 		}
 		
 		if (ReflectUtil.doesExtend(NBTCompound.class, obj.getClass())) {
-			if (parentCompound != null) {
-				return new PowerNBTCompound(parentCompound, (NBTCompound) obj);
-			} else {
-				return new PowerNBTCompound(parentList, (NBTCompound) obj);
-			}
+			return new PowerNBTCompound(parentList, (NBTCompound) obj);
 		} else if (ReflectUtil.doesExtend(NBTList.class, obj.getClass())) {
-			if (parentCompound != null) {
-				return new PowerNBTList(parentCompound, (NBTList) obj);
-			} else {
-				return new PowerNBTList(parentList, (NBTList) obj);
-			}
+			return new PowerNBTList(parentList, (NBTList) obj);
 		}
 		return obj;
 	}

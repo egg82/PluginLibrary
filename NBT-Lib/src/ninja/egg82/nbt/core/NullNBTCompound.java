@@ -105,6 +105,13 @@ public class NullNBTCompound implements INBTCompound {
 		return new NullNBTList();
 	}
 	
+	public byte[] serialize() {
+		return new byte[0];
+	}
+	public String toString() {
+		return "{}";
+	}
+	
 	public boolean isValidCompound() {
 		return false;
 	}

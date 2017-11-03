@@ -38,5 +38,8 @@ public interface INBTCompound {
 	INBTList addList(String name);
 	INBTList getList(String name);
 	
+	byte[] serialize();
+	String toString();
+	
 	boolean isValidCompound();
 }

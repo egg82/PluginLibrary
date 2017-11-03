@@ -25,7 +25,10 @@ public class NullNBTHelper implements INBTHelper {
 	public INBTCompound getCompound(Block block) {
 		return new NullNBTCompound();
 	}
-	public INBTCompound getCompound(String filePath) {
+	public INBTCompound getCompound(String fromString) {
+		return new NullNBTCompound();
+	}
+	public INBTCompound getCompound(byte[] serialized) {
 		return new NullNBTCompound();
 	}
 	

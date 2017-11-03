@@ -11,7 +11,8 @@ public interface INBTHelper {
 	INBTCompound getCompound(ItemStack stack);
 	INBTCompound getCompound(Entity entity);
 	INBTCompound getCompound(Block block);
-	INBTCompound getCompound(String filePath);
+	INBTCompound getCompound(String fromString);
+	INBTCompound getCompound(byte[] serialized);
 	
 	boolean isValidLibrary();
 }

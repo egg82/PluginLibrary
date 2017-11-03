@@ -1,5 +1,7 @@
 package ninja.egg82.nbt.reflection;
 
+import java.io.File;
+
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
@@ -39,19 +41,35 @@ public class PowerNBTHelper implements INBTHelper {
 		
 		return new PowerNBTCompound(block);
 	}
-	public INBTCompound getCompound(String filePath) {
-		if (filePath == null) {
-			throw new ArgumentNullException("filePath");
+	public INBTCompound getCompound(File file) {
+		if (file == null) {
+			throw new ArgumentNullException("file");
 		}
 		
-		if (!FileUtil.pathExists(filePath)) {
-			throw new IllegalArgumentException("filePath does not exist.");
+		file = file.getAbsoluteFile();
+		
+		if (!FileUtil.pathExists(file)) {
+			throw new IllegalArgumentException("file does not exist.");
 		}
-		if (!FileUtil.pathIsFile(filePath)) {
-			throw new IllegalArgumentException("filePath is not a file.");
+		if (!FileUtil.pathIsFile(file)) {
+			throw new IllegalArgumentException("file is not a file.");
 		}
 		
-		return new PowerNBTCompound(filePath);
+		return new PowerNBTCompound(file);
+	}
+	public INBTCompound getCompound(byte[] serialized) {
+		if (serialized == null) {
+			throw new ArgumentNullException("serialized");
+		}
+		
+		return new PowerNBTCompound(serialized);
+	}
+	public INBTCompound getCompound(String fromString) {
+		if (fromString == null) {
+			throw new ArgumentNullException("fromString");
+		}
+		
+		return new PowerNBTCompound(fromString);
 	}
 	
 	public boolean isValidLibrary() {

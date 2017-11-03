@@ -9,6 +9,7 @@ import org.bukkit.scheduler.BukkitScheduler;
 
 import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.ServiceLocator;
+import ninja.egg82.plugin.commands.AsyncTickCommand;
 import ninja.egg82.plugin.commands.TickCommand;
 import ninja.egg82.utils.CollectionUtil;
 import ninja.egg82.utils.ReflectUtil;
@@ -16,6 +17,7 @@ import ninja.egg82.utils.ReflectUtil;
 public final class TickHandler {
 	//vars
 	private ConcurrentHashMap<Class<TickCommand>, Integer> tasks = new ConcurrentHashMap<Class<TickCommand>, Integer>();
+	private ConcurrentHashMap<Class<AsyncTickCommand>, Integer> asyncTasks = new ConcurrentHashMap<Class<AsyncTickCommand>, Integer>();
 	
 	private JavaPlugin plugin = ServiceLocator.getService(JavaPlugin.class);
 	private BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
@@ -56,7 +58,7 @@ public final class TickHandler {
 		return taskId;
 	}
 	@SuppressWarnings("deprecation")
-	public int addAsyncTickCommand(Class<TickCommand> clazz) {
+	public int addAsyncTickCommand(Class<AsyncTickCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
@@ -65,7 +67,7 @@ public final class TickHandler {
 			return -1;
 		}
 		
-		TickCommand c = getCommand(clazz);
+		AsyncTickCommand c = getAsyncCommand(clazz);
 		if (c == null) {
 			return -1;
 		}
@@ -78,7 +80,7 @@ public final class TickHandler {
 		// Not deprecated. @Deprecated was used as a warning.
 		int taskId = scheduler.scheduleAsyncRepeatingTask(plugin, new TickRunner(c), ticks, ticks);
 		if (taskId > -1) {
-			int id = tasks.put(clazz, taskId);
+			int id = asyncTasks.put(clazz, taskId);
 			if (id != taskId) {
 				scheduler.cancelTask(taskId);
 				taskId = id;
@@ -98,11 +100,29 @@ public final class TickHandler {
 		}
 		return taskId;
 	}
+	public int removeAsyncTickCommand(Class<AsyncTickCommand> clazz) {
+		if (clazz == null) {
+			throw new ArgumentNullException("clazz");
+		}
+		
+		int taskId = asyncTasks.get(clazz);
+		asyncTasks.remove(clazz);
+		if (taskId > -1) {
+			scheduler.cancelTask(taskId);
+		}
+		return taskId;
+	}
 	public boolean hasTickCommand(Class<TickCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
 		return tasks.containsKey(clazz);
+	}
+	public boolean hasAsyncTickCommand(Class<AsyncTickCommand> clazz) {
+		if (clazz == null) {
+			throw new ArgumentNullException("clazz");
+		}
+		return asyncTasks.containsKey(clazz);
 	}
 	public int getTickCommand(Class<TickCommand> clazz) {
 		if (clazz == null) {
@@ -111,11 +131,22 @@ public final class TickHandler {
 		Integer id = tasks.get(clazz);
 		return (id == null) ? -1 : id;
 	}
+	public int getAsyncTickCommand(Class<AsyncTickCommand> clazz) {
+		if (clazz == null) {
+			throw new ArgumentNullException("clazz");
+		}
+		Integer id = asyncTasks.get(clazz);
+		return (id == null) ? -1 : id;
+	}
 	public void clear() {
 		tasks.forEach((k, v) -> {
 			scheduler.cancelTask(v);
 		});
 		tasks.clear();
+		asyncTasks.forEach((k, v) -> {
+			scheduler.cancelTask(v);
+		});
+		asyncTasks.clear();
 	}
 	
 	public int addTicksFromPackage(String packageName) {
@@ -135,12 +166,28 @@ public final class TickHandler {
 			}
 		}
 		
+		List<Class<AsyncTickCommand>> enums2 = ReflectUtil.getClasses(AsyncTickCommand.class, packageName, recursive, false, false);
+		for (Class<AsyncTickCommand> t : enums2) {
+			if (addAsyncTickCommand(t) > -1) {
+				numTicks++;
+			}
+		}
+		
 		return numTicks;
 	}
 	
 	//private
 	private TickCommand getCommand(Class<TickCommand> clazz) {
 		TickCommand run = null;
+		try {
+			run = clazz.newInstance();
+		} catch (Exception ex) {
+			throw new RuntimeException("Cannot initialize tick command.", ex);
+		}
+		return run;
+	}
+	private AsyncTickCommand getAsyncCommand(Class<AsyncTickCommand> clazz) {
+		AsyncTickCommand run = null;
 		try {
 			run = clazz.newInstance();
 		} catch (Exception ex) {
