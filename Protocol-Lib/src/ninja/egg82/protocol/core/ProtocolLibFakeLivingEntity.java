@@ -3,6 +3,7 @@ package ninja.egg82.protocol.core;
 import java.util.Collection;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Damageable;
@@ -103,7 +104,7 @@ public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implement
 		}
 		
 		for (UUID uuid : players) {
-			ProtocolReflectUtil.sendPacket(packet, CommandUtil.getPlayerByUuid(uuid));
+			ProtocolReflectUtil.sendPacket(packet, Bukkit.getPlayer(uuid));
 		}
 	}
 	
@@ -120,7 +121,7 @@ public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implement
 			PacketContainer deathPacket = packetHelper.death(id);
 			
 			for (UUID uuid : players) {
-				ProtocolReflectUtil.sendPacket(deathPacket, CommandUtil.getPlayerByUuid(uuid));
+				ProtocolReflectUtil.sendPacket(deathPacket, Bukkit.getPlayer(uuid));
 			}
 		}
 	}
@@ -143,8 +144,8 @@ public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implement
 		currentLocation.setYaw(yaw);
 		
 		for (UUID uuid : players) {
-			ProtocolReflectUtil.sendPacket(lookPacket, CommandUtil.getPlayerByUuid(uuid));
-			ProtocolReflectUtil.sendPacket(headLookPacket, CommandUtil.getPlayerByUuid(uuid));
+			ProtocolReflectUtil.sendPacket(lookPacket, Bukkit.getPlayer(uuid));
+			ProtocolReflectUtil.sendPacket(headLookPacket, Bukkit.getPlayer(uuid));
 		}
 	}
 	public void moveTo(Location loc) {
@@ -157,7 +158,7 @@ public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implement
 		currentLocation = LocationUtil.makeEqualXYZ(loc, currentLocation);
 		
 		for (UUID uuid : players) {
-			ProtocolReflectUtil.sendPacket(movePacket, CommandUtil.getPlayerByUuid(uuid));
+			ProtocolReflectUtil.sendPacket(movePacket, Bukkit.getPlayer(uuid));
 		}
 	}
 	public void teleportTo(Location loc) {
@@ -170,14 +171,14 @@ public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implement
 		currentLocation = loc.clone();
 		
 		for (UUID uuid : players) {
-			ProtocolReflectUtil.sendPacket(teleportPacket, CommandUtil.getPlayerByUuid(uuid));
+			ProtocolReflectUtil.sendPacket(teleportPacket, Bukkit.getPlayer(uuid));
 		}
 	}
 	
 	public void animate(int animationId) {
 		PacketContainer animatePacket = packetHelper.animate(id, animationId);
 		for (UUID uuid : players) {
-			ProtocolReflectUtil.sendPacket(animatePacket, CommandUtil.getPlayerByUuid(uuid));
+			ProtocolReflectUtil.sendPacket(animatePacket, Bukkit.getPlayer(uuid));
 		}
 	}
 	public void attack(Damageable entity, double damage) {

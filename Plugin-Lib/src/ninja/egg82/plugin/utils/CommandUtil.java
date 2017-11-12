@@ -178,6 +178,7 @@ public final class CommandUtil {
 	public static Player getPlayerByName(String name) {
 		return getPlayerByName(name, true);
 	}
+	@SuppressWarnings("deprecation")
 	public static Player getPlayerByName(String name, boolean exact) {
 		if (name == null) {
 			return null;

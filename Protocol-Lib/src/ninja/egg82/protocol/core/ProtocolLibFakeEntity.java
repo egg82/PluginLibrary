@@ -2,6 +2,7 @@ package ninja.egg82.protocol.core;
 
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -13,7 +14,6 @@ import com.comphenix.protocol.utility.MinecraftReflection;
 import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.DynamicObjectPool;
 import ninja.egg82.patterns.IObjectPool;
-import ninja.egg82.plugin.utils.CommandUtil;
 import ninja.egg82.protocol.utils.ProtocolReflectUtil;
 
 public abstract class ProtocolLibFakeEntity implements IFakeEntity {
@@ -71,7 +71,7 @@ public abstract class ProtocolLibFakeEntity implements IFakeEntity {
 	public void removeAllPlayers() {
 		if (destroyPacket != null) {
 			for (UUID uuid : players) {
-				ProtocolReflectUtil.sendPacket(destroyPacket, CommandUtil.getPlayerByUuid(uuid));
+				ProtocolReflectUtil.sendPacket(destroyPacket, Bukkit.getPlayer(uuid));
 			}
 		}
 		players.clear();

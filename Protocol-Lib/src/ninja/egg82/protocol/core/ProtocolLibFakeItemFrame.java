@@ -2,6 +2,7 @@ package ninja.egg82.protocol.core;
 
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Rotation;
 import org.bukkit.block.BlockFace;
@@ -13,7 +14,6 @@ import com.comphenix.protocol.events.PacketContainer;
 
 import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.ServiceLocator;
-import ninja.egg82.plugin.utils.CommandUtil;
 import ninja.egg82.protocol.reflection.wrappers.itemFrame.IPacketItemFrameHelper;
 import ninja.egg82.protocol.utils.ProtocolReflectUtil;
 
@@ -91,7 +91,7 @@ public class ProtocolLibFakeItemFrame extends ProtocolLibFakeEntity implements I
 		
 		PacketContainer updatePacket = packetHelper.updateDisplayName(id, displayName);
 		for (UUID uuid : players) {
-			ProtocolReflectUtil.sendPacket(updatePacket, CommandUtil.getPlayerByUuid(uuid));
+			ProtocolReflectUtil.sendPacket(updatePacket, Bukkit.getPlayer(uuid));
 		}
 	}
 	
@@ -103,7 +103,7 @@ public class ProtocolLibFakeItemFrame extends ProtocolLibFakeEntity implements I
 		
 		PacketContainer updatePacket = packetHelper.updateDisplayNameVisible(id, displayNameVisible);
 		for (UUID uuid : players) {
-			ProtocolReflectUtil.sendPacket(updatePacket, CommandUtil.getPlayerByUuid(uuid));
+			ProtocolReflectUtil.sendPacket(updatePacket, Bukkit.getPlayer(uuid));
 		}
 	}
 	
@@ -115,7 +115,7 @@ public class ProtocolLibFakeItemFrame extends ProtocolLibFakeEntity implements I
 		
 		PacketContainer updatePacket = packetHelper.updateSilent(id, silent);
 		for (UUID uuid : players) {
-			ProtocolReflectUtil.sendPacket(updatePacket, CommandUtil.getPlayerByUuid(uuid));
+			ProtocolReflectUtil.sendPacket(updatePacket, Bukkit.getPlayer(uuid));
 		}
 	}
 	
@@ -129,7 +129,7 @@ public class ProtocolLibFakeItemFrame extends ProtocolLibFakeEntity implements I
 		
 		PacketContainer updatePacket = packetHelper.updateItem(id, item);
 		for (UUID uuid : players) {
-			ProtocolReflectUtil.sendPacket(updatePacket, CommandUtil.getPlayerByUuid(uuid));
+			ProtocolReflectUtil.sendPacket(updatePacket, Bukkit.getPlayer(uuid));
 		}
 	}
 	
@@ -147,7 +147,7 @@ public class ProtocolLibFakeItemFrame extends ProtocolLibFakeEntity implements I
 		
 		PacketContainer updatePacket = packetHelper.updateRotation(id, rotation);
 		for (UUID uuid : players) {
-			ProtocolReflectUtil.sendPacket(updatePacket, CommandUtil.getPlayerByUuid(uuid));
+			ProtocolReflectUtil.sendPacket(updatePacket, Bukkit.getPlayer(uuid));
 		}
 	}
 	
