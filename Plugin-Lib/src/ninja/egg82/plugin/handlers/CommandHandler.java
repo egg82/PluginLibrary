@@ -236,7 +236,20 @@ public final class CommandHandler {
 	
 	//private
 	private IObjectPool<PluginCommand> getCommands(CommandSender sender, Command command, String label, String[] args) {
-		String key = command.getName().toLowerCase();
+		IObjectPool<PluginCommand> run = getCommands(command.getName());
+		
+		for (PluginCommand cmd : run) {
+			cmd.setSender(sender);
+			cmd.setCommand(command);
+			cmd.setCommandName(command.getName());
+			cmd.setLabel(label);
+			cmd.setArgs(args);
+		}
+		
+		return run;
+	}
+	private IObjectPool<PluginCommand> getCommands(String key) {
+		key = key.toLowerCase();
 		
 		if (commandAliases.containsKey(key)) {
 			key = commandAliases.get(key);
@@ -265,14 +278,6 @@ public final class CommandHandler {
 			}
 			
 			run = CollectionUtil.putIfAbsent(initializedCommands, key, run);
-		}
-		
-		for (PluginCommand cmd : run) {
-			cmd.setSender(sender);
-			cmd.setCommand(command);
-			cmd.setCommandName(command.getName());
-			cmd.setLabel(label);
-			cmd.setArgs(args);
 		}
 		
 		return run;

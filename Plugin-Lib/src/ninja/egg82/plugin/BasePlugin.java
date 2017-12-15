@@ -1,6 +1,11 @@
 package ninja.egg82.plugin;
 
+import java.io.File;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
 
@@ -28,6 +33,7 @@ import ninja.egg82.plugin.utils.LanguageUtil;
 import ninja.egg82.plugin.utils.VersionUtil;
 import ninja.egg82.startup.InitRegistry;
 import ninja.egg82.startup.Start;
+import ninja.egg82.utils.FileUtil;
 
 public class BasePlugin extends JavaPlugin {
 	//vars
@@ -36,6 +42,8 @@ public class BasePlugin extends JavaPlugin {
 	private String gameVersion = null;
 	private Logger logger = null;
 	private CommandSender consoleSender = null;
+	
+	private String serverId = Bukkit.getServerId().trim();
 	
 	//constructor
 	public BasePlugin() {
@@ -82,6 +90,11 @@ public class BasePlugin extends JavaPlugin {
 		ServiceLocator.provideService(TickHandler.class, false);
 		
 		commandHandler = ServiceLocator.getService(CommandHandler.class);
+		
+		if (serverId == null || serverId.isEmpty() || serverId.equalsIgnoreCase("unnamed") || serverId.equalsIgnoreCase("unknown") || serverId.equalsIgnoreCase("default")) {
+			serverId = UUID.randomUUID().toString();
+			writeProperties();
+		}
 	}
 	
 	public void onEnable() {
@@ -136,6 +149,10 @@ public class BasePlugin extends JavaPlugin {
 		}
 	}
 	
+	public String getServerId() {
+		return serverId;
+	}
+	
 	//private
 	private void reflect(String version, String pkg) {
 		reflect(version, pkg, true);
@@ -146,5 +163,45 @@ public class BasePlugin extends JavaPlugin {
 		if (bestMatch != null) {
 			ServiceLocator.provideService(bestMatch, lazyInitialize);
 		}
+	}
+	
+	private void writeProperties() {
+		File propertiesFile = new File(Bukkit.getWorldContainer(), "server.properties");
+		String path = propertiesFile.getAbsolutePath();
+		
+		if (!FileUtil.pathExists(path) || !FileUtil.pathIsFile(path)) {
+			return;
+		}
+		
+		try {
+			FileUtil.open(path);
+			
+			String[] lines = toString(FileUtil.read(path, 0L), Charset.forName("UTF-8")).replaceAll("\r", "").split("\n");
+			boolean found = false;
+			for (int i = 0; i < lines.length; i++) {
+				if (lines[i].trim().startsWith("server-id=")) {
+					found = true;
+					lines[i] = "server-id=" + serverId;
+				}
+			}
+			if (!found) {
+				ArrayList<String> temp = new ArrayList<String>(Arrays.asList(lines));
+				temp.add("server-id=" + serverId);
+				lines = temp.toArray(new String[0]);
+			}
+			
+			FileUtil.erase(path);
+			FileUtil.write(path, toBytes(String.join(FileUtil.LINE_SEPARATOR, lines), Charset.forName("UTF-8")), 0L);
+			FileUtil.close(path);
+		} catch (Exception ex) {
+			
+		}
+	}
+	
+	private byte[] toBytes(String input, Charset enc) {
+		return input.getBytes(enc);
+	}
+	private String toString(byte[] input, Charset enc) {
+		return new String(input, enc);
 	}
 }

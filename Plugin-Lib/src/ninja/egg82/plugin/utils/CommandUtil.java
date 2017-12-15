@@ -856,18 +856,18 @@ public final class CommandUtil {
 		return true;
 	}
 	private static boolean eType(String entityType, String type, boolean onlyPlayersWithoutType) {
-		if (onlyPlayersWithoutType && type == null) {
-			if (entityType != "PLAYER") {
+		if (onlyPlayersWithoutType && (type == null || type.length() == 0)) {
+			if (!entityType.equalsIgnoreCase("player")) {
 				return false;
 			}
 		}
 		
-		boolean flipped = (type.length() > 0 && type.charAt(0) == '!') ? true : false;
+		boolean flipped = (type != null && type.length() > 0 && type.charAt(0) == '!') ? true : false;
 		
 		if (flipped) {
 			type = type.substring(1);
 		}
 		
-		return (entityType.equalsIgnoreCase(type)) ? !flipped : flipped;
+		return (type == null || entityType.equalsIgnoreCase(type)) ? !flipped : flipped;
 	}
 }

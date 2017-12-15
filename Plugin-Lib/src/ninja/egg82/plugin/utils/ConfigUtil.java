@@ -32,6 +32,17 @@ public class ConfigUtil {
 			}
 		}
 	}
+	public static YamlConfiguration toConfig() {
+		if (configRegistry == null) {
+			return null;
+		}
+		
+		YamlConfiguration retVal = new YamlConfiguration();
+		for (String key : configRegistry.getKeys()) {
+			retVal.set(key, configRegistry.getRegister(key));
+		}
+		return retVal;
+	}
 	
 	//private
 	

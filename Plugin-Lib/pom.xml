@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <artifactId>plugin-lib</artifactId>
-  <version>2.3.13</version>
+  <version>2.4.14</version>
   <name>egg82-plugin-lib</name>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -43,14 +43,6 @@
                   <pattern>org.json</pattern>
                   <shadedPattern>ninja.egg82.lib.org.json</shadedPattern>
                 </relocation>
-                <relocation>
-                  <pattern>org.apache</pattern>
-                  <shadedPattern>ninja.egg82.lib.org.apache</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>net.jodah</pattern>
-                  <shadedPattern>ninja.egg82.lib.net.jodah</shadedPattern>
-                </relocation>
               </relocations>
             </configuration>
           </execution>
@@ -83,17 +75,17 @@
     <dependency>
       <groupId>ninja.egg82.lib</groupId>
       <artifactId>egg82-lib</artifactId>
-      <version>[2.6.31,)</version>
+      <version>2.6.32</version>
     </dependency>
     <dependency>
       <groupId>ninja.egg82.lib</groupId>
       <artifactId>exception-lib</artifactId>
-      <version>[1.1.11,)</version>
+      <version>1.1.12</version>
     </dependency>
     <dependency>
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
-      <version>20170516</version>
+      <version>20171018</version>
     </dependency>
   </dependencies>
   <description>Base library containing useful things for every plugin</description>

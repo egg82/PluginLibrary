@@ -33,16 +33,27 @@ public final class MessageHandler implements PluginMessageListener {
 	
 	//public
 	public boolean addChannel(String name) {
+		return addChannel(name, true, true);
+	}
+	public boolean addChannel(String name, boolean incoming, boolean outgoing) {
 		if (name == null) {
 			throw new ArgumentNullException("name");
 		}
 		
+		if (!outgoing && !incoming) {
+			return false;
+		}
 		if (channels.contains(name)) {
 			return false;
 		}
 		
-		Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(plugin, name);
-		Bukkit.getServer().getMessenger().registerIncomingPluginChannel(plugin, name, this);
+		if (outgoing) {
+			Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(plugin, name);
+		}
+		if (incoming) {
+			Bukkit.getServer().getMessenger().registerIncomingPluginChannel(plugin, name, this);
+		}
+		
 		channels.add(name);
 		return true;
 	}
@@ -128,20 +139,21 @@ public final class MessageHandler implements PluginMessageListener {
 		
 		player.sendPluginMessage(plugin, channelName, data);
 	}
-	public  void onPluginMessageReceived(String channelName, Player player, byte[] message) {
+	public void onPluginMessageReceived(String channelName, Player player, byte[] message) {
 		Exception lastEx = null;
 		for (Entry<Class<MessageCommand>, Unit<MessageCommand>> kvp : commands.entrySet()) {
 			MessageCommand c = null;
 			
 			if (kvp.getValue().getType() == null) {
-				c = createCommand(kvp.getKey(), channelName, player, message);
+				c = createCommand(kvp.getKey());
 				kvp.getValue().setType(c);
 			} else {
 				c = kvp.getValue().getType();
-				c.setChannelName(channelName);
-				c.setPlayer(player);
-				c.setData(message);
 			}
+			
+			c.setChannelName(channelName);
+			c.setPlayer(player);
+			c.setData(message);
 			
 			try {
 				c.start();
@@ -156,7 +168,7 @@ public final class MessageHandler implements PluginMessageListener {
 	}
 	
 	//private
-	private MessageCommand createCommand(Class<? extends MessageCommand> c, String channelName, Player player, byte[] message) {
+	private MessageCommand createCommand(Class<? extends MessageCommand> c) {
 		MessageCommand run = null;
 		
 		try {

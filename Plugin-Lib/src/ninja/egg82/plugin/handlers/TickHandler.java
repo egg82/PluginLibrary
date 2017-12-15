@@ -80,7 +80,7 @@ public final class TickHandler {
 		// Not deprecated. @Deprecated was used as a warning.
 		int taskId = scheduler.scheduleAsyncRepeatingTask(plugin, new TickRunner(c), ticks, ticks);
 		if (taskId > -1) {
-			int id = asyncTasks.put(clazz, taskId);
+			int id = CollectionUtil.putIfAbsent(asyncTasks, clazz, taskId);
 			if (id != taskId) {
 				scheduler.cancelTask(taskId);
 				taskId = id;
