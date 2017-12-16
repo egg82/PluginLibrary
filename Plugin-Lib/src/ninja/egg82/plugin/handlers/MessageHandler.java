@@ -47,11 +47,13 @@ public final class MessageHandler implements PluginMessageListener {
 			return false;
 		}
 		
-		if (outgoing) {
-			Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(plugin, name);
-		}
 		if (incoming) {
-			Bukkit.getServer().getMessenger().registerIncomingPluginChannel(plugin, name, this);
+			if (!Bukkit.getMessenger().registerIncomingPluginChannel(plugin, name, this).isValid()) {
+				return false;
+			}
+		}
+		if (outgoing) {
+			Bukkit.getMessenger().registerOutgoingPluginChannel(plugin, name);
 		}
 		
 		channels.add(name);
@@ -66,8 +68,8 @@ public final class MessageHandler implements PluginMessageListener {
 			return false;
 		}
 		
-		Bukkit.getServer().getMessenger().unregisterOutgoingPluginChannel(plugin, name);
-		Bukkit.getServer().getMessenger().unregisterIncomingPluginChannel(plugin, name, this);
+		Bukkit.getMessenger().unregisterOutgoingPluginChannel(plugin, name);
+		Bukkit.getMessenger().unregisterIncomingPluginChannel(plugin, name, this);
 		return true;
 	}
 	public boolean hasChannel(String name) {
@@ -78,8 +80,8 @@ public final class MessageHandler implements PluginMessageListener {
 	}
 	public void clearChannels() {
 		channels.forEach((v) -> {
-			Bukkit.getServer().getMessenger().unregisterOutgoingPluginChannel(plugin, v);
-			Bukkit.getServer().getMessenger().unregisterIncomingPluginChannel(plugin, v, this);
+			Bukkit.getMessenger().unregisterOutgoingPluginChannel(plugin, v);
+			Bukkit.getMessenger().unregisterIncomingPluginChannel(plugin, v, this);
 		});
 		channels.clear();
 	}
@@ -123,7 +125,7 @@ public final class MessageHandler implements PluginMessageListener {
 		return numMessages;
 	}
 	
-	public void sendMessage(Player player, String channelName, byte[] data) {
+	public boolean sendMessage(Player player, String channelName, byte[] data) {
 		if (player == null) {
 			throw new ArgumentNullException("player");
 		}
@@ -131,13 +133,20 @@ public final class MessageHandler implements PluginMessageListener {
 			throw new ArgumentNullException("channelName");
 		}
 		if (data == null || data.length == 0) {
-			return;
+			return false;
 		}
 		if (!channels.contains(channelName)) {
-			return;
+			return false;
 		}
 		
-		player.sendPluginMessage(plugin, channelName, data);
+		try {
+			player.sendPluginMessage(plugin, channelName, data);
+		} catch (Exception ex) {
+			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			return false;
+		}
+		
+		return true;
 	}
 	public void onPluginMessageReceived(String channelName, Player player, byte[] message) {
 		Exception lastEx = null;

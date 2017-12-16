@@ -25,7 +25,7 @@ public class ProxiedOfflinePlayer {
 	
 	//constructor
 	public ProxiedOfflinePlayer(String name) {
-		if (uuid == null) {
+		if (name == null) {
 			throw new ArgumentNullException("name");
 		}
 		
