@@ -73,6 +73,7 @@ public class BungeeCommand extends Command implements TabExecutor {
 				initializedCommand = command.newInstance();
 			} catch (Exception ex) {
 				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				throw new RuntimeException(ex);
 			}
 		}
 		

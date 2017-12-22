@@ -220,6 +220,8 @@ public class EventListener implements Listener {
 			return;
 		}
 		
+		Exception lastEx = null;
+		
 		// Lazy initialize. No need to create an event that's never been used
 		if (run == null) {
 			// Create a new event and store it
@@ -231,6 +233,7 @@ public class EventListener implements Listener {
 					run.add((EventCommand<T>) e.newInstance());
 				} catch (Exception ex) {
 					ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+					lastEx = ex;
 				}
 			}
 			
@@ -243,7 +246,12 @@ public class EventListener implements Listener {
 				e.start();
 			} catch (Exception ex) {
 				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				lastEx = ex;
 			}
+		}
+		
+		if (lastEx != null) {
+			throw new RuntimeException(lastEx);
 		}
 	}
 }
