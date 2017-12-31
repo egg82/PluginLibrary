@@ -9,10 +9,10 @@ import org.bukkit.Bukkit;
 import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.handlers.CommandHandler;
-import ninja.egg82.plugin.handlers.MessageHandler;
+import ninja.egg82.plugin.handlers.EventListener;
+import ninja.egg82.plugin.handlers.IMessageHandler;
 import ninja.egg82.plugin.handlers.PermissionsManager;
 import ninja.egg82.plugin.handlers.TickHandler;
-import ninja.egg82.plugin.reflection.event.IEventListener;
 import ninja.egg82.utils.ReflectUtil;
 
 public final class BukkitReflectUtil {
@@ -93,10 +93,10 @@ public final class BukkitReflectUtil {
 	}
 	
 	public static void clearAll() {
-		ServiceLocator.getService(MessageHandler.class).clearCommands();
-		ServiceLocator.getService(MessageHandler.class).clearChannels();
+		ServiceLocator.getService(IMessageHandler.class).clearCommands();
+		ServiceLocator.getService(IMessageHandler.class).clearChannels();
 		ServiceLocator.getService(CommandHandler.class).clear();
-		ServiceLocator.getService(IEventListener.class).clear();
+		ServiceLocator.getService(EventListener.class).clear();
 		ServiceLocator.getService(PermissionsManager.class).clear();
 		ServiceLocator.getService(TickHandler.class).clear();
 	}

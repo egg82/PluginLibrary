@@ -6,6 +6,7 @@ import java.util.Map;
 
 import ninja.egg82.bungeecord.handlers.CommandHandler;
 import ninja.egg82.bungeecord.handlers.EventListener;
+import ninja.egg82.bungeecord.handlers.IMessageHandler;
 import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.utils.ReflectUtil;
@@ -87,6 +88,8 @@ public final class BungeeReflectUtil {
 	}
 	
 	public static void clearAll() {
+		ServiceLocator.getService(IMessageHandler.class).clearCommands();
+		ServiceLocator.getService(IMessageHandler.class).clearChannels();
 		ServiceLocator.getService(CommandHandler.class).clear();
 		ServiceLocator.getService(EventListener.class).clear();
 	}

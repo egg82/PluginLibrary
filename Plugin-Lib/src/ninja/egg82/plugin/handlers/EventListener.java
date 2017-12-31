@@ -1,5 +1,6 @@
-package ninja.egg82.plugin.reflection.event;
+package ninja.egg82.plugin.handlers;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.Map.Entry;
@@ -7,7 +8,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.EventExecutor;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import ninja.egg82.exceptionHandlers.IExceptionHandler;
@@ -19,14 +24,23 @@ import ninja.egg82.plugin.commands.EventCommand;
 import ninja.egg82.utils.CollectionUtil;
 import ninja.egg82.utils.ReflectUtil;
 
-public abstract class AbstractEventListener implements IEventListener, Listener {
+public class EventListener implements Listener {
 	//vars
 	private ConcurrentHashMap<String, IObjectPool<Class<EventCommand<? extends Event>>>> events = new ConcurrentHashMap<String, IObjectPool<Class<EventCommand<? extends Event>>>>();
 	private ConcurrentHashMap<String, IObjectPool<EventCommand<? extends Event>>> initializedEvents = new ConcurrentHashMap<String, IObjectPool<EventCommand<? extends Event>>>();
 	
 	//constructor
-	public AbstractEventListener() {
-		Bukkit.getServer().getPluginManager().registerEvents(this, ServiceLocator.getService(JavaPlugin.class));
+	public EventListener() {
+		List<Class<Event>> events = ReflectUtil.getClasses(Event.class, "org.bukkit.event", true, false, false);
+		
+		JavaPlugin plugin = ServiceLocator.getService(JavaPlugin.class);
+		PluginManager manager = Bukkit.getServer().getPluginManager();
+		for (Class<Event> e : events) {
+			manager.registerEvent(e, this, EventPriority.NORMAL, ServiceLocator.getService(EventExecutor.class), plugin, true);
+		}
+	}
+	public void finalize() {
+		destroy();
 	}
 	
 	//public
@@ -85,6 +99,43 @@ public abstract class AbstractEventListener implements IEventListener, Listener 
 		initializedEvents.clear();
 		events.clear();
 	}
+	public void destroy() {
+		clear();
+		
+		List<Class<Event>> events = ReflectUtil.getClasses(Event.class, "org.bukkit.event", true, false, false);
+		for (Class<Event> e : events) {
+			unregisterEvent(e);
+		}
+	}
+	
+	public void dispatchEvent(Event e) {
+		onAnyEvent(e, e.getClass());
+	}
+	public void registerEvent(Class<? extends Event> e) {
+		registerEvent(e, EventPriority.NORMAL);
+	}
+	public void registerEvent(Class<? extends Event> e, EventPriority priority) {
+		unregisterEvent(e);
+		
+		PluginManager manager = Bukkit.getServer().getPluginManager();
+		manager.registerEvent(e, this, priority, ServiceLocator.getService(EventExecutor.class), ServiceLocator.getService(JavaPlugin.class), true);
+	}
+	public void unregisterEvent(Class<? extends Event> e) {
+		Method m = ReflectUtil.getMethod("getHandlerList", e);
+		
+		if (m == null) {
+			return;
+		}
+		
+		HandlerList list = null;
+		try {
+			list = (HandlerList) m.invoke(null, new Object[0]);
+		} catch (Exception ex) {
+			return;
+		}
+		
+		list.unregister(this);
+	}
 	
 	public int addEventsFromPackage(String packageName) {
 		return addEventsFromPackage(packageName, true);
@@ -117,7 +168,7 @@ public abstract class AbstractEventListener implements IEventListener, Listener 
 	
 	//private
 	@SuppressWarnings("unchecked")
-	protected final <T extends Event> void onAnyEvent(T event, Class<? extends Event> clazz) {
+	private <T extends Event> void onAnyEvent(T event, Class<? extends Event> clazz) {
 		String key = clazz.getName();
 		
 		/*if (EventUtil.isDuplicate(key, event)) {

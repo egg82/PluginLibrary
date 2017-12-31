@@ -1,6 +1,10 @@
 package ninja.egg82.plugin;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,11 +23,14 @@ import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.exceptionHandlers.NullExceptionHandler;
 import ninja.egg82.patterns.IRegistry;
 import ninja.egg82.patterns.ServiceLocator;
+import ninja.egg82.plugin.core.EventExecutorWrapper;
 import ninja.egg82.plugin.core.OfflinePlayerRegistry;
 import ninja.egg82.plugin.core.OfflinePlayerReverseRegistry;
 import ninja.egg82.plugin.enums.BukkitInitType;
+import ninja.egg82.plugin.handlers.BungeeMessageHandler;
 import ninja.egg82.plugin.handlers.CommandHandler;
-import ninja.egg82.plugin.handlers.MessageHandler;
+import ninja.egg82.plugin.handlers.EventListener;
+import ninja.egg82.plugin.handlers.IMessageHandler;
 import ninja.egg82.plugin.handlers.PermissionsManager;
 import ninja.egg82.plugin.handlers.TickHandler;
 import ninja.egg82.plugin.services.ConfigRegistry;
@@ -43,6 +50,7 @@ public class BasePlugin extends JavaPlugin {
 	private Logger logger = null;
 	private CommandSender consoleSender = null;
 	
+	private String externalIp = null;
 	private String serverId = Bukkit.getServerId().trim();
 	
 	//constructor
@@ -86,7 +94,6 @@ public class BasePlugin extends JavaPlugin {
 		
 		ServiceLocator.provideService(PermissionsManager.class, false);
 		ServiceLocator.provideService(CommandHandler.class, false);
-		ServiceLocator.provideService(MessageHandler.class, false);
 		ServiceLocator.provideService(TickHandler.class, false);
 		
 		commandHandler = ServiceLocator.getService(CommandHandler.class);
@@ -95,13 +102,17 @@ public class BasePlugin extends JavaPlugin {
 			serverId = UUID.randomUUID().toString();
 			writeProperties();
 		}
+		externalIp = getExternalIp();
 	}
 	
 	public void onEnable() {
-		reflect(gameVersion, "ninja.egg82.plugin.reflection.event", false);
+		ServiceLocator.provideService(BungeeMessageHandler.class);
+		ServiceLocator.provideService(EventExecutorWrapper.class, false);
+		ServiceLocator.provideService(EventListener.class, false);
 	}
 	public void onDisable() {
-		
+		ServiceLocator.getService(IMessageHandler.class).destroy();
+		ServiceLocator.getService(EventListener.class).destroy();
 	}
 	
 	public final boolean onCommand(CommandSender sender, Command event, String label, String[] args) {
@@ -149,6 +160,9 @@ public class BasePlugin extends JavaPlugin {
 		}
 	}
 	
+	public String getServerIp() {
+		return externalIp;
+	}
 	public String getServerId() {
 		return serverId;
 	}
@@ -203,5 +217,42 @@ public class BasePlugin extends JavaPlugin {
 	}
 	private String toString(byte[] input, Charset enc) {
 		return new String(input, enc);
+	}
+	
+	private String getExternalIp() {
+		URL url = null;
+		BufferedReader in = null;
+		
+		String[] sites = new String[] {
+			"http://checkip.amazonaws.com",
+			"https://icanhazip.com/",
+			"http://www.trackip.net/ip",
+			"http://myexternalip.com/raw",
+			"http://ipecho.net/plain",
+			"https://bot.whatismyipaddress.com/"
+		};
+		
+		for (String addr : sites) {
+			try {
+				url = new URL(addr);
+				in = new BufferedReader(new InputStreamReader(url.openStream()));
+				String ip = in.readLine();
+				InetAddress.getByName(ip);
+				return ip;
+			} catch (Exception ex) {
+				return null;
+			} finally {
+				if (in != null) {
+					try {
+						in.close();
+						in = null;
+					} catch (Exception ex) {
+						
+					}
+				}
+			}
+		}
+		
+		return null;
 	}
 }

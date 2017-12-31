@@ -11,6 +11,7 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.event.EventHandler;
 import ninja.egg82.bungeecord.commands.EventCommand;
+import ninja.egg82.bungeecord.enums.MessageHandlerType;
 import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.DynamicObjectPool;
@@ -28,6 +29,9 @@ public class EventListener implements Listener {
 	public EventListener() {
 		Plugin plugin = ServiceLocator.getService(Plugin.class);
 		plugin.getProxy().getPluginManager().registerListener(plugin, this);
+	}
+	public void finalize() {
+		destroy();
 	}
 	
 	//public
@@ -85,6 +89,12 @@ public class EventListener implements Listener {
 	public void clear() {
 		initializedEvents.clear();
 		events.clear();
+	}
+	public void destroy() {
+		clear();
+		
+		Plugin plugin = ServiceLocator.getService(Plugin.class);
+		plugin.getProxy().getPluginManager().unregisterListener(this);
 	}
 	
 	public int addEventsFromPackage(String packageName) {
@@ -180,6 +190,9 @@ public class EventListener implements Listener {
 	//plugin events
 	@EventHandler
 	public void onPluginMessage(PluginMessageEvent e) {
+		if (ServiceLocator.getService(IMessageHandler.class).getType() == MessageHandlerType.BUNGEE) {
+			ServiceLocator.getService(BungeeMessageHandler.class).onPluginMessage(e);
+		}
 		onAnyEvent(e, e.getClass());
 	}
 	

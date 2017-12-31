@@ -1,7 +1,7 @@
-package ninja.egg82.plugin.commands;
+package ninja.egg82.bungeecord.commands;
 
+import ninja.egg82.bungeecord.enums.SenderType;
 import ninja.egg82.patterns.SynchronousCommand;
-import ninja.egg82.plugin.enums.SenderType;
 
 public abstract class MessageCommand extends SynchronousCommand {
 	//vars
@@ -16,17 +16,17 @@ public abstract class MessageCommand extends SynchronousCommand {
 	}
 	
 	//public
-	public String getSender() {
+	public final String getSender() {
 		return sender;
 	}
-	public void setSender(String sender) {
+	public final void setSender(String sender) {
 		this.sender = sender;
 	}
 	
-	public SenderType getSenderType() {
+	public final SenderType getSenderType() {
 		return senderType;
 	}
-	public void setSenderType(SenderType senderType) {
+	public final void setSenderType(SenderType senderType) {
 		this.senderType = senderType;
 	}
 	
