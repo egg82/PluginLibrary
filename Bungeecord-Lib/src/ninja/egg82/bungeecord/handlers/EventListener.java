@@ -22,7 +22,7 @@ import ninja.egg82.utils.ReflectUtil;
 
 public class EventListener implements Listener {
 	//vars
-	private ConcurrentHashMap<String, IObjectPool<Class<EventCommand<? extends Event>>>> events = new ConcurrentHashMap<String, IObjectPool<Class<EventCommand<? extends Event>>>>();
+	private ConcurrentHashMap<String, IObjectPool<Class<? extends EventCommand<? extends Event>>>> events = new ConcurrentHashMap<String, IObjectPool<Class<? extends EventCommand<? extends Event>>>>();
 	private ConcurrentHashMap<String, IObjectPool<EventCommand<? extends Event>>> initializedEvents = new ConcurrentHashMap<String, IObjectPool<EventCommand<? extends Event>>>();
 	
 	//constructor
@@ -35,7 +35,7 @@ public class EventListener implements Listener {
 	}
 	
 	//public
-	public boolean addEventHandler(Class<? extends Event> event, Class<EventCommand<? extends Event>> clazz) {
+	public boolean addEventHandler(Class<? extends Event> event, Class<? extends EventCommand<? extends Event>> clazz) {
 		if (event == null) {
 			throw new ArgumentNullException("event");
 		}
@@ -45,9 +45,9 @@ public class EventListener implements Listener {
 		
 		String key = event.getName();
 		
-		IObjectPool<Class<EventCommand<? extends Event>>> pool = events.get(key);
+		IObjectPool<Class<? extends EventCommand<? extends Event>>> pool = events.get(key);
 		if (pool == null) {
-			pool = new DynamicObjectPool<Class<EventCommand<? extends Event>>>();
+			pool = new DynamicObjectPool<Class<? extends EventCommand<? extends Event>>>();
 		}
 		pool = CollectionUtil.putIfAbsent(events, key, pool);
 		if (!pool.contains(clazz)) {
@@ -58,9 +58,9 @@ public class EventListener implements Listener {
 			return false;
 		}
 	}
-	public boolean removeEventHandler(Class<EventCommand<? extends Event>> clazz) {
+	public boolean removeEventHandler(Class<? extends EventCommand<? extends Event>> clazz) {
 		boolean modified = false;
-		for (Entry<String, IObjectPool<Class<EventCommand<? extends Event>>>> kvp : events.entrySet()) {
+		for (Entry<String, IObjectPool<Class<? extends EventCommand<? extends Event>>>> kvp : events.entrySet()) {
 			if (kvp.getValue().remove(clazz)) {
 				initializedEvents.remove(kvp.getKey());
 				modified = true;
@@ -68,10 +68,10 @@ public class EventListener implements Listener {
 		}
 		return modified;
 	}
-	public boolean removeEventHandler(Class<? extends Event> event, Class<EventCommand<? extends Event>> clazz) {
+	public boolean removeEventHandler(Class<? extends Event> event, Class<? extends EventCommand<? extends Event>> clazz) {
 		String key = event.getName();
 		
-		IObjectPool<Class<EventCommand<? extends Event>>> pool = events.get(key);
+		IObjectPool<Class<? extends EventCommand<? extends Event>>> pool = events.get(key);
 		if (pool == null) {
 			return false;
 		}
@@ -191,7 +191,7 @@ public class EventListener implements Listener {
 	@EventHandler
 	public void onPluginMessage(PluginMessageEvent e) {
 		if (ServiceLocator.getService(IMessageHandler.class).getType() == MessageHandlerType.BUNGEE) {
-			ServiceLocator.getService(BungeeMessageHandler.class).onPluginMessage(e);
+			ServiceLocator.getService(EnhancedBungeeMessageHandler.class).onPluginMessage(e);
 		}
 		onAnyEvent(e, e.getClass());
 	}
@@ -226,7 +226,7 @@ public class EventListener implements Listener {
 		}*/
 		
 		IObjectPool<EventCommand<? extends Event>> run = initializedEvents.get(key);
-		IObjectPool<Class<EventCommand<? extends Event>>> c = events.get(key);
+		IObjectPool<Class<? extends EventCommand<? extends Event>>> c = events.get(key);
 		
 		// run might be null, but c will never be as long as the event actually exists
 		if (c == null) {
@@ -240,7 +240,7 @@ public class EventListener implements Listener {
 			// Create a new event and store it
 			run = new DynamicObjectPool<EventCommand<? extends Event>>();
 			
-			for (Class<EventCommand<? extends Event>> e : c) {
+			for (Class<? extends EventCommand<? extends Event>> e : c) {
 				try {
 					// We would prefer the command to fail here, hence the cast
 					run.add((EventCommand<T>) e.newInstance());

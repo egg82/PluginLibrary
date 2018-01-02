@@ -27,7 +27,7 @@ import ninja.egg82.plugin.core.EventExecutorWrapper;
 import ninja.egg82.plugin.core.OfflinePlayerRegistry;
 import ninja.egg82.plugin.core.OfflinePlayerReverseRegistry;
 import ninja.egg82.plugin.enums.BukkitInitType;
-import ninja.egg82.plugin.handlers.BungeeMessageHandler;
+import ninja.egg82.plugin.handlers.EnhancedBungeeMessageHandler;
 import ninja.egg82.plugin.handlers.CommandHandler;
 import ninja.egg82.plugin.handlers.EventListener;
 import ninja.egg82.plugin.handlers.IMessageHandler;
@@ -42,7 +42,7 @@ import ninja.egg82.startup.InitRegistry;
 import ninja.egg82.startup.Start;
 import ninja.egg82.utils.FileUtil;
 
-public class BasePlugin extends JavaPlugin {
+public abstract class BasePlugin extends JavaPlugin {
 	//vars
 	private CommandHandler commandHandler = null;
 	
@@ -106,7 +106,7 @@ public class BasePlugin extends JavaPlugin {
 	}
 	
 	public void onEnable() {
-		ServiceLocator.provideService(BungeeMessageHandler.class);
+		ServiceLocator.provideService(EnhancedBungeeMessageHandler.class);
 		ServiceLocator.provideService(EventExecutorWrapper.class, false);
 		ServiceLocator.provideService(EventListener.class, false);
 	}

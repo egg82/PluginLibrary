@@ -16,8 +16,8 @@ import ninja.egg82.utils.ReflectUtil;
 
 public final class TickHandler {
 	//vars
-	private ConcurrentHashMap<Class<TickCommand>, Integer> tasks = new ConcurrentHashMap<Class<TickCommand>, Integer>();
-	private ConcurrentHashMap<Class<AsyncTickCommand>, Integer> asyncTasks = new ConcurrentHashMap<Class<AsyncTickCommand>, Integer>();
+	private ConcurrentHashMap<Class<? extends TickCommand>, Integer> tasks = new ConcurrentHashMap<Class<? extends TickCommand>, Integer>();
+	private ConcurrentHashMap<Class<? extends AsyncTickCommand>, Integer> asyncTasks = new ConcurrentHashMap<Class<? extends AsyncTickCommand>, Integer>();
 	
 	private JavaPlugin plugin = ServiceLocator.getService(JavaPlugin.class);
 	private BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
@@ -28,7 +28,7 @@ public final class TickHandler {
 	}
 	
 	//public
-	public int addTickCommand(Class<TickCommand> clazz) {
+	public int addTickCommand(Class<? extends TickCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
@@ -58,7 +58,7 @@ public final class TickHandler {
 		return taskId;
 	}
 	@SuppressWarnings("deprecation")
-	public int addAsyncTickCommand(Class<AsyncTickCommand> clazz) {
+	public int addAsyncTickCommand(Class<? extends AsyncTickCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
@@ -88,7 +88,7 @@ public final class TickHandler {
 		}
 		return taskId;
 	}
-	public int removeTickCommand(Class<TickCommand> clazz) {
+	public int removeTickCommand(Class<? extends TickCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
@@ -100,7 +100,7 @@ public final class TickHandler {
 		}
 		return taskId;
 	}
-	public int removeAsyncTickCommand(Class<AsyncTickCommand> clazz) {
+	public int removeAsyncTickCommand(Class<? extends AsyncTickCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
@@ -112,26 +112,26 @@ public final class TickHandler {
 		}
 		return taskId;
 	}
-	public boolean hasTickCommand(Class<TickCommand> clazz) {
+	public boolean hasTickCommand(Class<? extends TickCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
 		return tasks.containsKey(clazz);
 	}
-	public boolean hasAsyncTickCommand(Class<AsyncTickCommand> clazz) {
+	public boolean hasAsyncTickCommand(Class<? extends AsyncTickCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
 		return asyncTasks.containsKey(clazz);
 	}
-	public int getTickCommand(Class<TickCommand> clazz) {
+	public int getTickCommand(Class<? extends TickCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
 		Integer id = tasks.get(clazz);
 		return (id == null) ? -1 : id;
 	}
-	public int getAsyncTickCommand(Class<AsyncTickCommand> clazz) {
+	public int getAsyncTickCommand(Class<? extends AsyncTickCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
@@ -177,7 +177,7 @@ public final class TickHandler {
 	}
 	
 	//private
-	private TickCommand getCommand(Class<TickCommand> clazz) {
+	private TickCommand getCommand(Class<? extends TickCommand> clazz) {
 		TickCommand run = null;
 		try {
 			run = clazz.newInstance();
@@ -186,7 +186,7 @@ public final class TickHandler {
 		}
 		return run;
 	}
-	private AsyncTickCommand getAsyncCommand(Class<AsyncTickCommand> clazz) {
+	private AsyncTickCommand getAsyncCommand(Class<? extends AsyncTickCommand> clazz) {
 		AsyncTickCommand run = null;
 		try {
 			run = clazz.newInstance();

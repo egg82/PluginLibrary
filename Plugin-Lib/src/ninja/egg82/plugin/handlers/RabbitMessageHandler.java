@@ -22,7 +22,7 @@ public class RabbitMessageHandler implements IMessageHandler {
 	
 	private BiConsumer<Object, MessageEventArgs> m = (s, e) -> onMessage(s, e);
 	
-	private ConcurrentHashMap<Class<MessageCommand>, Unit<MessageCommand>> commands = new ConcurrentHashMap<Class<MessageCommand>, Unit<MessageCommand>>();
+	private ConcurrentHashMap<Class<? extends MessageCommand>, Unit<MessageCommand>> commands = new ConcurrentHashMap<Class<? extends MessageCommand>, Unit<MessageCommand>>();
 	
 	//constructor
 	public RabbitMessageHandler(String ip, int port) {
@@ -134,7 +134,7 @@ public class RabbitMessageHandler implements IMessageHandler {
 		return numMessages;
 	}
 	
-	public boolean addCommand(Class<MessageCommand> clazz) {
+	public boolean addCommand(Class<? extends MessageCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
@@ -142,7 +142,7 @@ public class RabbitMessageHandler implements IMessageHandler {
 		Unit<MessageCommand> unit = new Unit<MessageCommand>(null);
 		return (CollectionUtil.putIfAbsent(commands, clazz, unit).hashCode() == unit.hashCode()) ? true : false;
 	}
-	public boolean removeCommand(Class<MessageCommand> clazz) {
+	public boolean removeCommand(Class<? extends MessageCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
@@ -180,7 +180,7 @@ public class RabbitMessageHandler implements IMessageHandler {
 	//private
 	private void onMessage(Object sender, MessageEventArgs e) {
 		Exception lastEx = null;
-		for (Entry<Class<MessageCommand>, Unit<MessageCommand>> kvp : commands.entrySet()) {
+		for (Entry<Class<? extends MessageCommand>, Unit<MessageCommand>> kvp : commands.entrySet()) {
 			MessageCommand c = null;
 			
 			if (kvp.getValue().getType() == null) {

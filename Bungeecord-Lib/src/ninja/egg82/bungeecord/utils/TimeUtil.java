@@ -46,7 +46,7 @@ public class TimeUtil {
 				time *= 60L * 60L * 24L * 365L;
 			}
 			
-			time *= Integer.parseUnsignedInt(m.group(1));
+			time *= Long.parseUnsignedLong(m.group(1));
 			
 			return time;
 		}
@@ -57,23 +57,43 @@ public class TimeUtil {
 		short minutes = 0;
 		short seconds = 0;
 		
-		while (time >= 3600000) {
+		while (time >= 3600000L) {
 			hours++;
-			time -= 3600000;
+			time -= 3600000L;
 		}
-		while (time >= 60000) {
+		while (time >= 60000L) {
 			minutes++;
-			time -= 60000;
+			time -= 60000L;
 		}
-		while (time >= 1000) {
+		while (time >= 1000L) {
 			seconds++;
-			time -= 1000;
+			time -= 1000L;
 		}
-		if (time >= 700) {
+		if (time >= 700L) {
 			seconds++;
 		}
 		
 		return String.format("%02d", hours) + ":" + String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
+	}
+	public static String timeToYearsMonthsDaysHoursMinsSecs(long time) {
+		short years = 0;
+		short months = 0;
+		short days = 0;
+		
+		while (time >= 31104000000L) {
+			years++;
+			time -= 31104000000L;
+		}
+		while (time >= 2592000000L) {
+			months++;
+			time -= 2592000000L;
+		}
+		while (time >= 86400000L) {
+			days++;
+			time -= 86400000L;
+		}
+		
+		return String.valueOf(years) + ((years == 1) ? " year, " : " years, ") + String.valueOf(months) + ((months == 1) ? " month, " : " months, ") + String.valueOf(days) + ((days == 1) ? " day," : " days,") + " and " + timeToHoursMinsSecs(time);
 	}
 	public static String timeToDateString(long time) {
 		return formatter.format(new Date(time));

@@ -23,7 +23,7 @@ import ninja.egg82.utils.ReflectUtil;
 public final class CommandHandler {
 	//vars
 	private ConcurrentHashMap<String, String> commandAliases = new ConcurrentHashMap<String, String>();
-	private ConcurrentHashMap<String, IObjectPool<Class<PluginCommand>>> commands = new ConcurrentHashMap<String, IObjectPool<Class<PluginCommand>>>();
+	private ConcurrentHashMap<String, IObjectPool<Class<? extends PluginCommand>>> commands = new ConcurrentHashMap<String, IObjectPool<Class<? extends PluginCommand>>>();
 	private ConcurrentHashMap<String, IObjectPool<PluginCommand>> initializedCommands = new ConcurrentHashMap<String, IObjectPool<PluginCommand>>();
 	
 	//constructor
@@ -54,16 +54,16 @@ public final class CommandHandler {
 		}
 	}
 	
-	public boolean addCommandHandler(String command, Class<PluginCommand> clazz) {
+	public boolean addCommandHandler(String command, Class<? extends PluginCommand> clazz) {
 		if (command == null) {
 			throw new ArgumentNullException("command");
 		}
 		
 		String key = command.toLowerCase();
 		
-		IObjectPool<Class<PluginCommand>> pool = commands.get(key);
+		IObjectPool<Class<? extends PluginCommand>> pool = commands.get(key);
 		if (pool == null) {
-			pool = new DynamicObjectPool<Class<PluginCommand>>();
+			pool = new DynamicObjectPool<Class<? extends PluginCommand>>();
 		}
 		pool = CollectionUtil.putIfAbsent(commands, key, pool);
 		if (!pool.contains(clazz)) {
@@ -74,9 +74,9 @@ public final class CommandHandler {
 			return false;
 		}
 	}
-	public boolean removeCommandHandler(Class<PluginCommand> clazz) {
+	public boolean removeCommandHandler(Class<? extends PluginCommand> clazz) {
 		boolean modified = false;
-		for (Entry<String, IObjectPool<Class<PluginCommand>>> kvp : commands.entrySet()) {
+		for (Entry<String, IObjectPool<Class<? extends PluginCommand>>> kvp : commands.entrySet()) {
 			if (kvp.getValue().remove(clazz)) {
 				initializedCommands.remove(kvp.getKey());
 				modified = true;
@@ -84,10 +84,10 @@ public final class CommandHandler {
 		}
 		return modified;
 	}
-	public boolean removeCommandHandler(String command, Class<PluginCommand> clazz) {
+	public boolean removeCommandHandler(String command, Class<? extends PluginCommand> clazz) {
 		String key = command.toLowerCase();
 		
-		IObjectPool<Class<PluginCommand>> pool = commands.get(key);
+		IObjectPool<Class<? extends PluginCommand>> pool = commands.get(key);
 		if (pool == null) {
 			return false;
 		}
@@ -256,7 +256,7 @@ public final class CommandHandler {
 		}
 		
 		IObjectPool<PluginCommand> run = initializedCommands.get(key);
-		IObjectPool<Class<PluginCommand>> c = commands.get(key);
+		IObjectPool<Class<? extends PluginCommand>> c = commands.get(key);
 		
 		// run might be null, but c will never be as long as the command actually exists
 		if (c == null) {
@@ -268,7 +268,7 @@ public final class CommandHandler {
 			// Create a new command and store it
 			run = new DynamicObjectPool<PluginCommand>();
 			
-			for (Class<PluginCommand> e : c) {
+			for (Class<? extends PluginCommand> e : c) {
 				try {
 					run.add(e.newInstance());
 				} catch (Exception ex) {

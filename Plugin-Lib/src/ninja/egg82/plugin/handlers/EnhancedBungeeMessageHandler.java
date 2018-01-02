@@ -32,10 +32,10 @@ import ninja.egg82.plugin.utils.ChannelUtil;
 import ninja.egg82.utils.CollectionUtil;
 import ninja.egg82.utils.ReflectUtil;
 
-public class BungeeMessageHandler implements IMessageHandler, PluginMessageListener {
+public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMessageListener {
 	//vars
 	private IObjectPool<String> channels = new DynamicObjectPool<String>();
-	private ConcurrentHashMap<Class<MessageCommand>, Unit<MessageCommand>> commands = new ConcurrentHashMap<Class<MessageCommand>, Unit<MessageCommand>>();
+	private ConcurrentHashMap<Class<? extends MessageCommand>, Unit<MessageCommand>> commands = new ConcurrentHashMap<Class<? extends MessageCommand>, Unit<MessageCommand>>();
 	
 	private JavaPlugin plugin = ServiceLocator.getService(JavaPlugin.class);
 	
@@ -46,7 +46,7 @@ public class BungeeMessageHandler implements IMessageHandler, PluginMessageListe
 	private String personalId = UUID.randomUUID().toString();
 	
 	//constructor
-	public BungeeMessageHandler() {
+	public EnhancedBungeeMessageHandler() {
 		backlogTimer = new Timer(100, onBacklogTimer);
 		backlogTimer.setRepeats(true);
 		backlogTimer.start();
@@ -170,7 +170,7 @@ public class BungeeMessageHandler implements IMessageHandler, PluginMessageListe
 		return numMessages;
 	}
 	
-	public boolean addCommand(Class<MessageCommand> clazz) {
+	public boolean addCommand(Class<? extends MessageCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
@@ -178,7 +178,7 @@ public class BungeeMessageHandler implements IMessageHandler, PluginMessageListe
 		Unit<MessageCommand> unit = new Unit<MessageCommand>(null);
 		return (CollectionUtil.putIfAbsent(commands, clazz, unit).hashCode() == unit.hashCode()) ? true : false;
 	}
-	public boolean removeCommand(Class<MessageCommand> clazz) {
+	public boolean removeCommand(Class<? extends MessageCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
@@ -227,7 +227,7 @@ public class BungeeMessageHandler implements IMessageHandler, PluginMessageListe
 		}
 		
 		Exception lastEx = null;
-		for (Entry<Class<MessageCommand>, Unit<MessageCommand>> kvp : commands.entrySet()) {
+		for (Entry<Class<? extends MessageCommand>, Unit<MessageCommand>> kvp : commands.entrySet()) {
 			MessageCommand c = null;
 			
 			if (kvp.getValue().getType() == null) {

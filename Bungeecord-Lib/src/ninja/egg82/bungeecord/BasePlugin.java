@@ -13,7 +13,7 @@ import net.md_5.bungee.api.plugin.Plugin;
 import ninja.egg82.bungeecord.core.OfflinePlayerRegistry;
 import ninja.egg82.bungeecord.core.OfflinePlayerReverseRegistry;
 import ninja.egg82.bungeecord.enums.BungeeInitType;
-import ninja.egg82.bungeecord.handlers.BungeeMessageHandler;
+import ninja.egg82.bungeecord.handlers.EnhancedBungeeMessageHandler;
 import ninja.egg82.bungeecord.handlers.CommandHandler;
 import ninja.egg82.bungeecord.handlers.EventListener;
 import ninja.egg82.bungeecord.handlers.IMessageHandler;
@@ -29,7 +29,7 @@ import ninja.egg82.startup.InitRegistry;
 import ninja.egg82.startup.Start;
 import ninja.egg82.utils.FileUtil;
 
-public class BasePlugin extends Plugin {
+public abstract class BasePlugin extends Plugin {
 	//vars
 	private Logger logger = null;
 	private String serverId = null;
@@ -71,7 +71,7 @@ public class BasePlugin extends Plugin {
 	}
 	
 	public void onEnable() {
-		ServiceLocator.provideService(BungeeMessageHandler.class);
+		ServiceLocator.provideService(EnhancedBungeeMessageHandler.class);
 		ServiceLocator.provideService(EventListener.class, false);
 	}
 	public void onDisable() {

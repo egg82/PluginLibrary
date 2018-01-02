@@ -59,7 +59,7 @@ public final class CommandHandler {
 		}
 	}
 	
-	public boolean addCommandHandler(String command, Class<PluginCommand> clazz) {
+	public boolean addCommandHandler(String command, Class<? extends PluginCommand> clazz) {
 		if (command == null) {
 			throw new ArgumentNullException("command");
 		}
@@ -83,7 +83,7 @@ public final class CommandHandler {
 		manager.registerCommand(plugin, c);
 		return true;
 	}
-	public boolean removeCommandHandler(Class<PluginCommand> clazz) {
+	public boolean removeCommandHandler(Class<? extends PluginCommand> clazz) {
 		boolean modified = false;
 		for (Entry<String, IObjectPool<BungeeCommand>> kvp : bungeeCommands.entrySet()) {
 			for (BungeeCommand c : kvp.getValue()) {
@@ -95,7 +95,7 @@ public final class CommandHandler {
 		}
 		return modified;
 	}
-	public boolean removeCommandHandler(String command, Class<PluginCommand> clazz) {
+	public boolean removeCommandHandler(String command, Class<? extends PluginCommand> clazz) {
 		String key = command.toLowerCase();
 		
 		IObjectPool<BungeeCommand> pool = bungeeCommands.get(key);

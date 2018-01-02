@@ -17,8 +17,8 @@ public interface IMessageHandler {
 	int addMessagesFromPackage(String packageName);
 	int addMessagesFromPackage(String packageName, boolean recursive);
 	
-	boolean addCommand(Class<MessageCommand> clazz);
-	boolean removeCommand(Class<MessageCommand> clazz);
+	boolean addCommand(Class<? extends MessageCommand> clazz);
+	boolean removeCommand(Class<? extends MessageCommand> clazz);
 	
 	void clearCommands();
 	void clearChannels();
