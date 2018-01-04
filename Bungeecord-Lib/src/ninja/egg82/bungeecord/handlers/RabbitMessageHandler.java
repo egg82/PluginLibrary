@@ -25,15 +25,21 @@ public class RabbitMessageHandler implements IMessageHandler {
 	private ConcurrentHashMap<Class<? extends MessageCommand>, Unit<MessageCommand>> commands = new ConcurrentHashMap<Class<? extends MessageCommand>, Unit<MessageCommand>>();
 	
 	//constructor
-	public RabbitMessageHandler(String ip, int port) {
+	public RabbitMessageHandler(String ip, int port, String username, String password) {
 		if (ip == null) {
 			throw new ArgumentNullException("ip");
 		}
 		if (port <= 0 || port > 65535) {
 			throw new IllegalArgumentException("port cannot be <= 0 or > 65535");
 		}
+		if (username == null) {
+			throw new ArgumentNullException("username");
+		}
+		if (password == null) {
+			throw new ArgumentNullException("password");
+		}
 		
-		server = new MessageServer(ip, port);
+		server = new MessageServer(ip, port, username, password);
 		server.onMessage().attach(m);
 	}
 	public void finalize() {

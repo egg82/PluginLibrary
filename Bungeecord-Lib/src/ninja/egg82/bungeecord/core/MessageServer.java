@@ -33,7 +33,7 @@ public class MessageServer {
 	private String exchangeName = "ninja-egg82-plugin-broadcast";
 	
 	//constructor
-	public MessageServer(String ip, int port) {
+	public MessageServer(String ip, int port, String username, String password) {
 		if (ip == null) {
 			valid = false;
 			throw new ArgumentNullException("ip");
@@ -42,6 +42,12 @@ public class MessageServer {
 			valid = false;
 			throw new IllegalArgumentException("port cannot be <= 0 or > 65535");
 		}
+		if (username == null) {
+			throw new ArgumentNullException("username");
+		}
+		if (password == null) {
+			throw new ArgumentNullException("password");
+		}
 		
 		props = new BasicProperties.Builder().replyTo(personalId).type(SenderType.BUNGEE.name()).deliveryMode(2).build();
 		
@@ -49,6 +55,8 @@ public class MessageServer {
 		
 		factory.setHost(ip);
 		factory.setPort(port);
+		factory.setUsername(username);
+		factory.setPassword(password);
 		factory.setAutomaticRecoveryEnabled(true);
 		
 		try {
