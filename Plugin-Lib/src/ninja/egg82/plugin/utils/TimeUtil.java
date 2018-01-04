@@ -73,6 +73,15 @@ public class TimeUtil {
 			seconds++;
 		}
 		
+		while (seconds >= 60) {
+			seconds -= 60;
+			minutes++;
+		}
+		while (minutes >= 60) {
+			minutes -= 60;
+			hours++;
+		}
+		
 		return String.format("%02d", hours) + ":" + String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
 	}
 	public static String timeToYearsMonthsDaysHoursMinsSecs(long time) {

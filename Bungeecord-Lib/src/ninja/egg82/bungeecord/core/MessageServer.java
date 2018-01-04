@@ -2,14 +2,13 @@ package ninja.egg82.bungeecord.core;
 
 import com.rabbitmq.client.AMQP.BasicProperties;
 
-import java.util.UUID;
-
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 
+import ninja.egg82.bungeecord.BasePlugin;
 import ninja.egg82.bungeecord.enums.SenderType;
 import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.exceptions.ArgumentNullException;
@@ -27,9 +26,11 @@ public class MessageServer {
 	
 	private EventHandler<MessageEventArgs> message = new EventHandler<MessageEventArgs>();
 	
-	private String personalId = UUID.randomUUID().toString();
+	private String personalId = ServiceLocator.getService(BasePlugin.class).getServerId();
 	private BasicProperties props = null;
 	private Channel channel = null;
+	
+	private String exchangeName = "ninja-egg82-plugin-broadcast";
 	
 	//constructor
 	public MessageServer(String ip, int port) {
@@ -42,7 +43,7 @@ public class MessageServer {
 			throw new IllegalArgumentException("port cannot be <= 0 or > 65535");
 		}
 		
-		props = new BasicProperties.Builder().replyTo(personalId).type(SenderType.BUNGEE.name()).build();
+		props = new BasicProperties.Builder().replyTo(personalId).type(SenderType.BUNGEE.name()).deliveryMode(2).build();
 		
 		ConnectionFactory factory = new ConnectionFactory();
 		
@@ -56,7 +57,7 @@ public class MessageServer {
 			sslFactory.useSslProtocol("TLSv1.2");
 			conn = sslFactory.newConnection();
 			channel = conn.createChannel();
-			channel.exchangeDeclare("broadcast", "direct");
+			channel.exchangeDeclare(exchangeName, "direct", true);
 		} catch (Exception ex) {
 			try {
 				// SSL without cert trust
@@ -64,13 +65,13 @@ public class MessageServer {
 				sslFactory.useSslProtocol();
 				conn = sslFactory.newConnection();
 				channel = conn.createChannel();
-				channel.exchangeDeclare("broadcast", "direct");
+				channel.exchangeDeclare(exchangeName, "direct", true);
 			} catch (Exception ex2) {
 				try {
 					// Plaintext
 					conn = factory.newConnection();
 					channel = conn.createChannel();
-					channel.exchangeDeclare("broadcast", "direct");
+					channel.exchangeDeclare(exchangeName, "direct", true);
 				} catch (Exception ex3) {
 					valid = false;
 					ServiceLocator.getService(IExceptionHandler.class).silentException(ex3);
@@ -105,14 +106,14 @@ public class MessageServer {
 			return;
 		}
 		
-		String queueName = personalId + "." + channelName;
+		String queueName = personalId + "-" + channelName;
 		
 		try {
-			channel.queueDeclareNoWait(queueName, false, false, false, null);
+			channel.queueDeclareNoWait(queueName, true, false, false, null);
 			// Create a queue that takes all bungee broadcasts
-			channel.queueBind(queueName, "broadcast", channelName + ".bungee");
+			channel.queueBind(queueName, exchangeName, channelName + "-bungee");
 			// Create a queue specifically for this server
-			channel.queueBind(queueName, "broadcast", channelName + "." + personalId);
+			channel.queueBind(queueName, exchangeName, channelName + "-" + personalId);
 			channel.basicConsume(queueName, true, new DefaultConsumer(channel) {
 				public void handleDelivery(String consumerTag, Envelope envelope, BasicProperties properties, byte[] body) {
 					message.invoke(this, new MessageEventArgs(properties.getReplyTo(), SenderType.valueOf(properties.getType()), channelName, body));
@@ -139,7 +140,7 @@ public class MessageServer {
 		}
 		
 		try {
-			channel.queueDeleteNoWait(personalId + "." + channelName, false, false);
+			channel.queueDeleteNoWait(personalId + "-" + channelName, false, false);
 		} catch (Exception ex) {
 			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 			throw new RuntimeException("Cannot destroy channel.", ex);
@@ -166,7 +167,7 @@ public class MessageServer {
 		}
 		
 		try {
-			channel.basicPublish("broadcast", channelName + "." + serverId, props, data);
+			channel.basicPublish(exchangeName, channelName + "-" + serverId, props, data);
 		} catch (Exception ex) {
 			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 		}
@@ -188,7 +189,7 @@ public class MessageServer {
 		}
 		
 		try {
-			channel.basicPublish("broadcast", channelName + "." + "bungee", props, data);
+			channel.basicPublish(exchangeName, channelName + "-bungee", props, data);
 		} catch (Exception ex) {
 			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 		}
@@ -210,7 +211,7 @@ public class MessageServer {
 		}
 		
 		try {
-			channel.basicPublish("broadcast", channelName + "." + "bukkit", props, data);
+			channel.basicPublish(exchangeName, channelName + "-bukkit", props, data);
 		} catch (Exception ex) {
 			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 		}
@@ -222,7 +223,7 @@ public class MessageServer {
 		clear();
 		
 		try {
-			channel.exchangeDelete("broadcast");
+			channel.exchangeDelete(exchangeName, true);
 			channel.close();
 			conn.close();
 		} catch (Exception ex) {
