@@ -9,10 +9,12 @@ import me.lucko.luckperms.LuckPerms;
 import me.lucko.luckperms.api.LuckPermsApi;
 import me.lucko.luckperms.api.Node;
 import me.lucko.luckperms.api.User;
+import me.lucko.luckperms.api.caching.MetaData;
+import me.lucko.luckperms.api.caching.UserData;
 
 public class LuckPermissionsHelper implements IPermissionsHelper {
 	//vars
-	LuckPermsApi api = LuckPerms.getApi();
+	LuckPermsApi api = null;
 	
 	//constructor
 	public LuckPermissionsHelper() {
@@ -42,6 +44,10 @@ public class LuckPermissionsHelper implements IPermissionsHelper {
 		return false;
 	}
 	public List<String> getGroups(Player player) {
+		if (api == null) {
+			api = LuckPerms.getApi();
+		}
+		
 		User user = api.getUser(player.getUniqueId());
 		
 		// Shamelessly copied from LuckCommands ParentInfo.java
@@ -61,8 +67,29 @@ public class LuckPermissionsHelper implements IPermissionsHelper {
 		return retVal;
 	}
 	
+	public String getPrefix(Player player) {
+		if (api == null) {
+			api = LuckPerms.getApi();
+		}
+		
+		User user = api.getUser(player.getUniqueId());
+		UserData data = user.getCachedData();
+		MetaData meta = data.getMetaData(api.getContextsForPlayer(player));
+		return meta.getPrefix();
+	}
+	public String getSuffix(Player player) {
+		if (api == null) {
+			api = LuckPerms.getApi();
+		}
+		
+		User user = api.getUser(player.getUniqueId());
+		UserData data = user.getCachedData();
+		MetaData meta = data.getMetaData(api.getContextsForPlayer(player));
+		return meta.getSuffix();
+	}
+	
 	public boolean isValidLibrary() {
-		return false;
+		return true;
 	}
 	
 	//private

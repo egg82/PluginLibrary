@@ -1,5 +1,10 @@
 package ninja.egg82.plugin.core;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.Timer;
+
 import com.rabbitmq.client.AMQP.BasicProperties;
 
 import com.rabbitmq.client.Channel;
@@ -7,6 +12,8 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
+import com.rabbitmq.client.ShutdownListener;
+import com.rabbitmq.client.ShutdownSignalException;
 
 import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.exceptions.ArgumentNullException;
@@ -30,6 +37,12 @@ public class MessageServer {
 	private BasicProperties props = null;
 	private Channel channel = null;
 	
+	private Timer connectTimer = null;
+	private String ip = null;
+	private int port = 0;
+	private String username = null;
+	private String password = null;
+	
 	private String exchangeName = "ninja-egg82-plugin-broadcast";
 	
 	//constructor
@@ -50,43 +63,13 @@ public class MessageServer {
 		}
 		
 		props = new BasicProperties.Builder().replyTo(personalId).type(SenderType.BUKKIT.name()).deliveryMode(2).build();
+		this.ip = ip;
+		this.port = port;
+		this.username = username;
+		this.password = password;
 		
-		ConnectionFactory factory = new ConnectionFactory();
-		
-		factory.setHost(ip);
-		factory.setPort(port);
-		factory.setUsername(username);
-		factory.setPassword(password);
-		factory.setAutomaticRecoveryEnabled(true);
-		
-		try {
-			// SSL with cert trust
-			ConnectionFactory sslFactory = factory.clone();
-			sslFactory.useSslProtocol("TLSv1.2");
-			conn = sslFactory.newConnection();
-			channel = conn.createChannel();
-			channel.exchangeDeclare(exchangeName, "direct", true);
-		} catch (Exception ex) {
-			try {
-				// SSL without cert trust
-				ConnectionFactory sslFactory = factory.clone();
-				sslFactory.useSslProtocol();
-				conn = sslFactory.newConnection();
-				channel = conn.createChannel();
-				channel.exchangeDeclare(exchangeName, "direct", true);
-			} catch (Exception ex2) {
-				try {
-					// Plaintext
-					conn = factory.newConnection();
-					channel = conn.createChannel();
-					channel.exchangeDeclare(exchangeName, "direct", true);
-				} catch (Exception ex3) {
-					valid = false;
-					ServiceLocator.getService(IExceptionHandler.class).silentException(ex3);
-					throw new RuntimeException("Cannot create messaging channel.", ex3);
-				}
-			}
-		}
+		tryConnect();
+		connectTimer = new Timer(1000, onConnectTimer);
 	}
 	public void finalize() {
 		destroy();
@@ -231,9 +214,11 @@ public class MessageServer {
 		clear();
 		
 		try {
+			connectTimer.stop();
 			channel.exchangeDelete(exchangeName, true);
 			channel.close();
 			conn.close();
+			conn = null;
 		} catch (Exception ex) {
 			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 		}
@@ -245,5 +230,73 @@ public class MessageServer {
 	}
 	
 	//private
-	
+	private ActionListener onConnectTimer = new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+			if (conn == null) {
+				return;
+			}
+			
+			if (!valid) {
+				tryConnect();
+			}
+		}
+	};
+	private void tryConnect() {
+		ConnectionFactory factory = new ConnectionFactory();
+		
+		factory.setHost(ip);
+		factory.setPort(port);
+		factory.setUsername(username);
+		factory.setPassword(password);
+		factory.setAutomaticRecoveryEnabled(true);
+		
+		try {
+			// SSL with cert trust
+			ConnectionFactory sslFactory = factory.clone();
+			sslFactory.useSslProtocol("TLSv1.2");
+			conn = sslFactory.newConnection();
+			channel = conn.createChannel();
+			channel.exchangeDeclare(exchangeName, "direct", true);
+		} catch (Exception ex) {
+			try {
+				// SSL without cert trust
+				ConnectionFactory sslFactory = factory.clone();
+				sslFactory.useSslProtocol();
+				conn = sslFactory.newConnection();
+				channel = conn.createChannel();
+				channel.exchangeDeclare(exchangeName, "direct", true);
+			} catch (Exception ex2) {
+				try {
+					// Plaintext
+					conn = factory.newConnection();
+					channel = conn.createChannel();
+					channel.exchangeDeclare(exchangeName, "direct", true);
+				} catch (Exception ex3) {
+					valid = false;
+					ServiceLocator.getService(IExceptionHandler.class).silentException(ex3);
+					throw new RuntimeException("Cannot create messaging channel.", ex3);
+				}
+			}
+		}
+		
+		if (conn != null) {
+			conn.addShutdownListener(onShutdown);
+			
+			String[] ch = channels.toArray(new String[0]);
+			channels.clear();
+			
+			for (String c : ch) {
+				createChannel(c);
+			}
+		}
+	}
+	private ShutdownListener onShutdown = new ShutdownListener() {
+		public void shutdownCompleted(ShutdownSignalException cause) {
+			if (!valid) {
+				return;
+			}
+			
+			tryConnect();
+		}
+	};
 }

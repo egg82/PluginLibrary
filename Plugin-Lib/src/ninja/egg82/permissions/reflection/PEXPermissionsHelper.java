@@ -42,6 +42,15 @@ public class PEXPermissionsHelper implements IPermissionsHelper {
 		return user.getParentIdentifiers();
 	}
 	
+	public String getPrefix(Player player) {
+		PermissionUser user = PermissionsEx.getUser(player);
+		return user.getPrefix();
+	}
+	public String getSuffix(Player player) {
+		PermissionUser user = PermissionsEx.getUser(player);
+		return user.getSuffix();
+	}
+	
 	public boolean isValidLibrary() {
 		return true;
 	}

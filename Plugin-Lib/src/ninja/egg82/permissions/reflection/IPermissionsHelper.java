@@ -9,5 +9,8 @@ public interface IPermissionsHelper {
 	boolean hasGroup(Player player, List<String> groups, boolean caseSensitive);
 	List<String> getGroups(Player player);
 	
+	String getPrefix(Player player);
+	String getSuffix(Player player);
+	
 	boolean isValidLibrary();
 }

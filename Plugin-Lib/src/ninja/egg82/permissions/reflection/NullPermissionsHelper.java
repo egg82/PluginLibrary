@@ -20,6 +20,13 @@ public class NullPermissionsHelper implements IPermissionsHelper {
 		return null;
 	}
 	
+	public String getPrefix(Player player) {
+		return null;
+	}
+	public String getSuffix(Player player) {
+		return null;
+	}
+	
 	public boolean isValidLibrary() {
 		return false;
 	}

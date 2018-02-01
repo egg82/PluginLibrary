@@ -98,7 +98,7 @@ public final class PermissionsManager {
 		Permission p = permissions.get(permission);
 		
 		if (p == null) {
-			return false;
+			return player.hasPermission(permission);
 		}
 		return player.hasPermission(p);
 	}
