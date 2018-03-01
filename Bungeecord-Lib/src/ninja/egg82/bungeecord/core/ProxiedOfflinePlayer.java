@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import ninja.egg82.bungeecord.reflection.offlineplayer.IRedisBungeeHelper;
 import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.IRegistry;
 import ninja.egg82.patterns.ServiceLocator;
@@ -20,6 +21,8 @@ import ninja.egg82.utils.ReflectUtil;
 
 public class ProxiedOfflinePlayer {
 	//vars
+	private IRedisBungeeHelper helper = ServiceLocator.getService(IRedisBungeeHelper.class);
+	
 	private UUID uuid = null;
 	private String name = null;
 	
@@ -30,7 +33,11 @@ public class ProxiedOfflinePlayer {
 		}
 		
 		this.name = name;
-		fetchPlayerUuid(name);
+		this.uuid = helper.getUuid(name);
+		
+		if (uuid == null) {
+			fetchPlayerUuid(name);
+		}
 	}
 	public ProxiedOfflinePlayer(UUID uuid) {
 		if (uuid == null) {
@@ -38,7 +45,11 @@ public class ProxiedOfflinePlayer {
 		}
 		
 		this.uuid = uuid;
-		fetchPlayerName(uuid);
+		this.name = helper.getName(uuid);
+		
+		if (name == null) {
+			fetchPlayerName(uuid);
+		}
 	}
 	
 	//public

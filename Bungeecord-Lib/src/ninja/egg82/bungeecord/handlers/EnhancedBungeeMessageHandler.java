@@ -12,7 +12,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.plugin.Plugin;
-import ninja.egg82.bungeecord.commands.MessageCommand;
+import ninja.egg82.bungeecord.BasePlugin;
+import ninja.egg82.bungeecord.commands.AsyncMessageCommand;
 import ninja.egg82.bungeecord.core.BungeeMessageSender;
 import ninja.egg82.bungeecord.enums.MessageHandlerType;
 import ninja.egg82.bungeecord.enums.SenderType;
@@ -30,11 +31,11 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler {
 	//vars
 	private IObjectPool<String> channels = new DynamicObjectPool<String>();
 	private IObjectPool<BungeeMessageSender> servers = new DynamicObjectPool<BungeeMessageSender>();
-	private ConcurrentHashMap<Class<? extends MessageCommand>, Unit<MessageCommand>> commands = new ConcurrentHashMap<Class<? extends MessageCommand>, Unit<MessageCommand>>();
+	private ConcurrentHashMap<Class<? extends AsyncMessageCommand>, Unit<AsyncMessageCommand>> commands = new ConcurrentHashMap<Class<? extends AsyncMessageCommand>, Unit<AsyncMessageCommand>>();
 	
 	private Plugin plugin = ServiceLocator.getService(Plugin.class);
 	
-	private String personalId = UUID.randomUUID().toString();
+	private String personalId = (ServiceLocator.getService(BasePlugin.class) != null) ? ServiceLocator.getService(BasePlugin.class).getServerId() : UUID.randomUUID().toString();
 	
 	//constructor
 	public EnhancedBungeeMessageHandler() {
@@ -49,6 +50,13 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler {
 	//public
 	public String getSenderId() {
 		return personalId;
+	}
+	public void setSenderId(String senderId) {
+		if (senderId == null) {
+			throw new ArgumentNullException("senderId");
+		}
+		
+		this.personalId = senderId;
 	}
 	
 	public void createChannel(String channelName) {
@@ -102,8 +110,8 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler {
 	}
 	public void broadcastToBungee(String channelName, byte[] data) {
 		Exception lastEx = null;
-		for (Entry<Class<? extends MessageCommand>, Unit<MessageCommand>> kvp : commands.entrySet()) {
-			MessageCommand c = null;
+		for (Entry<Class<? extends AsyncMessageCommand>, Unit<AsyncMessageCommand>> kvp : commands.entrySet()) {
+			AsyncMessageCommand c = null;
 			
 			if (kvp.getValue().getType() == null) {
 				c = createCommand(kvp.getKey());
@@ -163,8 +171,8 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler {
 		
 		int numMessages = 0;
 		
-		List<Class<MessageCommand>> enums = ReflectUtil.getClasses(MessageCommand.class, packageName, recursive, false, false);
-		for (Class<MessageCommand> c : enums) {
+		List<Class<AsyncMessageCommand>> enums = ReflectUtil.getClasses(AsyncMessageCommand.class, packageName, recursive, false, false);
+		for (Class<AsyncMessageCommand> c : enums) {
 			if (addCommand(c)) {
 				numMessages++;
 			}
@@ -173,15 +181,15 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler {
 		return numMessages;
 	}
 	
-	public boolean addCommand(Class<? extends MessageCommand> clazz) {
+	public boolean addCommand(Class<? extends AsyncMessageCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
 		
-		Unit<MessageCommand> unit = new Unit<MessageCommand>(null);
+		Unit<AsyncMessageCommand> unit = new Unit<AsyncMessageCommand>(null);
 		return (CollectionUtil.putIfAbsent(commands, clazz, unit).hashCode() == unit.hashCode()) ? true : false;
 	}
-	public boolean removeCommand(Class<? extends MessageCommand> clazz) {
+	public boolean removeCommand(Class<? extends AsyncMessageCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
@@ -230,8 +238,8 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler {
 		
 		if (tag.equals("bungee") || tag.equals(personalId)) {
 			Exception lastEx = null;
-			for (Entry<Class<? extends MessageCommand>, Unit<MessageCommand>> kvp : commands.entrySet()) {
-				MessageCommand c = null;
+			for (Entry<Class<? extends AsyncMessageCommand>, Unit<AsyncMessageCommand>> kvp : commands.entrySet()) {
+				AsyncMessageCommand c = null;
 				
 				if (kvp.getValue().getType() == null) {
 					c = createCommand(kvp.getKey());
@@ -267,8 +275,8 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler {
 	}
 	
 	//private
-	private MessageCommand createCommand(Class<? extends MessageCommand> c) {
-		MessageCommand run = null;
+	private AsyncMessageCommand createCommand(Class<? extends AsyncMessageCommand> c) {
+		AsyncMessageCommand run = null;
 		
 		try {
 			run = c.newInstance();

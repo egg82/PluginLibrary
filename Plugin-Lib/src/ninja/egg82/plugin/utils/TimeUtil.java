@@ -11,7 +11,7 @@ import ninja.egg82.exceptions.ArgumentNullException;
 public class TimeUtil {
 	//vars
 	private static DateFormat formatter = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss a");
-	private static Pattern timePattern = Pattern.compile("^([0-9]+)\\s?(seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|dys?|d|weeks?|wks?|months?|mos?|years?|yrs?)", Pattern.CASE_INSENSITIVE);
+	private static Pattern timePattern = Pattern.compile("^([0-9]+)\\s?(seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|dys?|d|weeks?|wks?|w|months?|mos?|years?|yrs?|y)", Pattern.CASE_INSENSITIVE);
 	
 	//constructor
 	public TimeUtil() {
@@ -38,11 +38,11 @@ public class TimeUtil {
 				time *= 60L * 60L;
 			} else if (m.group(2).equalsIgnoreCase("d") || m.group(2).equalsIgnoreCase("dy") || m.group(2).equalsIgnoreCase("dys") || m.group(2).equalsIgnoreCase("day") || m.group(2).equalsIgnoreCase("days")) {
 				time *= 60L * 60L * 24L;
-			} else if (m.group(2).equalsIgnoreCase("wk") || m.group(2).equalsIgnoreCase("wks") || m.group(2).equalsIgnoreCase("week") || m.group(2).equalsIgnoreCase("weeks")) {
+			} else if (m.group(2).equalsIgnoreCase("w") || m.group(2).equalsIgnoreCase("wk") || m.group(2).equalsIgnoreCase("wks") || m.group(2).equalsIgnoreCase("week") || m.group(2).equalsIgnoreCase("weeks")) {
 				time *= 60L * 60L * 24L * 7L;
 			} else if (m.group(2).equalsIgnoreCase("mo") || m.group(2).equalsIgnoreCase("mos") || m.group(2).equalsIgnoreCase("month") || m.group(2).equalsIgnoreCase("months")) {
 				time *= 60L * 60L * 24L * 30L;
-			} else if (m.group(2).equalsIgnoreCase("yr") || m.group(2).equalsIgnoreCase("yrs") || m.group(2).equalsIgnoreCase("year") || m.group(2).equalsIgnoreCase("years")) {
+			} else if (m.group(2).equalsIgnoreCase("y") || m.group(2).equalsIgnoreCase("yr") || m.group(2).equalsIgnoreCase("yrs") || m.group(2).equalsIgnoreCase("year") || m.group(2).equalsIgnoreCase("years")) {
 				time *= 60L * 60L * 24L * 365L;
 			}
 			
@@ -102,7 +102,7 @@ public class TimeUtil {
 			time -= 86400000L;
 		}
 		
-		return String.valueOf(years) + ((years == 1) ? " year, " : " years, ") + String.valueOf(months) + ((months == 1) ? " month, " : " months, ") + String.valueOf(days) + ((days == 1) ? " day," : " days,") + " and " + timeToHoursMinsSecs(time);
+		return ((years > 0) ? String.valueOf(years) + ((years == 1) ? " year, " : " years, ") : "") + ((months > 0) ? String.valueOf(months) + ((months == 1) ? " month, " : " months, ") : "") + ((days > 0) ? String.valueOf(days) + ((days == 1) ? " day," : " days,") : "") + ((years > 0 || months > 0 || days > 0) ? " and " : "") + timeToHoursMinsSecs(time);
 	}
 	public static String timeToDateString(long time) {
 		return formatter.format(new Date(time));

@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import javax.swing.Timer;
 
@@ -25,7 +28,8 @@ import ninja.egg82.patterns.IObjectPool;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.patterns.tuples.Pair;
 import ninja.egg82.patterns.tuples.Unit;
-import ninja.egg82.plugin.commands.MessageCommand;
+import ninja.egg82.plugin.BasePlugin;
+import ninja.egg82.plugin.commands.AsyncMessageCommand;
 import ninja.egg82.plugin.enums.MessageHandlerType;
 import ninja.egg82.plugin.enums.SenderType;
 import ninja.egg82.plugin.utils.ChannelUtil;
@@ -35,7 +39,8 @@ import ninja.egg82.utils.ReflectUtil;
 public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMessageListener {
 	//vars
 	private IObjectPool<String> channels = new DynamicObjectPool<String>();
-	private ConcurrentHashMap<Class<? extends MessageCommand>, Unit<MessageCommand>> commands = new ConcurrentHashMap<Class<? extends MessageCommand>, Unit<MessageCommand>>();
+	private ExecutorService threadPool = Executors.newFixedThreadPool(20, ServiceLocator.getService(ThreadFactory.class));
+	private ConcurrentHashMap<Class<? extends AsyncMessageCommand>, Unit<AsyncMessageCommand>> commands = new ConcurrentHashMap<Class<? extends AsyncMessageCommand>, Unit<AsyncMessageCommand>>();
 	
 	private JavaPlugin plugin = ServiceLocator.getService(JavaPlugin.class);
 	
@@ -43,7 +48,7 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMess
 	private volatile boolean busy = false;
 	private Timer backlogTimer = null;
 	
-	private String personalId = UUID.randomUUID().toString();
+	private String personalId = (ServiceLocator.getService(BasePlugin.class) != null) ? ServiceLocator.getService(BasePlugin.class).getServerId() : UUID.randomUUID().toString();
 	
 	//constructor
 	public EnhancedBungeeMessageHandler() {
@@ -58,6 +63,13 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMess
 	//public
 	public String getSenderId() {
 		return personalId;
+	}
+	public void setSenderId(String senderId) {
+		if (senderId == null) {
+			throw new ArgumentNullException("senderId");
+		}
+		
+		this.personalId = senderId;
 	}
 	
 	public void createChannel(String channelName) {
@@ -160,8 +172,8 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMess
 		
 		int numMessages = 0;
 		
-		List<Class<MessageCommand>> enums = ReflectUtil.getClasses(MessageCommand.class, packageName, recursive, false, false);
-		for (Class<MessageCommand> c : enums) {
+		List<Class<AsyncMessageCommand>> enums = ReflectUtil.getClasses(AsyncMessageCommand.class, packageName, recursive, false, false);
+		for (Class<AsyncMessageCommand> c : enums) {
 			if (addCommand(c)) {
 				numMessages++;
 			}
@@ -170,15 +182,15 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMess
 		return numMessages;
 	}
 	
-	public boolean addCommand(Class<? extends MessageCommand> clazz) {
+	public boolean addCommand(Class<? extends AsyncMessageCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
 		
-		Unit<MessageCommand> unit = new Unit<MessageCommand>(null);
+		Unit<AsyncMessageCommand> unit = new Unit<AsyncMessageCommand>(null);
 		return (CollectionUtil.putIfAbsent(commands, clazz, unit).hashCode() == unit.hashCode()) ? true : false;
 	}
-	public boolean removeCommand(Class<? extends MessageCommand> clazz) {
+	public boolean removeCommand(Class<? extends AsyncMessageCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
@@ -195,6 +207,8 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMess
 		});
 	}
 	public void destroy() {
+		threadPool.shutdownNow();
+		
 		clearChannels();
 		clearCommands();
 		
@@ -227,8 +241,8 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMess
 		}
 		
 		Exception lastEx = null;
-		for (Entry<Class<? extends MessageCommand>, Unit<MessageCommand>> kvp : commands.entrySet()) {
-			MessageCommand c = null;
+		for (Entry<Class<? extends AsyncMessageCommand>, Unit<AsyncMessageCommand>> kvp : commands.entrySet()) {
+			AsyncMessageCommand c = null;
 			
 			if (kvp.getValue().getType() == null) {
 				c = createCommand(kvp.getKey());
@@ -259,8 +273,8 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMess
 	}
 	
 	//private
-	private MessageCommand createCommand(Class<? extends MessageCommand> c) {
-		MessageCommand run = null;
+	private AsyncMessageCommand createCommand(Class<? extends AsyncMessageCommand> c) {
+		AsyncMessageCommand run = null;
 		
 		try {
 			run = c.newInstance();
@@ -277,11 +291,11 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMess
 			backlog.add(new Pair<String, byte[]>(channelName, message));
 		} else {
 			busy = true;
-			new Thread(new Runnable() {
+			threadPool.execute(new Runnable() {
 				public void run() {
 					sendInternal(Bukkit.getOnlinePlayers().iterator().next(), channelName, message);
 				}
-			}).start();
+			});
 		}
 	}
 	private void sendInternal(Player player, String channelName, byte[] message) {
@@ -292,7 +306,7 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMess
 			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 			lastEx = ex;
 		}
-		sendNextInternal(player);
+		sendNext(player);
 		
 		if (lastEx != null) {
 			throw new RuntimeException("Could not send message.", lastEx);
@@ -307,13 +321,6 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMess
 		
 		Pair<String, byte[]> first = backlog.popFirst();
 		sendInternal(player, first.getLeft(), first.getRight());
-	}
-	private void sendNextInternal(Player player) {
-		new Thread(new Runnable() {
-			public void run() {
-				sendNext(player);
-			}
-		}).start();
 	}
 	
 	private ActionListener onBacklogTimer = new ActionListener() {

@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <artifactId>plugin-lib</artifactId>
-  <version>2.4.21</version>
+  <version>2.4.22</version>
   <name>egg82-plugin-lib</name>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -100,12 +100,12 @@
     <dependency>
       <groupId>ninja.egg82.lib</groupId>
       <artifactId>egg82-lib</artifactId>
-      <version>2.6.33</version>
+      <version>2.6.34</version>
     </dependency>
     <dependency>
       <groupId>ninja.egg82.lib</groupId>
       <artifactId>exception-lib</artifactId>
-      <version>1.1.13</version>
+      <version>1.1.14</version>
     </dependency>
     <dependency>
       <groupId>org.json</groupId>

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Executors;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
 
@@ -56,6 +57,9 @@ public abstract class BasePlugin extends JavaPlugin {
 	//constructor
 	public BasePlugin() {
 		super();
+		
+		ServiceLocator.provideService(Executors.defaultThreadFactory());
+		ServiceLocator.provideService(Executors.newCachedThreadPool());
 		
 		Start.init();
 		
@@ -240,7 +244,7 @@ public abstract class BasePlugin extends JavaPlugin {
 				InetAddress.getByName(ip);
 				return ip;
 			} catch (Exception ex) {
-				return null;
+				continue;
 			} finally {
 				if (in != null) {
 					try {

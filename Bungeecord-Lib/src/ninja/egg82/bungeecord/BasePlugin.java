@@ -5,11 +5,13 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
+import java.util.concurrent.Executors;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.api.plugin.PluginManager;
 import ninja.egg82.bungeecord.core.OfflinePlayerRegistry;
 import ninja.egg82.bungeecord.core.OfflinePlayerReverseRegistry;
 import ninja.egg82.bungeecord.enums.BungeeInitType;
@@ -17,6 +19,8 @@ import ninja.egg82.bungeecord.handlers.EnhancedBungeeMessageHandler;
 import ninja.egg82.bungeecord.handlers.CommandHandler;
 import ninja.egg82.bungeecord.handlers.EventListener;
 import ninja.egg82.bungeecord.handlers.IMessageHandler;
+import ninja.egg82.bungeecord.reflection.offlineplayer.NullRedisBungeeHelper;
+import ninja.egg82.bungeecord.reflection.offlineplayer.RedisBungeeHelper;
 import ninja.egg82.bungeecord.services.ConfigRegistry;
 import ninja.egg82.bungeecord.services.LanguageRegistry;
 import ninja.egg82.bungeecord.utils.ConfigUtil;
@@ -37,6 +41,9 @@ public abstract class BasePlugin extends Plugin {
 	//constructor
 	public BasePlugin() {
 		super();
+		
+		ServiceLocator.provideService(Executors.defaultThreadFactory());
+		ServiceLocator.provideService(Executors.newCachedThreadPool());
 		
 		Start.init();
 		
@@ -71,6 +78,16 @@ public abstract class BasePlugin extends Plugin {
 	}
 	
 	public void onEnable() {
+		PluginManager manager = getProxy().getPluginManager();
+		
+		if (manager.getPlugin("RedisBungee") != null) {
+			printInfo(ChatColor.GREEN + "[BungeeLib] Enabling support for RedisBungee.");
+			ServiceLocator.provideService(RedisBungeeHelper.class);
+		} else {
+			printWarning(ChatColor.YELLOW + "[BungeeLib] RedisBungee was not found. Skipping support for it.");
+			ServiceLocator.provideService(NullRedisBungeeHelper.class);
+		}
+		
 		ServiceLocator.provideService(EnhancedBungeeMessageHandler.class);
 		ServiceLocator.provideService(EventListener.class, false);
 	}

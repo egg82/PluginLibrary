@@ -1,11 +1,12 @@
 package ninja.egg82.bungeecord.handlers;
 
-import ninja.egg82.bungeecord.commands.MessageCommand;
+import ninja.egg82.bungeecord.commands.AsyncMessageCommand;
 import ninja.egg82.bungeecord.enums.MessageHandlerType;
 
 public interface IMessageHandler {
 	//functions
 	String getSenderId();
+	void setSenderId(String senderId);
 	
 	void createChannel(String channelName);
 	void destroyChannel(String channelName);
@@ -17,8 +18,8 @@ public interface IMessageHandler {
 	int addMessagesFromPackage(String packageName);
 	int addMessagesFromPackage(String packageName, boolean recursive);
 	
-	boolean addCommand(Class<? extends MessageCommand> clazz);
-	boolean removeCommand(Class<? extends MessageCommand> clazz);
+	boolean addCommand(Class<? extends AsyncMessageCommand> clazz);
+	boolean removeCommand(Class<? extends AsyncMessageCommand> clazz);
 	
 	void clearCommands();
 	void clearChannels();

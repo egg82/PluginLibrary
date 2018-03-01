@@ -1,9 +1,9 @@
 package ninja.egg82.bungeecord.commands;
 
 import ninja.egg82.bungeecord.enums.SenderType;
-import ninja.egg82.patterns.SynchronousCommand;
+import ninja.egg82.patterns.Command;
 
-public abstract class MessageCommand extends SynchronousCommand {
+public abstract class AsyncMessageCommand extends Command {
 	//vars
 	protected String sender = null;
 	protected SenderType senderType = null;
@@ -11,7 +11,7 @@ public abstract class MessageCommand extends SynchronousCommand {
 	protected byte[] data = null;
 	
 	//constructor
-	public MessageCommand() {
+	public AsyncMessageCommand() {
 		super();
 	}
 	

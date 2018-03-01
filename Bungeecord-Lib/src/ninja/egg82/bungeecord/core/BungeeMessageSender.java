@@ -2,6 +2,9 @@ package ninja.egg82.bungeecord.core;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import javax.swing.Timer;
 
@@ -19,6 +22,8 @@ public class BungeeMessageSender {
 	private IObjectPool<Pair<String, byte[]>> backlog = new DynamicObjectPool<Pair<String, byte[]>>();
 	private volatile boolean busy = false;
 	private Timer backlogTimer = null;
+	
+	private ExecutorService threadPool = Executors.newFixedThreadPool(20, ServiceLocator.getService(ThreadFactory.class));
 	
 	//constructor
 	public BungeeMessageSender(ServerInfo info) {
@@ -42,15 +47,13 @@ public class BungeeMessageSender {
 			backlog.add(new Pair<String, byte[]>(channelName, message));
 		} else {
 			busy = true;
-			new Thread(new Runnable() {
-				public void run() {
-					sendInternal(channelName, message);
-				}
-			}).start();
+			sendInternal(channelName, message);
 		}
 	}
 	
 	public void destroy() {
+		threadPool.shutdownNow();
+		
 		backlogTimer.stop();
 		backlog.clear();
 	}
@@ -81,11 +84,11 @@ public class BungeeMessageSender {
 		sendInternal(first.getLeft(), first.getRight());
 	}
 	private void sendNextInternal() {
-		new Thread(new Runnable() {
+		threadPool.execute(new Runnable() {
 			public void run() {
 				sendNext();
 			}
-		}).start();
+		});
 	}
 	
 	private ActionListener onBacklogTimer = new ActionListener() {
