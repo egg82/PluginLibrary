@@ -2,6 +2,7 @@ package ninja.egg82.permissions.reflection;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.entity.Player;
 
@@ -44,14 +45,28 @@ public class LuckPermissionsHelper implements IPermissionsHelper {
 		return false;
 	}
 	public List<String> getGroups(Player player) {
+		if (player == null) {
+			return new ArrayList<String>();
+		}
+		
 		if (api == null) {
 			api = LuckPerms.getApi();
 		}
 		
-		User user = api.getUser(player.getUniqueId());
+		UUID uuid = player.getUniqueId();
+		
+		// Load a user even if offline
+		//api.getStorage().loadUser(uuid);
+		
+		User user = api.getUser(uuid);
+		
+		if (user == null) {
+			// No storage data for user, even offline
+			return new ArrayList<String>();
+		}
 		
 		// Shamelessly copied from LuckCommands ParentInfo.java
-		List<Node> nodes = user.getOwnNodes();
+		List<Node> nodes = new ArrayList<Node>(user.getOwnNodes());
 		nodes.removeIf(node -> !node.isGroupNode() || !node.getValuePrimitive());
 		
 		if (nodes.isEmpty()) {
@@ -68,21 +83,49 @@ public class LuckPermissionsHelper implements IPermissionsHelper {
 	}
 	
 	public String getPrefix(Player player) {
+		if (player == null) {
+			return "";
+		}
+		
 		if (api == null) {
 			api = LuckPerms.getApi();
 		}
 		
-		User user = api.getUser(player.getUniqueId());
+		UUID uuid = player.getUniqueId();
+		
+		//api.getStorage().loadUser(uuid);
+		
+		User user = api.getUser(uuid);
+		
+		if (user == null) {
+			// No storage data for user, even offline
+			return "";
+		}
+		
 		UserData data = user.getCachedData();
 		MetaData meta = data.getMetaData(api.getContextsForPlayer(player));
 		return meta.getPrefix();
 	}
 	public String getSuffix(Player player) {
+		if (player == null) {
+			return "";
+		}
+		
 		if (api == null) {
 			api = LuckPerms.getApi();
 		}
 		
-		User user = api.getUser(player.getUniqueId());
+		UUID uuid = player.getUniqueId();
+		
+		//api.getStorage().loadUser(uuid);
+		
+		User user = api.getUser(uuid);
+		
+		if (user == null) {
+			// No storage data for user, even offline
+			return "";
+		}
+		
 		UserData data = user.getCachedData();
 		MetaData meta = data.getMetaData(api.getContextsForPlayer(player));
 		return meta.getSuffix();

@@ -83,6 +83,8 @@ public abstract class BasePlugin extends JavaPlugin {
 	
 	//public
 	public void onLoad() {
+		ServiceLocator.provideService(getClassLoader());
+		
 		consoleSender = getServer().getConsoleSender();
 		
 		reflect(gameVersion, "ninja.egg82.plugin.reflection.player");
