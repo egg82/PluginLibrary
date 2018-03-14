@@ -19,6 +19,8 @@ import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.DynamicObjectPool;
 import ninja.egg82.patterns.IObjectPool;
+import ninja.egg82.patterns.IRegistry;
+import ninja.egg82.patterns.Registry;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.commands.EventCommand;
 import ninja.egg82.utils.CollectionUtil;
@@ -29,6 +31,8 @@ public class EventListener implements Listener {
 	private ConcurrentHashMap<String, IObjectPool<Class<? extends EventCommand<? extends Event>>>> events = new ConcurrentHashMap<String, IObjectPool<Class<? extends EventCommand<? extends Event>>>>();
 	private ConcurrentHashMap<String, IObjectPool<EventCommand<? extends Event>>> initializedEvents = new ConcurrentHashMap<String, IObjectPool<EventCommand<? extends Event>>>();
 	
+	private IRegistry<Event> lastEvents = new Registry<Event>(Event.class);
+	
 	//constructor
 	public EventListener() {
 		List<Class<Event>> events = ReflectUtil.getClasses(Event.class, "org.bukkit.event", true, false, false);
@@ -36,8 +40,14 @@ public class EventListener implements Listener {
 		JavaPlugin plugin = ServiceLocator.getService(JavaPlugin.class);
 		PluginManager manager = Bukkit.getServer().getPluginManager();
 		for (Class<Event> e : events) {
-			manager.registerEvent(e, this, EventPriority.NORMAL, ServiceLocator.getService(EventExecutor.class), plugin, true);
+			manager.registerEvent(e, this, EventPriority.NORMAL, ServiceLocator.getService(EventExecutor.class), plugin, false);
 		}
+		
+		Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
+			public void run() {
+				lastEvents.clear();
+			}
+		}, 1L, 1L);
 	}
 	public void finalize() {
 		destroy();
@@ -171,9 +181,9 @@ public class EventListener implements Listener {
 	private <T extends Event> void onAnyEvent(T event, Class<? extends Event> clazz) {
 		String key = clazz.getName();
 		
-		/*if (EventUtil.isDuplicate(key, event)) {
+		if (isDuplicate(key, event)) {
 			return;
-		}*/
+		}
 		
 		IObjectPool<EventCommand<? extends Event>> run = initializedEvents.get(key);
 		IObjectPool<Class<? extends EventCommand<? extends Event>>> c = events.get(key);
@@ -214,5 +224,13 @@ public class EventListener implements Listener {
 		if (lastEx != null) {
 			throw new RuntimeException("Cannot undo command.", lastEx);
 		}
+	}
+	
+	private boolean isDuplicate(String className, Event event) {
+		if (lastEvents.hasRegister(event)) {
+			return true;
+		}
+		lastEvents.setRegister(event, null);
+		return false;
 	}
 }
