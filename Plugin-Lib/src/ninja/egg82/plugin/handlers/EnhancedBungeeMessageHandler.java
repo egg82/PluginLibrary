@@ -1,7 +1,5 @@
 package ninja.egg82.plugin.handlers;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -10,16 +8,16 @@ import java.util.List;
 import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-
-import javax.swing.Timer;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
+
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.exceptions.ArgumentNullException;
@@ -39,22 +37,19 @@ import ninja.egg82.utils.ReflectUtil;
 public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMessageListener {
 	//vars
 	private IObjectPool<String> channels = new DynamicObjectPool<String>();
-	private ExecutorService threadPool = Executors.newFixedThreadPool(20, ServiceLocator.getService(ThreadFactory.class));
+	private ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors(), new ThreadFactoryBuilder().setNameFormat("egg82-Bungee_Enhanced-%d").build());
 	private ConcurrentHashMap<Class<? extends AsyncMessageCommand>, Unit<AsyncMessageCommand>> commands = new ConcurrentHashMap<Class<? extends AsyncMessageCommand>, Unit<AsyncMessageCommand>>();
 	
 	private JavaPlugin plugin = ServiceLocator.getService(JavaPlugin.class);
 	
 	private IObjectPool<Pair<String, byte[]>> backlog = new DynamicObjectPool<Pair<String, byte[]>>();
 	private volatile boolean busy = false;
-	private Timer backlogTimer = null;
 	
 	private String personalId = (ServiceLocator.getService(BasePlugin.class) != null) ? ServiceLocator.getService(BasePlugin.class).getServerId() : UUID.randomUUID().toString();
 	
 	//constructor
 	public EnhancedBungeeMessageHandler() {
-		backlogTimer = new Timer(100, onBacklogTimer);
-		backlogTimer.setRepeats(true);
-		backlogTimer.start();
+		threadPool.scheduleAtFixedRate(onBacklogThread, 150L, 150L, TimeUnit.MILLISECONDS);
 	}
 	public void finalize() {
 		destroy();
@@ -209,10 +204,9 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMess
 	public void destroy() {
 		threadPool.shutdownNow();
 		
+		backlog.clear();
 		clearChannels();
 		clearCommands();
-		
-		backlogTimer.stop();
 	}
 	
 	public void onPluginMessageReceived(String channelName, Player player, byte[] message) {
@@ -291,7 +285,7 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMess
 			backlog.add(new Pair<String, byte[]>(channelName, message));
 		} else {
 			busy = true;
-			threadPool.execute(new Runnable() {
+			threadPool.submit(new Runnable() {
 				public void run() {
 					sendInternal(Bukkit.getOnlinePlayers().iterator().next(), channelName, message);
 				}
@@ -323,8 +317,8 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMess
 		sendInternal(player, first.getLeft(), first.getRight());
 	}
 	
-	private ActionListener onBacklogTimer = new ActionListener() {
-		public void actionPerformed(ActionEvent e) {
+	private Runnable onBacklogThread = new Runnable() {
+		public void run() {
 			if (!busy && backlog.size() > 0 && !Bukkit.getOnlinePlayers().isEmpty()) {
 				busy = true;
 				sendNext(Bukkit.getOnlinePlayers().iterator().next());

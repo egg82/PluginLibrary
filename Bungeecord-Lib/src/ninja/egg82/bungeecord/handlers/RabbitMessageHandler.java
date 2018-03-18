@@ -1,21 +1,15 @@
 package ninja.egg82.bungeecord.handlers;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
-import javax.swing.Timer;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.rabbitmq.client.Channel;
@@ -60,13 +54,7 @@ public class RabbitMessageHandler implements IMessageHandler {
 	private AtomicBoolean connected = new AtomicBoolean(false);
 	
 	// Thread pool for message sending thread. The thread count for actually sending messages should never exceed 1 for data consistency
-	private ExecutorService threadPool = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat("egg82-RabbitMQ-%d").build());
-	// A lock for the send thread. Because checking thread null and then setting the thread the new value in a multithreaded environment will cause a few issues.
-	private Lock sendLock = new ReentrantLock();
-	// The actual message send thread, for cancellation purposes
-	private volatile Future<?> sendThread = null;
-	// A timer used for flushing the current message queue in case of thread failure
-	private Timer backlogTimer = null;
+	private ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("egg82-RabbitMQ-%d").build());
 	
 	// The plugin using this code
 	private BasePlugin plugin = ServiceLocator.getService(BasePlugin.class);
@@ -114,10 +102,6 @@ public class RabbitMessageHandler implements IMessageHandler {
 		
 		// Add basic properties like reply-to and sender type
 		props = new BasicProperties.Builder().replyTo(senderId).type(SenderType.BUNGEE.name()).deliveryMode(2).build();
-		
-		// Set up the flush timer
-		backlogTimer = new Timer(150, onBacklogTimer);
-		backlogTimer.setRepeats(true);
 		
 		// Create a new connection and pre-populate values
 		ConnectionFactory factory = new ConnectionFactory();
@@ -174,7 +158,7 @@ public class RabbitMessageHandler implements IMessageHandler {
 		conn.addShutdownListener(onShutdown);
 		
 		// Start the flush timer and set the connected state
-		backlogTimer.start();
+		threadPool.scheduleAtFixedRate(onBacklogThread, 150L, 150L, TimeUnit.MILLISECONDS);
 		connected.set(true);
 	}
 	public void finalize() {
@@ -346,16 +330,8 @@ public class RabbitMessageHandler implements IMessageHandler {
 		messageData.setData(data);
 		backlog.add(messageData);
 		
-		// Try to create a new send thread if one doesn't exist
-		if (sendLock.tryLock()) {
-			// Cancel thread if it's running (wait for complete)
-			if (sendThread != null) {
-				sendThread.cancel(false);
-			}
-			
-			// Create a new send thread
-			sendThread = threadPool.submit(onSendThread);
-		}
+		// Submit a new send task
+		threadPool.submit(onSendThread);
 	}
 	public void broadcastToBungee(String channelName, byte[] data) {
 		if (channelName == null) {
@@ -388,16 +364,8 @@ public class RabbitMessageHandler implements IMessageHandler {
 		messageData.setData(data);
 		backlog.add(messageData);
 		
-		// Try to create a new send thread if one doesn't exist
-		if (sendLock.tryLock()) {
-			// Cancel thread if it's running (wait for complete)
-			if (sendThread != null) {
-				sendThread.cancel(false);
-			}
-			
-			// Create a new send thread
-			sendThread = threadPool.submit(onSendThread);
-		}
+		// Submit a new send task
+		threadPool.submit(onSendThread);
 	}
 	public void broadcastToBukkit(String channelName, byte[] data) {
 		if (channelName == null) {
@@ -430,16 +398,8 @@ public class RabbitMessageHandler implements IMessageHandler {
 		messageData.setData(data);
 		backlog.add(messageData);
 		
-		// Try to create a new send thread if one doesn't exist
-		if (sendLock.tryLock()) {
-			// Cancel thread if it's running (wait for complete)
-			if (sendThread != null) {
-				sendThread.cancel(false);
-			}
-			
-			// Create a new send thread
-			sendThread = threadPool.submit(onSendThread);
-		}
+		// Submit a new send task
+		threadPool.submit(onSendThread);
 	}
 	
 	public int addMessagesFromPackage(String packageName) {
@@ -505,20 +465,21 @@ public class RabbitMessageHandler implements IMessageHandler {
 			return;
 		}
 		
-		// Stop the flush timer
-		backlogTimer.stop();
-		
-		// Lock (sleep the thread and wait if needed) the send thread and destroy channels and commands
-		sendLock.lock();
-		if (sendThread != null) {
-			// This should never really be "not null" if the lock works, but hey. You never know.
-			sendThread.cancel(true);
-			sendThread = null;
+		try {
+			// Gracefully shut the thread pool down, waiting for 5 seconds if needed
+			threadPool.shutdown();
+			if (!threadPool.awaitTermination(5000L, TimeUnit.MILLISECONDS)) {
+				// Less-than-gracefully kill the thread pool
+				threadPool.shutdownNow();
+			}
+		} catch (Exception ex) {
+			
 		}
+		
+		// Clear the backlog, channels, and commands
 		backlog.clear();
 		clearChannels();
 		clearCommands();
-		sendLock.unlock();
 		
 		// Close the connection gracefully
 		try {
@@ -567,35 +528,41 @@ public class RabbitMessageHandler implements IMessageHandler {
 					backlog.addFirst(first);
 				}
 			}
-			
-			// Set the thread to null and unlock the sendLock
-			sendThread = null;
-			sendLock.unlock();
 		}
 	};
-	private ActionListener onBacklogTimer = new ActionListener() {
-		public void actionPerformed(ActionEvent e) {
-			// Check connection state
-			if (!connected.get()) {
-				backlogTimer.stop();
+	private Runnable onBacklogThread = new Runnable() {
+		public void run() {
+			// Check connection state and backlog count
+			if (!connected.get() || backlog.isEmpty()) {
 				return;
 			}
 			
-			// Check the send thread lock
-			if (sendLock.tryLock()) {
-				// Cancel thread if it's running (wait for complete)
-				if (sendThread != null) {
-					sendThread.cancel(false);
+			// Iterate messages to be sent until the queue is empty
+			while (!backlog.isEmpty()) {
+				if (!connected.get()) {
+					// We're no longer connected. Break out of the loop
+					break;
 				}
 				
-				// Check backlog count
-				if (backlog.isEmpty()) {
-					sendLock.unlock();
-					return;
+				// Grab the oldest data first
+				RabbitMessageQueueData first = backlog.popFirst();
+				if (first == null) {
+					// Data is null, which means we prematurely reached the end of the queue
+					break;
 				}
 				
-				// Create a new send thread
-				sendThread = threadPool.submit(onSendThread);
+				// Try to push the data to the Rabbit queue
+				try {
+					// Publish the data and make sure it was committed
+					channel.basicPublish(exchangeName, first.getRoutingKey(), props, first.getData());
+					channel.txCommit();
+					// Clear the container object and add it back to the data pool
+					first.clear();
+					queueDataPool.add(first);
+				} catch (Exception ex) {
+					// Message send failed. Re-add it to the front of the backlog
+					backlog.addFirst(first);
+				}
 			}
 		}
 	};

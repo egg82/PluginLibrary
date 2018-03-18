@@ -31,7 +31,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Crops;
 import org.bukkit.material.MaterialData;
 
+import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.exceptions.ArgumentNullException;
+import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.core.BlockData;
 
 public final class BlockUtil {
@@ -170,7 +172,12 @@ public final class BlockUtil {
 		blockState.setType(data.getMaterial());
 		
 		if (data.getState() != null) {
-			setBlockData(blockState, data.getState());
+			try {
+				setBlockData(blockState, data.getState());
+			} catch (Exception ex) {
+				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				return;
+			}
 		}
 		
 		if (data.getInventory() != null) {

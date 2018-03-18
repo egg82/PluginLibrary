@@ -1,12 +1,10 @@
 package ninja.egg82.bungeecord.core;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-import javax.swing.Timer;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import net.md_5.bungee.api.config.ServerInfo;
 import ninja.egg82.exceptionHandlers.IExceptionHandler;
@@ -21,17 +19,14 @@ public class BungeeMessageSender {
 	
 	private IObjectPool<Pair<String, byte[]>> backlog = new DynamicObjectPool<Pair<String, byte[]>>();
 	private volatile boolean busy = false;
-	private Timer backlogTimer = null;
 	
-	private ExecutorService threadPool = Executors.newFixedThreadPool(20, ServiceLocator.getService(ThreadFactory.class));
+	private ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors(), new ThreadFactoryBuilder().setNameFormat("egg82-bungee-%d").build());
 	
 	//constructor
 	public BungeeMessageSender(ServerInfo info) {
 		this.info = info;
 		
-		backlogTimer = new Timer(100, onBacklogTimer);
-		backlogTimer.setRepeats(true);
-		backlogTimer.start();
+		threadPool.scheduleWithFixedDelay(onBacklogThread, 150L, 150L, TimeUnit.MILLISECONDS);
 	}
 	public void finalize() {
 		destroy();
@@ -53,8 +48,6 @@ public class BungeeMessageSender {
 	
 	public void destroy() {
 		threadPool.shutdownNow();
-		
-		backlogTimer.stop();
 		backlog.clear();
 	}
 	
@@ -84,15 +77,15 @@ public class BungeeMessageSender {
 		sendInternal(first.getLeft(), first.getRight());
 	}
 	private void sendNextInternal() {
-		threadPool.execute(new Runnable() {
+		threadPool.submit(new Runnable() {
 			public void run() {
 				sendNext();
 			}
 		});
 	}
 	
-	private ActionListener onBacklogTimer = new ActionListener() {
-		public void actionPerformed(ActionEvent e) {
+	private Runnable onBacklogThread = new Runnable() {
+		public void run() {
 			if (!busy && backlog.size() > 0 && !info.getPlayers().isEmpty()) {
 				busy = true;
 				sendNext();
