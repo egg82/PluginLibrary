@@ -1,12 +1,10 @@
 package ninja.egg82.eco.reflection;
 
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.RegisteredServiceProvider;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import net.milkbowl.vault.economy.Economy;
-import ninja.egg82.exceptions.ArgumentNullException;
-import ninja.egg82.patterns.ServiceLocator;
 
 public class VaultEconomyHelper implements IEconomyHelper {
 	//vars
@@ -14,7 +12,7 @@ public class VaultEconomyHelper implements IEconomyHelper {
 	
 	//constructor
 	public VaultEconomyHelper() {
-		RegisteredServiceProvider<Economy> service = ServiceLocator.getService(JavaPlugin.class).getServer().getServicesManager().getRegistration(Economy.class);
+		RegisteredServiceProvider<Economy> service = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
 		if (service == null || service.getProvider() == null) {
 			throw new RuntimeException("Vault economy service was not found!");
 		}
@@ -24,7 +22,7 @@ public class VaultEconomyHelper implements IEconomyHelper {
 	//public
 	public boolean deposit(OfflinePlayer player, double amount) {
 		if (player == null) {
-			throw new ArgumentNullException("player");
+			throw new IllegalArgumentException("player cannot be null.");
 		}
 		if (amount < 0) {
 			throw new RuntimeException("amount cannot be < 0.");
@@ -38,7 +36,7 @@ public class VaultEconomyHelper implements IEconomyHelper {
 	}
 	public boolean deposit(String bankName, double amount) {
 		if (bankName == null) {
-			throw new ArgumentNullException("bankName");
+			throw new IllegalArgumentException("bankName cannot be null.");
 		}
 		if (amount < 0) {
 			throw new RuntimeException("amount cannot be < 0.");
@@ -52,7 +50,7 @@ public class VaultEconomyHelper implements IEconomyHelper {
 	}
 	public boolean withdraw(OfflinePlayer player, double amount) {
 		if (player == null) {
-			throw new ArgumentNullException("player");
+			throw new IllegalArgumentException("player cannot be null.");
 		}
 		if (amount < 0) {
 			throw new RuntimeException("amount cannot be < 0.");
@@ -66,7 +64,7 @@ public class VaultEconomyHelper implements IEconomyHelper {
 	}
 	public boolean withdraw(String bankName, double amount) {
 		if (bankName == null) {
-			throw new ArgumentNullException("bankName");
+			throw new IllegalArgumentException("bankName cannot be null.");
 		}
 		if (amount < 0) {
 			throw new RuntimeException("amount cannot be < 0.");
@@ -80,7 +78,7 @@ public class VaultEconomyHelper implements IEconomyHelper {
 	}
 	public double getBalance(OfflinePlayer player) {
 		if (player == null) {
-			throw new ArgumentNullException("player");
+			throw new IllegalArgumentException("player cannot be null.");
 		}
 		
 		if (!economy.hasAccount(player)) {
@@ -91,7 +89,7 @@ public class VaultEconomyHelper implements IEconomyHelper {
 	}
 	public double getBalance(String bankName) {
 		if (bankName == null) {
-			throw new ArgumentNullException("bankName");
+			throw new IllegalArgumentException("bankName cannot be null.");
 		}
 		
 		if (!economy.getBanks().contains(bankName)) {
@@ -103,34 +101,34 @@ public class VaultEconomyHelper implements IEconomyHelper {
 	
 	public boolean createBank(String name, OfflinePlayer owner) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		if (owner == null) {
-			throw new ArgumentNullException("owner");
+			throw new IllegalArgumentException("owner cannot be null.");
 		}
 		
 		return economy.createBank(name, owner).transactionSuccess();
 	}
 	public boolean deleteBank(String name) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		return economy.deleteBank(name).transactionSuccess();
 	}
 	public boolean hasBank(String name) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		return economy.getBanks().contains(name);
 	}
 	public boolean isBankOwner(String name, OfflinePlayer player) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		if (player == null) {
-			throw new ArgumentNullException("player");
+			throw new IllegalArgumentException("player cannot be null.");
 		}
 		
 		return economy.isBankOwner(name, player).transactionSuccess();
