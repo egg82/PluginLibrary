@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -21,6 +20,7 @@ import com.rabbitmq.client.ShutdownListener;
 import com.rabbitmq.client.ShutdownSignalException;
 import com.rabbitmq.client.AMQP.BasicProperties;
 
+import net.md_5.bungee.api.plugin.Plugin;
 import ninja.egg82.bungeecord.BasePlugin;
 import ninja.egg82.bungeecord.commands.AsyncMessageCommand;
 import ninja.egg82.bungeecord.core.RabbitMessageQueueData;
@@ -35,6 +35,7 @@ import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.patterns.tuples.Unit;
 import ninja.egg82.utils.CollectionUtil;
 import ninja.egg82.utils.ReflectUtil;
+import ninja.egg82.utils.ThreadUtil;
 
 public class RabbitMessageHandler implements IMessageHandler {
 	//vars
@@ -54,7 +55,7 @@ public class RabbitMessageHandler implements IMessageHandler {
 	private AtomicBoolean connected = new AtomicBoolean(false);
 	
 	// Thread pool for message sending thread. The thread count for actually sending messages should never exceed 1 for data consistency
-	private ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("egg82-RabbitMQ-%d").build());
+	private ScheduledExecutorService threadPool = ThreadUtil.createSingleScheduledPool(new ThreadFactoryBuilder().setNameFormat(ServiceLocator.getService(Plugin.class).getDescription().getName() + "-RabbitMQ-%d").build());
 	
 	// The plugin using this code
 	private BasePlugin plugin = ServiceLocator.getService(BasePlugin.class);

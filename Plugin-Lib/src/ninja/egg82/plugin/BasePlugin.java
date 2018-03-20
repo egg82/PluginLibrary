@@ -58,9 +58,6 @@ public abstract class BasePlugin extends JavaPlugin {
 	public BasePlugin() {
 		super();
 		
-		ServiceLocator.provideService(Executors.defaultThreadFactory());
-		ServiceLocator.provideService(Executors.newCachedThreadPool());
-		
 		Start.init();
 		
 		logger = getLogger();
