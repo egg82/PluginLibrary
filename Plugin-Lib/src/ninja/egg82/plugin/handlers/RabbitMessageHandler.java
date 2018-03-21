@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -56,7 +57,9 @@ public class RabbitMessageHandler implements IMessageHandler {
 	private AtomicBoolean connected = new AtomicBoolean(false);
 	
 	// Thread pool for message sending thread. The thread count for actually sending messages should never exceed 1 for data consistency
-	private ScheduledExecutorService threadPool = ThreadUtil.createSingleScheduledPool(new ThreadFactoryBuilder().setNameFormat(ServiceLocator.getService(JavaPlugin.class).getName() + "-RabbitMQ-%d").build());
+	private ScheduledExecutorService threadPool = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat(ServiceLocator.getService(JavaPlugin.class).getName() + "-RabbitMQ_snd-%d").build());
+	// Custom thread pool for incoming messages that uses a min + max. Extra threads expire after 2 mins
+	private ScheduledExecutorService recvPool = ThreadUtil.createScheduledPool(3, Runtime.getRuntime().availableProcessors(), 120L * 1000L, new ThreadFactoryBuilder().setNameFormat(ServiceLocator.getService(JavaPlugin.class).getName() + "-RabbitMQ_recv-%d").build());
 	
 	// The plugin using this code
 	private BasePlugin plugin = ServiceLocator.getService(BasePlugin.class);
@@ -128,17 +131,17 @@ public class RabbitMessageHandler implements IMessageHandler {
 			// SSL with cert trust
 			ConnectionFactory sslFactory = factory.clone();
 			sslFactory.useSslProtocol("TLSv1.2");
-			conn = sslFactory.newConnection();
+			conn = sslFactory.newConnection(recvPool);
 		} catch (Exception ex) {
 			try {
 				// SSL without cert trust
 				ConnectionFactory sslFactory = factory.clone();
 				sslFactory.useSslProtocol();
-				conn = sslFactory.newConnection();
+				conn = sslFactory.newConnection(recvPool);
 			} catch (Exception ex2) {
 				try {
 					// Plaintext
-					conn = factory.newConnection();
+					conn = factory.newConnection(recvPool);
 				} catch (Exception ex3) {
 					ServiceLocator.getService(IExceptionHandler.class).silentException(ex3);
 					throw new RuntimeException("Cannot create RabbitMQ connection.", ex3);
@@ -493,6 +496,17 @@ public class RabbitMessageHandler implements IMessageHandler {
 			} catch (Exception ex2) {
 				// If this exception is ever raised something is really fucked. We'll ignore it.
 			}
+		}
+		
+		try {
+			// Gracefully shut the recv pool down, waiting for 5 seconds if needed
+			recvPool.shutdown();
+			if (!recvPool.awaitTermination(5000L, TimeUnit.MILLISECONDS)) {
+				// Less-than-gracefully kill the thread pool
+				recvPool.shutdownNow();
+			}
+		} catch (Exception ex) {
+			
 		}
 	}
 	

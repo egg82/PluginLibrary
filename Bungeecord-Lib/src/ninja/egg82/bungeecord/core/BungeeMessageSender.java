@@ -1,5 +1,6 @@
 package ninja.egg82.bungeecord.core;
 
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -12,7 +13,6 @@ import ninja.egg82.patterns.DynamicObjectPool;
 import ninja.egg82.patterns.IObjectPool;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.patterns.tuples.Pair;
-import ninja.egg82.utils.ThreadUtil;
 
 public class BungeeMessageSender {
 	//vars
@@ -21,7 +21,7 @@ public class BungeeMessageSender {
 	private IObjectPool<Pair<String, byte[]>> backlog = new DynamicObjectPool<Pair<String, byte[]>>();
 	private volatile boolean busy = false;
 	
-	private ScheduledExecutorService threadPool = ThreadUtil.createSingleScheduledPool(new ThreadFactoryBuilder().setNameFormat(ServiceLocator.getService(Plugin.class).getDescription().getName() + "-bungee-%d").build());
+	private ScheduledExecutorService threadPool = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat(ServiceLocator.getService(Plugin.class).getDescription().getName() + "-bungee-%d").build());
 	
 	//constructor
 	public BungeeMessageSender(ServerInfo info) {

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -32,12 +33,11 @@ import ninja.egg82.plugin.enums.SenderType;
 import ninja.egg82.plugin.utils.ChannelUtil;
 import ninja.egg82.utils.CollectionUtil;
 import ninja.egg82.utils.ReflectUtil;
-import ninja.egg82.utils.ThreadUtil;
 
 public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMessageListener {
 	//vars
 	private IObjectPool<String> channels = new DynamicObjectPool<String>();
-	private ScheduledExecutorService threadPool = ThreadUtil.createSingleScheduledPool(new ThreadFactoryBuilder().setNameFormat(ServiceLocator.getService(JavaPlugin.class).getName() + "-Bungee_Enhanced-%d").build());
+	private ScheduledExecutorService threadPool = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat(ServiceLocator.getService(JavaPlugin.class).getName() + "-Bungee_Enhanced-%d").build());
 	private ConcurrentHashMap<Class<? extends AsyncMessageCommand>, Unit<AsyncMessageCommand>> commands = new ConcurrentHashMap<Class<? extends AsyncMessageCommand>, Unit<AsyncMessageCommand>>();
 	
 	private JavaPlugin plugin = ServiceLocator.getService(JavaPlugin.class);
