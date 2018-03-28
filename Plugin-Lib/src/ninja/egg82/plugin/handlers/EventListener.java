@@ -16,10 +16,11 @@ import org.bukkit.plugin.PluginManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ninja.egg82.concurrent.DynamicConcurrentQueue;
-import ninja.egg82.concurrent.IConcurrentQueue;
+import ninja.egg82.concurrent.DynamicConcurrentSet;
+import ninja.egg82.concurrent.IConcurrentSet;
 import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.ServiceLocator;
+import ninja.egg82.patterns.tuples.pair.Pair;
 import ninja.egg82.plugin.BasePlugin;
 import ninja.egg82.plugin.commands.events.EventCommand;
 import ninja.egg82.plugin.commands.events.HighEventCommand;
@@ -42,7 +43,7 @@ public class EventListener implements Listener, Closeable {
 	private CoreEventHandler lowestEventHandler = new CoreEventHandler();
 	private CoreEventHandler monitorEventHandler = new CoreEventHandler();
 	
-	private IConcurrentQueue<Event> lastEvents = new DynamicConcurrentQueue<Event>();
+	private IConcurrentSet<Pair<Event, EventPriority>> lastEvents = new DynamicConcurrentSet<Pair<Event, EventPriority>>();
 	
 	private BasePlugin plugin = ServiceLocator.getService(BasePlugin.class);
 	private PluginManager manager = Bukkit.getServer().getPluginManager();
@@ -50,14 +51,8 @@ public class EventListener implements Listener, Closeable {
 	//constructor
 	public EventListener() {
 		List<Class<Event>> events = ReflectUtil.getClasses(Event.class, "org.bukkit.event", true, false, false);
-		
 		for (Class<Event> e : events) {
-			manager.registerEvent(e, this, EventPriority.HIGHEST, highestEventExecutor, plugin, false);
-			manager.registerEvent(e, this, EventPriority.HIGH, highEventExecutor, plugin, false);
-			manager.registerEvent(e, this, EventPriority.NORMAL, normalEventExecutor, plugin, false);
-			manager.registerEvent(e, this, EventPriority.LOW, lowEventExecutor, plugin, false);
-			manager.registerEvent(e, this, EventPriority.LOWEST, lowestEventExecutor, plugin, false);
-			manager.registerEvent(e, this, EventPriority.MONITOR, monitorEventExecutor, plugin, false);
+			registerEvent(e);
 		}
 		
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
@@ -79,7 +74,7 @@ public class EventListener implements Listener, Closeable {
 		if (ReflectUtil.doesExtend(EventCommand.class, clazz)) {
 			return normalEventHandler.addEventHandler(event, clazz);
 		} else if (ReflectUtil.doesExtend(MonitorEventCommand.class, clazz)) {
-			return highestEventHandler.addEventHandler(event, clazz);
+			return monitorEventHandler.addEventHandler(event, clazz);
 		} else if (ReflectUtil.doesExtend(HighestEventCommand.class, clazz)) {
 			return highestEventHandler.addEventHandler(event, clazz);
 		} else if (ReflectUtil.doesExtend(HighEventCommand.class, clazz)) {
@@ -100,7 +95,7 @@ public class EventListener implements Listener, Closeable {
 		if (ReflectUtil.doesExtend(EventCommand.class, clazz)) {
 			return normalEventHandler.removeEventHandler(clazz);
 		} else if (ReflectUtil.doesExtend(MonitorEventCommand.class, clazz)) {
-			return highestEventHandler.removeEventHandler(clazz);
+			return monitorEventHandler.removeEventHandler(clazz);
 		} else if (ReflectUtil.doesExtend(HighestEventCommand.class, clazz)) {
 			return highestEventHandler.removeEventHandler(clazz);
 		} else if (ReflectUtil.doesExtend(HighEventCommand.class, clazz)) {
@@ -124,7 +119,7 @@ public class EventListener implements Listener, Closeable {
 		if (ReflectUtil.doesExtend(EventCommand.class, clazz)) {
 			return normalEventHandler.removeEventHandler(event, clazz);
 		} else if (ReflectUtil.doesExtend(MonitorEventCommand.class, clazz)) {
-			return highestEventHandler.removeEventHandler(event, clazz);
+			return monitorEventHandler.removeEventHandler(event, clazz);
 		} else if (ReflectUtil.doesExtend(HighestEventCommand.class, clazz)) {
 			return highestEventHandler.removeEventHandler(event, clazz);
 		} else if (ReflectUtil.doesExtend(HighEventCommand.class, clazz)) {
@@ -262,7 +257,7 @@ public class EventListener implements Listener, Closeable {
 	};
 	
 	private <T extends Event> void onAnyEvent(EventPriority priority, T event, Class<? extends Event> clazz) {
-		if (isDuplicate(event)) {
+		if (isDuplicate(event, priority)) {
 			return;
 		}
 		
@@ -281,11 +276,10 @@ public class EventListener implements Listener, Closeable {
 		}
 	}
 	
-	private boolean isDuplicate(Event event) {
-		if (lastEvents.contains(event)) {
+	private boolean isDuplicate(Event event, EventPriority priority) {
+		if (!lastEvents.add(new Pair<Event, EventPriority>(event, priority))) {
 			return true;
 		}
-		lastEvents.add(event);
 		return false;
 	}
 }
