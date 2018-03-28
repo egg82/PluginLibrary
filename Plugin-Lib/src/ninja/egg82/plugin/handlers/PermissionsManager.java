@@ -1,6 +1,7 @@
 package ninja.egg82.plugin.handlers;
 
 import java.util.Arrays;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
@@ -49,9 +50,9 @@ public final class PermissionsManager {
 		if (p != null) {
 			manager.removePermission(p);
 			return true;
-		} else {
-			return false;
 		}
+		
+		return false;
 	}
 	public boolean hasPermission(String permission) {
 		if (permission == null) {
@@ -62,9 +63,9 @@ public final class PermissionsManager {
 		return permissions.containsKey(permission);
 	}
 	public void clear() {
-		permissions.forEach((k, v) -> {
-			manager.removePermission(v);
-		});
+		for (Entry<String, Permission> kvp : permissions.entrySet()) {
+			manager.removePermission(kvp.getValue());
+		}
 		permissions.clear();
 	}
 	

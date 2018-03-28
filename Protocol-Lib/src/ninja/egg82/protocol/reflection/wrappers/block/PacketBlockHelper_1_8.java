@@ -85,7 +85,7 @@ public class PacketBlockHelper_1_8 implements IPacketBlockHelper {
 		HashSet<MultiBlockChangeInfo> info = new HashSet<MultiBlockChangeInfo>();
 		for (int i = 0; i < blockLocations.length; i++) {
 			if (
-				blockLocations[i].getWorld().getName() != blockLocations[0].getWorld().getName()
+				!blockLocations[i].getWorld().getName().equals(blockLocations[0].getWorld().getName())
 				|| blockLocations[i].getBlockX() >> 4 != blockLocations[0].getBlockX() >> 4
 				|| blockLocations[i].getBlockZ() >> 4 != blockLocations[0].getBlockZ() >> 4
 			) {
@@ -121,7 +121,7 @@ public class PacketBlockHelper_1_8 implements IPacketBlockHelper {
 		HashSet<MultiBlockChangeInfo> info = new HashSet<MultiBlockChangeInfo>();
 		for (int i = 0; i < blockLocations.length; i++) {
 			if (
-				blockLocations[i].getWorld().getName() != blockLocations[0].getWorld().getName()
+				!blockLocations[i].getWorld().getName().equals(blockLocations[0].getWorld().getName())
 				|| blockLocations[i].getBlockX() >> 4 != blockLocations[0].getBlockX() >> 4
 				|| blockLocations[i].getBlockZ() >> 4 != blockLocations[0].getBlockZ() >> 4
 			) {
@@ -163,7 +163,7 @@ public class PacketBlockHelper_1_8 implements IPacketBlockHelper {
 		int minBlocks = Math.min(blockLocations.length, newMaterials.length);
 		for (int i = 0; i < minBlocks; i++) {
 			if (
-				blockLocations[i].getWorld().getName() != blockLocations[0].getWorld().getName()
+				!blockLocations[i].getWorld().getName().equals(blockLocations[0].getWorld().getName())
 				|| blockLocations[i].getBlockX() >> 4 != blockLocations[0].getBlockX() >> 4
 				|| blockLocations[i].getBlockZ() >> 4 != blockLocations[0].getBlockZ() >> 4
 			) {
@@ -205,7 +205,7 @@ public class PacketBlockHelper_1_8 implements IPacketBlockHelper {
 		int minBlocks = Math.min(blockLocations.length, newMaterials.length);
 		for (int i = 0; i < minBlocks; i++) {
 			if (
-				blockLocations[i].getWorld().getName() != blockLocations[0].getWorld().getName()
+				!blockLocations[i].getWorld().getName().equals(blockLocations[0].getWorld().getName())
 				|| blockLocations[i].getBlockX() >> 4 != blockLocations[0].getBlockX() >> 4
 				|| blockLocations[i].getBlockZ() >> 4 != blockLocations[0].getBlockZ() >> 4
 			) {

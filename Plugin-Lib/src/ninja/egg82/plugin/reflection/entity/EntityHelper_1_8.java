@@ -64,13 +64,15 @@ public final class EntityHelper_1_8 implements IEntityHelper {
 	}
 	
 	public void damage(Damageable to, DamageCause cause, double damage) {
-		EntityDamageEvent damageEvent = new EntityDamageEvent(to, cause, new EnumMap<DamageModifier, Double>(ImmutableMap.of(DamageModifier.BASE, damage)), new EnumMap<DamageModifier, Function<? super Double, Double>>(ImmutableMap.of(DamageModifier.BASE, Functions.constant(damage))));
+		Double d = Double.valueOf(damage);
+		EntityDamageEvent damageEvent = new EntityDamageEvent(to, cause, new EnumMap<DamageModifier, Double>(ImmutableMap.of(DamageModifier.BASE, d)), new EnumMap<DamageModifier, Function<? super Double, Double>>(ImmutableMap.of(DamageModifier.BASE, Functions.constant(d))));
 		Bukkit.getPluginManager().callEvent(damageEvent);
 		damageEvent.getEntity().setLastDamageCause(damageEvent);
 		to.damage(damage);
 	}
 	public void damage(Entity from, Damageable to, DamageCause cause, double damage) {
-		EntityDamageEvent damageEvent = new EntityDamageEvent(to, cause, new EnumMap<DamageModifier, Double>(ImmutableMap.of(DamageModifier.BASE, damage)), new EnumMap<DamageModifier, Function<? super Double, Double>>(ImmutableMap.of(DamageModifier.BASE, Functions.constant(damage))));
+		Double d = Double.valueOf(damage);
+		EntityDamageEvent damageEvent = new EntityDamageEvent(to, cause, new EnumMap<DamageModifier, Double>(ImmutableMap.of(DamageModifier.BASE, d)), new EnumMap<DamageModifier, Function<? super Double, Double>>(ImmutableMap.of(DamageModifier.BASE, Functions.constant(d))));
 		Bukkit.getPluginManager().callEvent(damageEvent);
 		damageEvent.getEntity().setLastDamageCause(damageEvent);
 		to.damage(damage, from);

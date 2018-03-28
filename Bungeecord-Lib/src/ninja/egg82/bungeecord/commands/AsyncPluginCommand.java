@@ -3,17 +3,16 @@ package ninja.egg82.bungeecord.commands;
 import java.util.List;
 
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.plugin.Command;
-import ninja.egg82.patterns.SynchronousCommand;
+import ninja.egg82.patterns.Command;
 
-public abstract class PluginCommand extends SynchronousCommand {
+public abstract class AsyncPluginCommand extends Command {
 	//vars
 	protected CommandSender sender = null;
-	protected Command command = null;
+	protected net.md_5.bungee.api.plugin.Command command = null;
 	protected String[] args = null;
 	
 	//constructor
-	public PluginCommand() {
+	public AsyncPluginCommand() {
 		super();
 	}
 	
@@ -25,7 +24,7 @@ public abstract class PluginCommand extends SynchronousCommand {
 		this.sender = sender;
 	}
 	
-	public final Command getCommand() {
+	public final net.md_5.bungee.api.plugin.Command getCommand() {
 		return command;
 	}
 	

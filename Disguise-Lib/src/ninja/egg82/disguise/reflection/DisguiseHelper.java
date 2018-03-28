@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 import de.robingrether.idisguise.api.DisguiseAPI;
 import de.robingrether.idisguise.disguise.DisguiseType;
 import de.robingrether.idisguise.disguise.MobDisguise;
-import de.robingrether.idisguise.disguise.PlayerDisguise;;
+import de.robingrether.idisguise.disguise.PlayerDisguise;
 
 public class DisguiseHelper implements IDisguiseHelper {
 	//vars
@@ -37,11 +37,11 @@ public class DisguiseHelper implements IDisguiseHelper {
 	}
 	
 	public EntityType disguiseType(Player player) {
-		OfflinePlayer p = (OfflinePlayer) player;
+		OfflinePlayer p = player;
 		return (api.isDisguised(p)) ? EntityType.valueOf(api.getDisguise(p).getType().toString().toUpperCase()) : null;
 	}
 	public boolean isDisguised(Player player) {
-		OfflinePlayer p = (OfflinePlayer) player;
+		OfflinePlayer p = player;
 		return api.isDisguised(p);
 	}
 	

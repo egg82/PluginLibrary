@@ -21,8 +21,6 @@ public class ProtocolLibFakeItemFrame extends ProtocolLibFakeEntity implements I
 	//vars
 	private IPacketItemFrameHelper packetHelper = ServiceLocator.getService(IPacketItemFrameHelper.class);
 	
-	protected PacketContainer spawnDataPacket = null;
-	
 	private volatile String displayName = "";
 	private volatile boolean displayNameVisible = false;
 	private volatile boolean silent = false;
@@ -61,6 +59,7 @@ public class ProtocolLibFakeItemFrame extends ProtocolLibFakeEntity implements I
 		
 		this.item = item.clone();
 		this.facingDirection = facing;
+		this.rotation = itemRotation;
 		currentLocation = loc.clone();
 		id = getNextEntityId();
 		uuid = UUID.randomUUID();
@@ -72,7 +71,7 @@ public class ProtocolLibFakeItemFrame extends ProtocolLibFakeEntity implements I
 	//public
 	public boolean addPlayer(Player player) {
 		if (super.addPlayer(player)) {
-			if (spawnDataPacket != null) {
+			if (spawnPacket != null) {
 				ProtocolReflectUtil.sendPacket(packetHelper.spawnItem(id, displayName, displayNameVisible, silent, item, rotation), player);
 			}
 			return true;

@@ -16,17 +16,17 @@ public abstract class AsyncMessageCommand extends Command {
 	}
 	
 	//public
-	public String getSender() {
+	public final String getSender() {
 		return sender;
 	}
-	public void setSender(String sender) {
+	public final void setSender(String sender) {
 		this.sender = sender;
 	}
 	
-	public SenderType getSenderType() {
+	public final SenderType getSenderType() {
 		return senderType;
 	}
-	public void setSenderType(SenderType senderType) {
+	public final void setSenderType(SenderType senderType) {
 		this.senderType = senderType;
 	}
 	

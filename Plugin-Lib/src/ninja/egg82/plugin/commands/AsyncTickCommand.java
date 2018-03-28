@@ -1,22 +1,21 @@
 package ninja.egg82.plugin.commands;
 
-import ninja.egg82.patterns.SynchronousCommand;
+import ninja.egg82.patterns.Command;
 
-public abstract class AsyncTickCommand extends SynchronousCommand {
+public abstract class AsyncTickCommand extends Command {
 	//vars
-	protected long ticks = 0;
+	private long ticks = 0L;
 	
 	//constructor
-	public AsyncTickCommand() {
+	public AsyncTickCommand(long ticks) {
 		super();
+		
+		this.ticks = ticks;
 	}
 	
 	//public
-	public long getTicks() {
+	public final long getTicks() {
 		return ticks;
-	}
-	public void setTicks(long ticks) {
-		this.ticks = ticks;
 	}
 	
 	//private

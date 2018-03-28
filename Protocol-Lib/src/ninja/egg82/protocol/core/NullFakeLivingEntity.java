@@ -6,18 +6,13 @@ import java.util.UUID;
 import org.bukkit.Location;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 public class NullFakeLivingEntity implements IFakeLivingEntity {
 	//vars
 	
 	//constructor
-	public NullFakeLivingEntity(LivingEntity entity) {
-		
-	}
-	public NullFakeLivingEntity(Location loc, EntityType type) {
+	public NullFakeLivingEntity() {
 		
 	}
 	

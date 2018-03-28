@@ -1,15 +1,15 @@
-package ninja.egg82.plugin.commands;
+package ninja.egg82.plugin.commands.events;
 
 import org.bukkit.event.Event;
 
-import ninja.egg82.patterns.SynchronousCommand;
+import ninja.egg82.patterns.Command;
 
-public abstract class EventCommand<T extends Event> extends SynchronousCommand {
+public abstract class HighEventCommand<T extends Event> extends Command implements IEventCommand<T> {
 	//vars
 	protected T event = null;
 	
 	//constructor
-	public EventCommand() {
+	public HighEventCommand() {
 		super();
 	}
 	

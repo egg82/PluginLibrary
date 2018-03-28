@@ -2,14 +2,14 @@ package ninja.egg82.bungeecord.services;
 
 import net.md_5.bungee.api.ChatColor;
 import ninja.egg82.bungeecord.enums.BungeeLanguageType;
-import ninja.egg82.patterns.Registry;
+import ninja.egg82.patterns.registries.Registry;
 
-public class LanguageRegistry extends Registry<String> {
+public class LanguageRegistry extends Registry<String, String> {
 	//vars
 	
 	//constructor
 	public LanguageRegistry() {
-		super(String.class);
+		super(String.class, String.class);
 		
 		setRegister(BungeeLanguageType.INCORRECT_COMMAND_USAGE, ChatColor.RED + "Incorrect usage.");
 		setRegister(BungeeLanguageType.INVALID_PERMISSIONS, ChatColor.RED + "You do not have permissions to run this command!");

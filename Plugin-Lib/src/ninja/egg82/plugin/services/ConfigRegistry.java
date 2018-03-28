@@ -1,8 +1,8 @@
 package ninja.egg82.plugin.services;
 
-import ninja.egg82.patterns.Registry;
+import ninja.egg82.patterns.registries.VariableRegistry;
 
-public class ConfigRegistry extends Registry<String> {
+public class ConfigRegistry extends VariableRegistry<String> {
 	//vars
 	
 	//constructor

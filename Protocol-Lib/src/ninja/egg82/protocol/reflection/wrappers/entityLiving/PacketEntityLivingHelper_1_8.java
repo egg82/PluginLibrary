@@ -27,7 +27,7 @@ public class PacketEntityLivingHelper_1_8 extends PacketEntityHelper_1_8 impleme
 	public PacketContainer spawn(int entityId, UUID uuid, EntityType type, Location spawnLoc) {
 		return spawn(entityId, uuid, type, spawnLoc, new Vector());
 	}
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings({ "deprecation", "boxing" })
 	public PacketContainer spawn(int entityId, UUID uuid, EntityType type, Location spawnLoc, Vector velocity) {
 		if (uuid == null) {
 			throw new ArgumentNullException("uuid");
@@ -61,6 +61,7 @@ public class PacketEntityLivingHelper_1_8 extends PacketEntityHelper_1_8 impleme
 		return packet;
 	}
 	
+	@SuppressWarnings("boxing")
 	public PacketContainer look(int entityId, float yaw, float pitch) {
 		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_LOOK);
 		
@@ -72,6 +73,7 @@ public class PacketEntityLivingHelper_1_8 extends PacketEntityHelper_1_8 impleme
 		
 		return packet;
 	}
+	@SuppressWarnings("boxing")
 	public PacketContainer headRotation(int entityId, float yaw) {
 		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_HEAD_ROTATION);
 		
@@ -82,6 +84,7 @@ public class PacketEntityLivingHelper_1_8 extends PacketEntityHelper_1_8 impleme
 		
 		return packet;
 	}
+	@SuppressWarnings("boxing")
 	public PacketContainer move(int entityId, Location from, Location to, boolean isFlying) {
 		if (from == null) {
 			throw new ArgumentNullException("from");
@@ -103,6 +106,7 @@ public class PacketEntityLivingHelper_1_8 extends PacketEntityHelper_1_8 impleme
 		
 		return packet;
 	}
+	@SuppressWarnings("boxing")
 	public PacketContainer teleport(int entityId, Location to, boolean isFlying) {
 		if (to == null) {
 			throw new ArgumentNullException("to");
@@ -123,6 +127,7 @@ public class PacketEntityLivingHelper_1_8 extends PacketEntityHelper_1_8 impleme
 		
 		return packet;
 	}
+	@SuppressWarnings("boxing")
 	public PacketContainer animate(int entityId, int animationId) {
 		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ANIMATION);
 		
@@ -134,6 +139,7 @@ public class PacketEntityLivingHelper_1_8 extends PacketEntityHelper_1_8 impleme
 		return packet;
 	}
 	
+	@SuppressWarnings("boxing")
 	public PacketContainer hurt(int entityId) {
 		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_STATUS);
 		
@@ -143,6 +149,7 @@ public class PacketEntityLivingHelper_1_8 extends PacketEntityHelper_1_8 impleme
 			.write(0, (byte) 2);
 		return packet;
 	}
+	@SuppressWarnings("boxing")
 	public PacketContainer death(int entityId) {
 		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_STATUS);
 		

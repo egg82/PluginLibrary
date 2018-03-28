@@ -42,7 +42,7 @@ public class EntityHelper_1_9 implements IEntityHelper {
 		}
 		
 		bottom.setPassenger(top);
-		sendPacket(bottom);
+		sendPacket();
 	}
 	public void removePassenger(Entity bottom, Entity top) {
 		if (bottom == null) {
@@ -53,7 +53,7 @@ public class EntityHelper_1_9 implements IEntityHelper {
 		}
 		
 		bottom.eject();
-		sendPacket(bottom);
+		sendPacket();
 	}
 	public void removeAllPassengers(Entity bottom) {
 		if (bottom == null) {
@@ -61,7 +61,7 @@ public class EntityHelper_1_9 implements IEntityHelper {
 		}
 		
 		bottom.eject();
-		sendPacket(bottom);
+		sendPacket();
 	}
 	public List<Entity> getPassengers(Entity bottom) {
 		if (bottom == null) {
@@ -72,20 +72,22 @@ public class EntityHelper_1_9 implements IEntityHelper {
 	}
 	
 	public void damage(Damageable to, DamageCause cause, double damage) {
-		EntityDamageEvent damageEvent = new EntityDamageEvent(to, cause, new EnumMap<DamageModifier, Double>(ImmutableMap.of(DamageModifier.BASE, damage)), new EnumMap<DamageModifier, Function<? super Double, Double>>(ImmutableMap.of(DamageModifier.BASE, Functions.constant(damage))));
+		Double d = Double.valueOf(damage);
+		EntityDamageEvent damageEvent = new EntityDamageEvent(to, cause, new EnumMap<DamageModifier, Double>(ImmutableMap.of(DamageModifier.BASE, d)), new EnumMap<DamageModifier, Function<? super Double, Double>>(ImmutableMap.of(DamageModifier.BASE, Functions.constant(d))));
 		Bukkit.getPluginManager().callEvent(damageEvent);
 		damageEvent.getEntity().setLastDamageCause(damageEvent);
 		to.damage(damage);
 	}
 	public void damage(Entity from, Damageable to, DamageCause cause, double damage) {
-		EntityDamageEvent damageEvent = new EntityDamageEvent(to, cause, new EnumMap<DamageModifier, Double>(ImmutableMap.of(DamageModifier.BASE, damage)), new EnumMap<DamageModifier, Function<? super Double, Double>>(ImmutableMap.of(DamageModifier.BASE, Functions.constant(damage))));
+		Double d = Double.valueOf(damage);
+		EntityDamageEvent damageEvent = new EntityDamageEvent(to, cause, new EnumMap<DamageModifier, Double>(ImmutableMap.of(DamageModifier.BASE, d)), new EnumMap<DamageModifier, Function<? super Double, Double>>(ImmutableMap.of(DamageModifier.BASE, Functions.constant(d))));
 		Bukkit.getPluginManager().callEvent(damageEvent);
 		damageEvent.getEntity().setLastDamageCause(damageEvent);
 		to.damage(damage, from);
 	}
 	
 	//private
-	private void sendPacket(Entity entity) {
+	private void sendPacket() {
 		// Reflection, ahoy!
 		// Shamelessly stolen from EasyMFnE/DeadHorses
 		Class<?> eentity;

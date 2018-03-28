@@ -40,17 +40,17 @@ public class TaskUtil {
 						throw ex;
 					}
 				}}).getTaskId();
-		} else {
-			return Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-				public void run() {
-					try {
-						task.run();
-					} catch (Exception ex) {
-						ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
-						throw ex;
-					}
-				}}, delay);
 		}
+		
+		return Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+			public void run() {
+				try {
+					task.run();
+				} catch (Exception ex) {
+					ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+					throw ex;
+				}
+			}}, delay);
 	}
 	public static int runAsync(Runnable task) {
 		return runAsync(task, 0L);
@@ -75,17 +75,17 @@ public class TaskUtil {
 						throw ex;
 					}
 				}}).getTaskId();
-		} else {
-			return Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
-				public void run() {
-					try {
-						task.run();
-					} catch (Exception ex) {
-						ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
-						throw ex;
-					}
-				}}, delay);
 		}
+		
+		return Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
+			public void run() {
+				try {
+					task.run();
+				} catch (Exception ex) {
+					ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+					throw ex;
+				}
+			}}, delay);
 	}
 	
 	public static void cancelTask(int id) {

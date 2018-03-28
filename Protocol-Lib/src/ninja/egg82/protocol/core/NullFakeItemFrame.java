@@ -5,7 +5,6 @@ import java.util.UUID;
 import org.bukkit.Location;
 import org.bukkit.Rotation;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -13,13 +12,7 @@ public class NullFakeItemFrame implements IFakeItemFrame {
 	//vars
 	
 	//constructor
-	public NullFakeItemFrame(ItemFrame frame) {
-		
-	}
-	public NullFakeItemFrame(Location loc, BlockFace facing) {
-		
-	}
-	public NullFakeItemFrame(Location loc, BlockFace facing, ItemStack item) {
+	public NullFakeItemFrame() {
 		
 	}
 	

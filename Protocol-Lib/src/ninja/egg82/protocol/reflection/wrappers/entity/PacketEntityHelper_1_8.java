@@ -1,12 +1,11 @@
 package ninja.egg82.protocol.reflection.wrappers.entity;
 
-import java.util.List;
-
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 
+import it.unimi.dsi.fastutil.ints.IntList;
 import ninja.egg82.exceptions.ArgumentNullException;
 
 public abstract class PacketEntityHelper_1_8 implements IPacketEntityHelper {
@@ -19,12 +18,12 @@ public abstract class PacketEntityHelper_1_8 implements IPacketEntityHelper {
 	}
 	
 	//public
-	public PacketContainer destroy(List<Integer> entityIds) {
+	public PacketContainer destroy(IntList entityIds) {
 		if (entityIds == null) {
 			throw new ArgumentNullException("entityIds");
 		}
 		
-		return destroy(entityIds.stream().mapToInt(i -> i).toArray());
+		return destroy(entityIds.toIntArray());
 	}
 	public PacketContainer destroy(int entityId) {
 		return destroy(new int[] {entityId});

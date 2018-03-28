@@ -71,9 +71,8 @@ public class YamlUtil {
 		
 		if (saveFile) {
 			if (!FileUtil.pathExists(yamlFile)) {
-				try {
+				try (InputStream stream = plugin.getResourceAsStream(resourceName)) {
 					FileUtil.createDirectory(new File(yamlFile).getParent());
-					InputStream stream = plugin.getResourceAsStream(resourceName);
 					Files.copy(stream, new File(yamlFile).toPath(), StandardCopyOption.REPLACE_EXISTING);
 				} catch (Exception ex) {
 					

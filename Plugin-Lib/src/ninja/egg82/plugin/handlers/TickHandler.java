@@ -1,23 +1,24 @@
 package ninja.egg82.plugin.handlers;
 
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
+import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.commands.AsyncTickCommand;
 import ninja.egg82.plugin.commands.TickCommand;
-import ninja.egg82.utils.CollectionUtil;
 import ninja.egg82.utils.ReflectUtil;
 
 public final class TickHandler {
 	//vars
-	private ConcurrentHashMap<Class<? extends TickCommand>, Integer> tasks = new ConcurrentHashMap<Class<? extends TickCommand>, Integer>();
-	private ConcurrentHashMap<Class<? extends AsyncTickCommand>, Integer> asyncTasks = new ConcurrentHashMap<Class<? extends AsyncTickCommand>, Integer>();
+	private Object2IntMap<Class<? extends TickCommand>> tasks = new Object2IntArrayMap<Class<? extends TickCommand>>();
+	private Object2IntMap<Class<? extends AsyncTickCommand>> asyncTasks = new Object2IntArrayMap<Class<? extends AsyncTickCommand>>();
 	
 	private JavaPlugin plugin = ServiceLocator.getService(JavaPlugin.class);
 	private BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
@@ -47,9 +48,19 @@ public final class TickHandler {
 			ticks = 1L;
 		}
 		
-		int taskId = scheduler.scheduleSyncRepeatingTask(plugin, new TickRunner(c), ticks, ticks);
+		int taskId = scheduler.scheduleSyncRepeatingTask(plugin, new Runnable() {
+			public void run() {
+				try {
+					c.start();
+				} catch (Exception ex) {
+					ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+					throw ex;
+				}
+			}
+		}, ticks, ticks);
+		
 		if (taskId > -1) {
-			int id = CollectionUtil.putIfAbsent(tasks, clazz, taskId);
+			int id = putIfAbsent(tasks, clazz, taskId);
 			if (id != taskId) {
 				scheduler.cancelTask(taskId);
 				taskId = id;
@@ -78,9 +89,19 @@ public final class TickHandler {
 		}
 		
 		// Not deprecated. @Deprecated was used as a warning.
-		int taskId = scheduler.scheduleAsyncRepeatingTask(plugin, new TickRunner(c), ticks, ticks);
+		int taskId = scheduler.scheduleAsyncRepeatingTask(plugin, new Runnable() {
+			public void run() {
+				try {
+					c.start();
+				} catch (Exception ex) {
+					ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+					throw ex;
+				}
+			}
+		}, ticks, ticks);
+		
 		if (taskId > -1) {
-			int id = CollectionUtil.putIfAbsent(asyncTasks, clazz, taskId);
+			int id = putIfAbsent(asyncTasks, clazz, taskId);
 			if (id != taskId) {
 				scheduler.cancelTask(taskId);
 				taskId = id;
@@ -93,9 +114,8 @@ public final class TickHandler {
 			throw new ArgumentNullException("clazz");
 		}
 		
-		int taskId = tasks.get(clazz);
-		tasks.remove(clazz);
-		if (taskId > -1) {
+		int taskId = tasks.removeInt(clazz);
+		if (taskId != tasks.defaultReturnValue() && taskId > -1) {
 			scheduler.cancelTask(taskId);
 		}
 		return taskId;
@@ -105,9 +125,8 @@ public final class TickHandler {
 			throw new ArgumentNullException("clazz");
 		}
 		
-		int taskId = asyncTasks.get(clazz);
-		asyncTasks.remove(clazz);
-		if (taskId > -1) {
+		int taskId = asyncTasks.removeInt(clazz);
+		if (taskId != tasks.defaultReturnValue() && taskId > -1) {
 			scheduler.cancelTask(taskId);
 		}
 		return taskId;
@@ -128,24 +147,28 @@ public final class TickHandler {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
-		Integer id = tasks.get(clazz);
-		return (id == null) ? -1 : id;
+		int id = tasks.getInt(clazz);
+		return (id == tasks.defaultReturnValue()) ? -1 : id;
 	}
 	public int getAsyncTickCommand(Class<? extends AsyncTickCommand> clazz) {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
-		Integer id = asyncTasks.get(clazz);
-		return (id == null) ? -1 : id;
+		int id = asyncTasks.getInt(clazz);
+		return (id == tasks.defaultReturnValue()) ? -1 : id;
 	}
 	public void clear() {
-		tasks.forEach((k, v) -> {
-			scheduler.cancelTask(v);
-		});
+		for (Object2IntMap.Entry<Class<? extends TickCommand>> kvp : tasks.object2IntEntrySet()) {
+			if (kvp.getIntValue() > -1) {
+				scheduler.cancelTask(kvp.getIntValue());
+			}
+		}
 		tasks.clear();
-		asyncTasks.forEach((k, v) -> {
-			scheduler.cancelTask(v);
-		});
+		for (Object2IntMap.Entry<Class<? extends AsyncTickCommand>> kvp : asyncTasks.object2IntEntrySet()) {
+			if (kvp.getIntValue() > -1) {
+				scheduler.cancelTask(kvp.getIntValue());
+			}
+		}
 		asyncTasks.clear();
 	}
 	
@@ -194,5 +217,14 @@ public final class TickHandler {
 			throw new RuntimeException("Cannot initialize tick command.", ex);
 		}
 		return run;
+	}
+	
+	private <K> int putIfAbsent(Object2IntMap<K> map, K key, int newValue) {
+		// Avoiding putIfAbsent due to versioning clashes
+		final int oldValue = map.getInt(key);
+		if (oldValue == map.defaultReturnValue()) {
+			map.put(key, newValue);
+		}
+		return (oldValue != map.defaultReturnValue()) ? oldValue : newValue;
 	}
 }

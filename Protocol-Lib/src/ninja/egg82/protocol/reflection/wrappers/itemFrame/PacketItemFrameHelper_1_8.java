@@ -31,7 +31,7 @@ public class PacketItemFrameHelper_1_8 extends PacketEntityHelper_1_8 implements
 	}
 	
 	//public
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings({ "deprecation", "boxing" })
 	public PacketContainer spawn(int entityId, UUID uuid, Location spawnLoc, BlockFace facingDirection) {
 		if (uuid == null) {
 			throw new ArgumentNullException("uuid");
@@ -64,6 +64,7 @@ public class PacketItemFrameHelper_1_8 extends PacketEntityHelper_1_8 implements
 		
 		return packet;
 	}
+	@SuppressWarnings("boxing")
 	public PacketContainer spawnItem(int entityId, String displayName, boolean isDisplayNameVisible, boolean isSilent, ItemStack item, Rotation itemRotation) {
 		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_METADATA);
 		
@@ -90,6 +91,7 @@ public class PacketItemFrameHelper_1_8 extends PacketEntityHelper_1_8 implements
 		return packet;
 	}
 	
+	@SuppressWarnings("boxing")
 	public PacketContainer updateDisplayName(int entityId, String displayName) {
 		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_METADATA);
 		
@@ -103,6 +105,7 @@ public class PacketItemFrameHelper_1_8 extends PacketEntityHelper_1_8 implements
 		
 		return packet;
 	}
+	@SuppressWarnings("boxing")
 	public PacketContainer updateDisplayNameVisible(int entityId, boolean isDisplayNameVisible) {
 		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_METADATA);
 		
@@ -116,6 +119,7 @@ public class PacketItemFrameHelper_1_8 extends PacketEntityHelper_1_8 implements
 		
 		return packet;
 	}
+	@SuppressWarnings("boxing")
 	public PacketContainer updateSilent(int entityId, boolean isSilent) {
 		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_METADATA);
 		
@@ -129,6 +133,7 @@ public class PacketItemFrameHelper_1_8 extends PacketEntityHelper_1_8 implements
 		
 		return packet;
 	}
+	@SuppressWarnings("boxing")
 	public PacketContainer updateItem(int entityId, ItemStack item) {
 		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_METADATA);
 		
@@ -142,6 +147,7 @@ public class PacketItemFrameHelper_1_8 extends PacketEntityHelper_1_8 implements
 		
 		return packet;
 	}
+	@SuppressWarnings("boxing")
 	public PacketContainer updateRotation(int entityId, Rotation itemRotation) {
 		if (itemRotation == null) {
 			throw new ArgumentNullException("itemRotation");

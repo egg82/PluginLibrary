@@ -21,7 +21,6 @@ import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.enums.BukkitInitType;
 import ninja.egg82.plugin.reflection.entity.IEntityHelper;
 import ninja.egg82.plugin.utils.BlockUtil;
-import ninja.egg82.plugin.utils.CommandUtil;
 import ninja.egg82.plugin.utils.LocationUtil;
 import ninja.egg82.protocol.reflection.wrappers.entityLiving.IPacketEntityLivingHelper;
 import ninja.egg82.protocol.utils.ProtocolReflectUtil;

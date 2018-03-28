@@ -11,9 +11,9 @@ import com.comphenix.protocol.reflect.accessors.Accessors;
 import com.comphenix.protocol.reflect.accessors.FieldAccessor;
 import com.comphenix.protocol.utility.MinecraftReflection;
 
+import ninja.egg82.concurrent.DynamicConcurrentDeque;
+import ninja.egg82.concurrent.IConcurrentDeque;
 import ninja.egg82.exceptions.ArgumentNullException;
-import ninja.egg82.patterns.DynamicObjectPool;
-import ninja.egg82.patterns.IObjectPool;
 import ninja.egg82.protocol.utils.ProtocolReflectUtil;
 
 public abstract class ProtocolLibFakeEntity implements IFakeEntity {
@@ -26,7 +26,7 @@ public abstract class ProtocolLibFakeEntity implements IFakeEntity {
 	
 	protected volatile Location currentLocation = null;
 	
-	protected IObjectPool<UUID> players = new DynamicObjectPool<UUID>();
+	protected IConcurrentDeque<UUID> players = new DynamicConcurrentDeque<UUID>();
 	
 	private FieldAccessor nextEntityId = Accessors.getFieldAccessor(MinecraftReflection.getEntityClass(), "entityCount", true);
 	private static int currentEntityId = Integer.MAX_VALUE;
@@ -90,7 +90,7 @@ public abstract class ProtocolLibFakeEntity implements IFakeEntity {
 	
 	//private
 	protected int getNextEntityId() {
-		if (currentEntityId <= (Integer) nextEntityId.get(null)) {
+		if (currentEntityId <= ((Integer) nextEntityId.get(null)).intValue()) {
 			currentEntityId = Integer.MAX_VALUE;
 		}
 		

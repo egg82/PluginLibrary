@@ -94,7 +94,7 @@ public class PowerNBTCompound implements INBTCompound {
 		}
 		
 		NBTCompound compound = readCompound();
-		compound.put(name, data);
+		compound.put(name, Boolean.valueOf(data));
 		writeCompound(compound);
 	}
 	public boolean getBoolean(String name) {
@@ -110,7 +110,7 @@ public class PowerNBTCompound implements INBTCompound {
 		}
 		
 		NBTCompound compound = readCompound();
-		compound.put(name, data);
+		compound.put(name, Byte.valueOf(data));
 		writeCompound(compound);
 	}
 	public byte getByte(String name) {
@@ -126,7 +126,7 @@ public class PowerNBTCompound implements INBTCompound {
 		}
 		
 		NBTCompound compound = readCompound();
-		compound.put(name, data);
+		compound.put(name, Short.valueOf(data));
 		writeCompound(compound);
 	}
 	public short getShort(String name) {
@@ -142,7 +142,7 @@ public class PowerNBTCompound implements INBTCompound {
 		}
 		
 		NBTCompound compound = readCompound();
-		compound.put(name, data);
+		compound.put(name, Integer.valueOf(data));
 		writeCompound(compound);
 	}
 	public int getInt(String name) {
@@ -158,7 +158,7 @@ public class PowerNBTCompound implements INBTCompound {
 		}
 		
 		NBTCompound compound = readCompound();
-		compound.put(name, data);
+		compound.put(name, Long.valueOf(data));
 		writeCompound(compound);
 	}
 	public long getLong(String name) {
@@ -174,7 +174,7 @@ public class PowerNBTCompound implements INBTCompound {
 		}
 		
 		NBTCompound compound = readCompound();
-		compound.put(name, data);
+		compound.put(name, Float.valueOf(data));
 		writeCompound(compound);
 	}
 	public float getFloat(String name) {
@@ -190,7 +190,7 @@ public class PowerNBTCompound implements INBTCompound {
 		}
 		
 		NBTCompound compound = readCompound();
-		compound.put(name, data);
+		compound.put(name, Double.valueOf(data));
 		writeCompound(compound);
 	}
 	public double getDouble(String name) {

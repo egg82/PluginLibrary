@@ -3,23 +3,27 @@ package ninja.egg82.bungeecord.core;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
-import ninja.egg82.bungeecord.commands.PluginCommand;
+import ninja.egg82.bungeecord.commands.AsyncPluginCommand;
 import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.patterns.ServiceLocator;
 
 public class BungeeCommand extends Command implements TabExecutor {
 	//vars
-	private Class<? extends PluginCommand> command = null;
-	private PluginCommand initializedCommand = null;
+	private Class<? extends AsyncPluginCommand> command = null;
+	private volatile AsyncPluginCommand initializedCommand = null;
 	
 	//constructor
-	public BungeeCommand(String name, Class<? extends PluginCommand> command) {
+	public BungeeCommand(String name, Class<? extends AsyncPluginCommand> command) {
 		super(name);
 		
 		this.command = command;
 	}
 	
 	//public
+	public Class<? extends AsyncPluginCommand> getCommand() {
+		return command;
+	}
+	
 	public void execute(CommandSender sender, String[] args) {
 		initializeCommand(sender, args);
 		
@@ -27,12 +31,7 @@ public class BungeeCommand extends Command implements TabExecutor {
 			return;
 		}
 		
-		try {
-			initializedCommand.start();
-		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
-			throw ex;
-		}
+		initializedCommand.start();
 	}
 	public void undo(CommandSender sender, String[] args) {
 		if (initializedCommand == null) {
@@ -42,12 +41,7 @@ public class BungeeCommand extends Command implements TabExecutor {
 		initializedCommand.setSender(sender);
 		initializedCommand.setArgs(args);
 		
-		try {
-			initializedCommand.undo();
-		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
-			throw ex;
-		}
+		initializedCommand.undo();
 	}
 	public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
 		initializeCommand(sender, args);
@@ -56,12 +50,7 @@ public class BungeeCommand extends Command implements TabExecutor {
 			return null;
 		}
 		
-		try {
-			return initializedCommand.tabComplete();
-		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
-			throw ex;
-		}
+		return initializedCommand.tabComplete();
 	}
 	
 	//private

@@ -5,12 +5,12 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Executors;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
 
@@ -22,11 +22,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.exceptionHandlers.NullExceptionHandler;
-import ninja.egg82.patterns.IRegistry;
 import ninja.egg82.patterns.ServiceLocator;
-import ninja.egg82.plugin.core.EventExecutorWrapper;
-import ninja.egg82.plugin.core.OfflinePlayerRegistry;
-import ninja.egg82.plugin.core.OfflinePlayerReverseRegistry;
+import ninja.egg82.patterns.registries.IVariableRegistry;
 import ninja.egg82.plugin.enums.BukkitInitType;
 import ninja.egg82.plugin.handlers.EnhancedBungeeMessageHandler;
 import ninja.egg82.plugin.handlers.CommandHandler;
@@ -42,6 +39,7 @@ import ninja.egg82.plugin.utils.VersionUtil;
 import ninja.egg82.startup.InitRegistry;
 import ninja.egg82.startup.Start;
 import ninja.egg82.utils.FileUtil;
+import ninja.egg82.utils.ReflectUtil;
 
 public abstract class BasePlugin extends JavaPlugin {
 	//vars
@@ -51,7 +49,7 @@ public abstract class BasePlugin extends JavaPlugin {
 	private Logger logger = null;
 	private CommandSender consoleSender = null;
 	
-	private String externalIp = null;
+	private volatile String externalIp = null;
 	private String serverId = Bukkit.getServerId().trim();
 	
 	//constructor
@@ -73,13 +71,15 @@ public abstract class BasePlugin extends JavaPlugin {
 		gameVersion = gameVersion.substring(gameVersion.indexOf(' ') + 1, gameVersion.length() - 1);
 		gameVersion = gameVersion.trim().replace('_', '.');
 		
-		IRegistry<String> initRegistry = ServiceLocator.getService(InitRegistry.class);
+		IVariableRegistry<String> initRegistry = ServiceLocator.getService(InitRegistry.class);
 		initRegistry.setRegister(BukkitInitType.GAME_VERSION, gameVersion);
 		initRegistry.setRegister(BukkitInitType.PLUGIN_VERSION, getDescription().getVersion());
 	}
 	
 	//public
 	public void onLoad() {
+		loadClasses((URLClassLoader) getClass().getClassLoader());
+		
 		ServiceLocator.provideService(getClassLoader());
 		
 		consoleSender = getServer().getConsoleSender();
@@ -92,9 +92,6 @@ public abstract class BasePlugin extends JavaPlugin {
 		ServiceLocator.provideService(LanguageRegistry.class, false);
 		LanguageUtil.setRegistry(ServiceLocator.getService(LanguageRegistry.class));
 		
-		ServiceLocator.provideService(OfflinePlayerRegistry.class);
-		ServiceLocator.provideService(OfflinePlayerReverseRegistry.class);
-		
 		ServiceLocator.provideService(PermissionsManager.class, false);
 		ServiceLocator.provideService(CommandHandler.class, false);
 		ServiceLocator.provideService(TickHandler.class, false);
@@ -105,17 +102,19 @@ public abstract class BasePlugin extends JavaPlugin {
 			serverId = UUID.randomUUID().toString();
 			writeProperties();
 		}
-		externalIp = getExternalIp();
 	}
 	
 	public void onEnable() {
 		ServiceLocator.provideService(EnhancedBungeeMessageHandler.class);
-		ServiceLocator.provideService(EventExecutorWrapper.class, false);
 		ServiceLocator.provideService(EventListener.class, false);
 	}
 	public void onDisable() {
-		ServiceLocator.getService(IMessageHandler.class).destroy();
-		ServiceLocator.getService(EventListener.class).destroy();
+		try {
+			ServiceLocator.getService(IMessageHandler.class).close();
+		} catch (Exception ex) {
+			
+		}
+		ServiceLocator.getService(EventListener.class).close();
 	}
 	
 	public final boolean onCommand(CommandSender sender, Command event, String label, String[] args) {
@@ -164,6 +163,9 @@ public abstract class BasePlugin extends JavaPlugin {
 	}
 	
 	public String getServerIp() {
+		if (externalIp == null) {
+			externalIp = getExternalIp();
+		}
 		return externalIp;
 	}
 	public String getServerId() {
@@ -257,5 +259,26 @@ public abstract class BasePlugin extends JavaPlugin {
 		}
 		
 		return null;
+	}
+	
+	private void loadClasses(URLClassLoader loader) {
+    	ReflectUtil.loadClasses(
+    		"http://central.maven.org/maven2/com/github/ben-manes/caffeine/caffeine/2.6.2/caffeine-2.6.2.jar",
+    		"caffeine-2.6.2.jar",
+    		//"com.github.benmanes.caffeine", "ninja.egg82.lib.com.github.benmanes.caffeine",
+    		loader
+    	);
+    	ReflectUtil.loadClasses(
+    		"http://central.maven.org/maven2/it/unimi/dsi/fastutil/8.1.1/fastutil-8.1.1.jar",
+    		"fastutil-8.1.1.jar",
+    		//"it.unimi.dsi.fastutil", "ninja.egg82.lib.it.unimi.dsi.fastutil",
+    		loader
+    	);
+		ReflectUtil.loadClasses(
+			"http://central.maven.org/maven2/com/rabbitmq/amqp-client/5.2.0/amqp-client-5.2.0.jar",
+			"amqp-client-5.2.0.jar",
+			//"com.rabbitmq", "ninja.egg82.lib.com.rabbitmq",
+			loader
+		);
 	}
 }

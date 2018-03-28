@@ -18,13 +18,13 @@ public class NullFakeItemFrameHelper implements IFakeItemFrameHelper {
 	
 	//public
 	public IFakeItemFrame createItemFrame(Location loc, BlockFace facing) {
-		return new NullFakeItemFrame(loc, facing);
+		return new NullFakeItemFrame();
 	}
 	public IFakeItemFrame createItemFrame(Location loc, BlockFace facing, ItemStack item) {
-		return new NullFakeItemFrame(loc, facing, item);
+		return new NullFakeItemFrame();
 	}
 	public IFakeItemFrame toItemFrame(ItemFrame frame) {
-		return new NullFakeItemFrame(frame);
+		return new NullFakeItemFrame();
 	}
 	
 	public boolean isValidLibrary() {

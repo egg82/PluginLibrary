@@ -64,13 +64,15 @@ public final class EntityHelper_1_11_2 implements IEntityHelper {
 	// There is literally no other way to do this right now. Everything is deprecated.
 	// When a future version of Bukkit comes out and has a non-deprecated way, a new class will be made for that version
 	public void damage(Damageable to, DamageCause cause, double damage) {
-		EntityDamageEvent damageEvent = new EntityDamageEvent(to, cause, new EnumMap<DamageModifier, Double>(ImmutableMap.of(DamageModifier.BASE, damage)), new EnumMap<DamageModifier, Function<? super Double, Double>>(ImmutableMap.of(DamageModifier.BASE, Functions.constant(damage))));
+		Double d = Double.valueOf(damage);
+		EntityDamageEvent damageEvent = new EntityDamageEvent(to, cause, new EnumMap<DamageModifier, Double>(ImmutableMap.of(DamageModifier.BASE, d)), new EnumMap<DamageModifier, Function<? super Double, Double>>(ImmutableMap.of(DamageModifier.BASE, Functions.constant(d))));
 		Bukkit.getPluginManager().callEvent(damageEvent);
 		damageEvent.getEntity().setLastDamageCause(damageEvent);
 		to.damage(damage);
 	}
 	public void damage(Entity from, Damageable to, DamageCause cause, double damage) {
-		EntityDamageEvent damageEvent = new EntityDamageEvent(to, cause, new EnumMap<DamageModifier, Double>(ImmutableMap.of(DamageModifier.BASE, damage)), new EnumMap<DamageModifier, Function<? super Double, Double>>(ImmutableMap.of(DamageModifier.BASE, Functions.constant(damage))));
+		Double d = Double.valueOf(damage);
+		EntityDamageEvent damageEvent = new EntityDamageEvent(to, cause, new EnumMap<DamageModifier, Double>(ImmutableMap.of(DamageModifier.BASE, d)), new EnumMap<DamageModifier, Function<? super Double, Double>>(ImmutableMap.of(DamageModifier.BASE, Functions.constant(d))));
 		Bukkit.getPluginManager().callEvent(damageEvent);
 		damageEvent.getEntity().setLastDamageCause(damageEvent);
 		to.damage(damage, from);

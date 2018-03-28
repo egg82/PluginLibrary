@@ -3,6 +3,7 @@ package ninja.egg82.plugin.utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,6 +24,8 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Team;
 
+import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.handlers.PermissionsManager;
 import ninja.egg82.utils.MathUtil;
@@ -60,7 +63,7 @@ public final class CommandUtil {
 	
 	public static boolean isArrayOfAllowedLength(Object[] arr, int... allowedLengths) {
 		for (int i = 0; i < allowedLengths.length; i++) {
-			if ((arr == null && allowedLengths[i] == 0) || arr.length == allowedLengths[i]) {
+			if ((arr == null && allowedLengths[i] == 0) || (arr != null && arr.length == allowedLengths[i])) {
 				return true;
 			}
 		}
@@ -235,10 +238,10 @@ public final class CommandUtil {
 			filter(retVal, loc, args, false);
 			
 			return retVal;
-		} else {
-			// No args specified. Get ALL players
-			return new ArrayList<Entity>(Bukkit.getOnlinePlayers());
 		}
+		
+		// No args specified. Get ALL players
+		return new ArrayList<Entity>(Bukkit.getOnlinePlayers());
 	}
 	private static List<Entity> parseESymbol(String symbol, Location loc) {
 		// @e means ALL entities
@@ -258,16 +261,16 @@ public final class CommandUtil {
 			filter(retVal, loc, args, false);
 			
 			return retVal;
-		} else {
-			// No args specified. Get EVERYTHING
-			ArrayList<Entity> retVal = new ArrayList<Entity>();
-			
-			for (World w : Bukkit.getWorlds()) {
-				retVal.addAll(w.getEntities());
-			}
-			
-			return retVal;
 		}
+		
+		// No args specified. Get EVERYTHING
+		ArrayList<Entity> retVal = new ArrayList<Entity>();
+		
+		for (World w : Bukkit.getWorlds()) {
+			retVal.addAll(w.getEntities());
+		}
+		
+		return retVal;
 	}
 	private static List<Entity> parsePSymbol(String symbol, Location loc) {
 		// @p means closest player (or entity with "type" argument set)
@@ -284,30 +287,32 @@ public final class CommandUtil {
 				retVal.addAll(w.getEntities());
 			}
 			
-			retVal.sort((a, b) -> {
-				return Double.compare(a.getLocation().distanceSquared(loc), b.getLocation().distanceSquared(loc));
+			retVal.sort(new Comparator<Entity>() {
+				public int compare(Entity a, Entity b) {
+					return Double.compare(a.getLocation().distanceSquared(loc), b.getLocation().distanceSquared(loc));
+				}
 			});
 			
 			filter(retVal, loc, args, true);
 			
 			return retVal;
-		} else {
-			// No args specified. Get closest player
-			Player closest = null;
-			double closestDistance = Double.MAX_VALUE;
-			for (Player p : loc.getWorld().getPlayers()) {
-				if (p.getLocation().distanceSquared(loc) < closestDistance) {
-					closest = p;
-					closestDistance = p.getLocation().distanceSquared(loc);
-				}
-			}
-			
-			if (closest == null) {
-				return new ArrayList<Entity>();
-			} else {
-				return new ArrayList<Entity>(Arrays.asList(closest));
+		}
+		
+		// No args specified. Get closest player
+		Player closest = null;
+		double closestDistance = Double.MAX_VALUE;
+		for (Player p : loc.getWorld().getPlayers()) {
+			if (p.getLocation().distanceSquared(loc) < closestDistance) {
+				closest = p;
+				closestDistance = p.getLocation().distanceSquared(loc);
 			}
 		}
+		
+		if (closest == null) {
+			return new ArrayList<Entity>();
+		}
+		
+		return new ArrayList<Entity>(Arrays.asList(closest));
 	}
 	private static List<Entity> parseRSymbol(String symbol, Location loc) {
 		// @r means random player (or entity with "type" argument set)
@@ -329,16 +334,15 @@ public final class CommandUtil {
 			filter(retVal, loc, args, true);
 			
 			return retVal;
-		} else {
-			// No args specified. Get random player
-			ArrayList<Entity> players = new ArrayList<Entity>(Bukkit.getOnlinePlayers());
-			
-			if (players.size() == 0) {
-				return new ArrayList<Entity>();
-			} else {
-				return new ArrayList<Entity>(Arrays.asList(players.get(MathUtil.fairRoundedRandom(0, players.size()))));
-			}
 		}
+		
+		// No args specified. Get random player
+		ArrayList<Entity> players = new ArrayList<Entity>(Bukkit.getOnlinePlayers());
+		
+		if (players.size() == 0) {
+			return new ArrayList<Entity>();
+		}
+		return new ArrayList<Entity>(Arrays.asList(players.get(MathUtil.fairRoundedRandom(0, players.size()))));
 	}
 	
 	private static Map<String, String> getArguments(String symbol) {
@@ -356,27 +360,30 @@ public final class CommandUtil {
 		return retVal;
 	}
 	private static void filter(List<Entity> list, Location commandLocation, Map<String, String> args, boolean onlyPlayersWithoutType) {
-		Integer x = null;
+		int x = -1;
+		boolean goodX = true;
 		try {
 			x = Integer.parseInt(args.get("x"));
 		} catch (Exception ex) {
-			
+			goodX = false;
 		}
-		Integer y = null;
+		int y = -1;
+		boolean goodY = true;
 		try {
 			y = Integer.parseInt(args.get("y"));
 		} catch (Exception ex) {
-			
+			goodY = false;
 		}
-		Integer z = null;
+		int z = -1;
+		boolean goodZ = true;
 		try {
 			z = Integer.parseInt(args.get("z"));
 		} catch (Exception ex) {
-			
+			goodZ = false;
 		}
 		
 		ArrayList<Location> worldLocs = new ArrayList<Location>();
-		if (x != null && y != null && z != null) {
+		if (goodX && goodY && goodZ) {
 			for (World w : Bukkit.getWorlds()) {
 				worldLocs.add(new Location(w, x, y, z));
 			}
@@ -386,40 +393,45 @@ public final class CommandUtil {
 			}
 		}
 		
-		Integer r = null;
+		int r = -1;
+		boolean goodR = true;
 		try {
 			r = Integer.parseInt(args.get("r"));
 		} catch (Exception ex) {
-			
+			goodR = false;
 		}
-		Integer rm = null;
+		int rm = -1;
+		boolean goodRM = true;
 		try {
 			rm = Integer.parseInt(args.get("rm"));
 		} catch (Exception ex) {
-			
+			goodRM = false;
 		}
 		
-		Integer dx = null;
+		int dx = -1;
+		boolean goodDX = true;
 		try {
 			dx = Integer.parseInt(args.get("dx"));
 		} catch (Exception ex) {
-			
+			goodDX = false;
 		}
-		Integer dy = null;
+		int dy = -1;
+		boolean goodDY = true;
 		try {
 			dy = Integer.parseInt(args.get("dy"));
 		} catch (Exception ex) {
-			
+			goodDY = false;
 		}
-		Integer dz = null;
+		int dz = -1;
+		boolean goodDZ = true;
 		try {
 			dz = Integer.parseInt(args.get("dz"));
 		} catch (Exception ex) {
-			
+			goodDZ = false;
 		}
 		
-		HashMap<String, Integer> maxScore = new HashMap<String, Integer>();
-		HashMap<String, Integer> minScore = new HashMap<String, Integer>();
+		Object2IntMap<String> maxScore = new Object2IntArrayMap<String>();
+		Object2IntMap<String> minScore = new Object2IntArrayMap<String>();
 		for (Entry<String, String> kvp : args.entrySet()) {
 			if (kvp.getKey().startsWith("score_") && kvp.getKey().endsWith("_min")) {
 				try {
@@ -440,78 +452,86 @@ public final class CommandUtil {
 		Set<Objective> objectives = Bukkit.getScoreboardManager().getMainScoreboard().getObjectives();
 		Set<Team> teams = Bukkit.getScoreboardManager().getMainScoreboard().getTeams();
 		
-		Integer c = null;
+		int c = -1;
+		boolean goodC = true;
 		try {
 			c = Integer.parseInt(args.get("c"));
 		} catch (Exception ex) {
-			
+			goodC = false;
 		}
-		Integer l = null;
+		int l = -1;
+		boolean goodL = true;
 		try {
 			l = Integer.parseInt(args.get("l"));
 		} catch (Exception ex) {
-			
+			goodL = false;
 		}
-		Integer lm = null;
+		int lm = -1;
+		boolean goodLM = true;
 		try {
 			lm = Integer.parseInt(args.get("lm"));
 		} catch (Exception ex) {
-			
+			goodLM = false;
 		}
 		String m = args.get("m");
-		Integer mInt = null;
+		int mInt = -1;
+		boolean goodM = true;
 		try {
 			mInt = Integer.parseInt(m);
 		} catch (Exception ex) {
-			
+			goodM = false;
 		}
 		String name = args.get("name");
-		Integer rx = null;
+		int rx = -1;
+		boolean goodRX = true;
 		try {
 			rx = Integer.parseInt(args.get("rx"));
 		} catch (Exception ex) {
-			
+			goodRX = false;
 		}
-		Integer rxm = null;
+		int rxm = -1;
+		boolean goodRXM = true;
 		try {
 			rxm = Integer.parseInt(args.get("rxm"));
 		} catch (Exception ex) {
-			
+			goodRXM = false;
 		}
-		Integer ry = null;
+		int ry = -1;
+		boolean goodRY = true;
 		try {
 			ry = Integer.parseInt(args.get("ry"));
 		} catch (Exception ex) {
-			
+			goodRY = false;
 		}
-		Integer rym = null;
+		int rym = -1;
+		boolean goodRYM = true;
 		try {
 			rym = Integer.parseInt(args.get("rym"));
 		} catch (Exception ex) {
-			
+			goodRYM = false;
 		}
 		String type = args.get("type");
 		
 		ArrayList<Entity> removalList = new ArrayList<Entity>();
 		for (Entity entity : list) {
-			if (!volume(entity.getLocation().getBlockX(), commandLocation.getBlockX(), x, dx)) {
+			if (!volume(entity.getLocation().getBlockX(), commandLocation.getBlockX(), x, goodX, dx, goodDX)) {
 				removalList.add(entity);
 				continue;
 			}
-			if (!volume(entity.getLocation().getBlockY(), commandLocation.getBlockY(), y, dy)) {
+			if (!volume(entity.getLocation().getBlockY(), commandLocation.getBlockY(), y, goodY, dy, goodDY)) {
 				removalList.add(entity);
 				continue;
 			}
-			if (!volume(entity.getLocation().getBlockZ(), commandLocation.getBlockZ(), z, dz)) {
+			if (!volume(entity.getLocation().getBlockZ(), commandLocation.getBlockZ(), z, goodZ, dz, goodDZ)) {
 				removalList.add(entity);
 				continue;
 			}
 			
-			if (!minRadius(entity.getLocation(), commandLocation, worldLocs, rm)) {
+			if (!minRadius(entity.getLocation(), commandLocation, worldLocs, rm, goodRM)) {
 				removalList.add(entity);
 				continue;
 			}
-			if (!maxRadius(entity.getLocation(), commandLocation, worldLocs, r)) {
+			if (!maxRadius(entity.getLocation(), commandLocation, worldLocs, r, goodR)) {
 				removalList.add(entity);
 				continue;
 			}
@@ -533,15 +553,15 @@ public final class CommandUtil {
 				continue;
 			}
 			
-			if (!minLevel(entity, lm)) {
+			if (!minLevel(entity, lm, goodLM)) {
 				removalList.add(entity);
 				continue;
 			}
-			if (!maxLevel(entity, l)) {
+			if (!maxLevel(entity, l, goodL)) {
 				removalList.add(entity);
 				continue;
 			}
-			if (!gameMode(entity, m, mInt)) {
+			if (!gameMode(entity, m, mInt, goodM)) {
 				removalList.add(entity);
 				continue;
 			}
@@ -549,19 +569,19 @@ public final class CommandUtil {
 				removalList.add(entity);
 				continue;
 			}
-			if (!minYaw(entity.getLocation().getYaw(), rxm)) {
+			if (!minYaw(entity.getLocation().getYaw(), rxm, goodRXM)) {
 				removalList.add(entity);
 				continue;
 			}
-			if (!maxYaw(entity.getLocation().getYaw(), rx)) {
+			if (!maxYaw(entity.getLocation().getYaw(), rx, goodRX)) {
 				removalList.add(entity);
 				continue;
 			}
-			if (!minPitch(entity.getLocation().getPitch(), rym)) {
+			if (!minPitch(entity.getLocation().getPitch(), rym, goodRYM)) {
 				removalList.add(entity);
 				continue;
 			}
-			if (!maxPitch(entity.getLocation().getPitch(), ry)) {
+			if (!maxPitch(entity.getLocation().getPitch(), ry, goodRY)) {
 				removalList.add(entity);
 				continue;
 			}
@@ -572,16 +592,16 @@ public final class CommandUtil {
 		}
 		list.removeAll(removalList);
 		
-		if (c != null) {
+		if (goodC) {
 			while (list.size() > c) {
 				list.remove(list.size() - 1);
 			}
 		}
 	}
 	
-	private static boolean volume(int entityBlockXYZ, int commandBlockXYZ, Integer xyz, Integer dxdydz) {
-		if (dxdydz != null) {
-			if (xyz != null) {
+	private static boolean volume(int entityBlockXYZ, int commandBlockXYZ, int xyz, boolean goodXYZ, int dxdydz, boolean goodDXYZ) {
+		if (goodDXYZ) {
+			if (goodXYZ) {
 				if (Math.abs(entityBlockXYZ - xyz) > dxdydz) {
 					return false;
 				}
@@ -591,7 +611,7 @@ public final class CommandUtil {
 				}
 			}
 		} else {
-			if (xyz != null) {
+			if (goodXYZ) {
 				if (entityBlockXYZ != xyz) {
 					return false;
 				}
@@ -600,8 +620,8 @@ public final class CommandUtil {
 		
 		return true;
 	}
-	private static boolean minRadius(Location entityLocation, Location commandLocation, List<Location> commandLocations, Integer r) {
-		if (r != null) {
+	private static boolean minRadius(Location entityLocation, Location commandLocation, List<Location> commandLocations, int r, boolean goodR) {
+		if (goodR) {
 			if (r < 0) {
 				if (!entityLocation.getWorld().equals(commandLocation.getWorld())) {
 					return false;
@@ -623,8 +643,8 @@ public final class CommandUtil {
 		
 		return true;
 	}
-	private static boolean maxRadius(Location entityLocation, Location commandLocation, List<Location> commandLocations, Integer rm) {
-		if (rm != null) {
+	private static boolean maxRadius(Location entityLocation, Location commandLocation, List<Location> commandLocations, int rm, boolean goodRM) {
+		if (goodRM) {
 			if (rm < 0) {
 				if (!entityLocation.getWorld().equals(commandLocation.getWorld())) {
 					return false;
@@ -647,17 +667,17 @@ public final class CommandUtil {
 		return true;
 	}
 	
-	private static boolean minScore(String entityName, Map<String, Integer> scores, Set<Objective> objectives) {
+	private static boolean minScore(String entityName, Object2IntMap<String> scores, Set<Objective> objectives) {
 		if (scores == null) {
 			return true;
 		}
 		
-		for (Entry<String, Integer> kvp : scores.entrySet()) {
+		for (Object2IntMap.Entry<String> kvp : scores.object2IntEntrySet()) {
 			boolean good = false;
 			for (Objective o : objectives) {
 				if (o.getName().toLowerCase().equals(kvp.getKey())) {
 					good = true;
-					if (o.getScore(entityName).getScore() < kvp.getValue()) {
+					if (o.getScore(entityName).getScore() < kvp.getIntValue()) {
 						return false;
 					}
 					break;
@@ -670,17 +690,17 @@ public final class CommandUtil {
 		
 		return true;
 	}
-	private static boolean maxScore(String entityName, Map<String, Integer> scores, Set<Objective> objectives) {
+	private static boolean maxScore(String entityName, Object2IntMap<String> scores, Set<Objective> objectives) {
 		if (scores == null) {
 			return true;
 		}
 		
-		for (Entry<String, Integer> kvp : scores.entrySet()) {
+		for (Object2IntMap.Entry<String> kvp : scores.object2IntEntrySet()) {
 			boolean good = false;
 			for (Objective o : objectives) {
 				if (o.getName().toLowerCase().equals(kvp.getKey())) {
 					good = true;
-					if (o.getScore(entityName).getScore() > kvp.getValue()) {
+					if (o.getScore(entityName).getScore() > kvp.getIntValue()) {
 						return false;
 					}
 					break;
@@ -703,15 +723,15 @@ public final class CommandUtil {
 		
 		if (tag == "" || tag == "!") {
 			return (entityTags.size() == 0) ? !flipped : flipped;
-		} else {
-			for (String t : entityTags) {
-				if (t.toLowerCase().equals(tag)) {
-					return !flipped;
-				}
-			}
-			
-			return flipped;
 		}
+		
+		for (String t : entityTags) {
+			if (t.toLowerCase().equals(tag)) {
+				return !flipped;
+			}
+		}
+		
+		return flipped;
 	}
 	private static boolean eTeam(String entityName, Set<Team> teams, String team) {
 		if (team == null) {
@@ -728,21 +748,21 @@ public final class CommandUtil {
 			}
 			
 			return !flipped;
-		} else {
-			for (Team t : teams) {
-				if (t.getName().equalsIgnoreCase(team)) {
-					if (t.getEntries().contains(entityName)) {
-						return !flipped;
-					}
+		}
+		
+		for (Team t : teams) {
+			if (t.getName().equalsIgnoreCase(team)) {
+				if (t.getEntries().contains(entityName)) {
+					return !flipped;
 				}
 			}
-			
-			return flipped;
 		}
+		
+		return flipped;
 	}
 	
-	private static boolean minLevel(Entity entity, Integer lm) {
-		if (lm != null) {
+	private static boolean minLevel(Entity entity, int lm, boolean goodLM) {
+		if (goodLM) {
 			if (!(entity instanceof Player)) {
 				return false;
 			}
@@ -754,8 +774,8 @@ public final class CommandUtil {
 		
 		return true;
 	}
-	private static boolean maxLevel(Entity entity, Integer l) {
-		if (l != null) {
+	private static boolean maxLevel(Entity entity, int l, boolean goodL) {
+		if (goodL) {
 			if (!(entity instanceof Player)) {
 				return false;
 			}
@@ -767,7 +787,7 @@ public final class CommandUtil {
 		
 		return true;
 	}
-	private static boolean gameMode(Entity entity, String m, Integer mInt) {
+	private static boolean gameMode(Entity entity, String m, int mInt, boolean goodM) {
 		if (m != null) {
 			boolean flipped = (m.length() > 0 && m.charAt(0) == '!') ? true : false;
 			
@@ -775,7 +795,7 @@ public final class CommandUtil {
 				return false;
 			}
 			
-			if (mInt != null) {
+			if (goodM) {
 				if (mInt == -1) {
 					return !flipped;
 				} else if (mInt == 0) {
@@ -819,8 +839,8 @@ public final class CommandUtil {
 		
 		return true;
 	}
-	private static boolean minPitch(double entityPitch, Integer rym) {
-		if (rym != null) {
+	private static boolean minPitch(double entityPitch, int rym, boolean goodRYM) {
+		if (goodRYM) {
 			if (entityPitch < rym) {
 				return false;
 			}
@@ -828,8 +848,8 @@ public final class CommandUtil {
 		
 		return true;
 	}
-	private static boolean maxPitch(double entityPitch, Integer ry) {
-		if (ry != null) {
+	private static boolean maxPitch(double entityPitch, int ry, boolean goodRY) {
+		if (goodRY) {
 			if (entityPitch > ry) {
 				return false;
 			}
@@ -837,8 +857,8 @@ public final class CommandUtil {
 		
 		return true;
 	}
-	private static boolean minYaw(double entityPitch, Integer rxm) {
-		if (rxm != null) {
+	private static boolean minYaw(double entityPitch, int rxm, boolean goodRXM) {
+		if (goodRXM) {
 			if (entityPitch < rxm) {
 				return false;
 			}
@@ -846,8 +866,8 @@ public final class CommandUtil {
 		
 		return true;
 	}
-	private static boolean maxYaw(double entityPitch, Integer rx) {
-		if (rx != null) {
+	private static boolean maxYaw(double entityPitch, int rx, boolean goodRX) {
+		if (goodRX) {
 			if (entityPitch > rx) {
 				return false;
 			}
@@ -863,8 +883,7 @@ public final class CommandUtil {
 		}
 		
 		boolean flipped = (type != null && type.length() > 0 && type.charAt(0) == '!') ? true : false;
-		
-		if (flipped) {
+		if (flipped && type != null) {
 			type = type.substring(1);
 		}
 		

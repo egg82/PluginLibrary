@@ -39,11 +39,11 @@ public class FireworkUtil {
 			}
 		}, 10L * power);
 	}
-	public static void instantFirework(Location loc, FireworkEffect... effects) {
+	public static void instantFirework(Location loc, boolean silent, FireworkEffect... effects) {
 		if (!Bukkit.isPrimaryThread()) {
 			TaskUtil.runSync(new Runnable() {
 				public void run() {
-					instantFirework(loc, effects);
+					instantFirework(loc, silent, effects);
 				}
 			});
 			return;
@@ -58,7 +58,9 @@ public class FireworkUtil {
 		
 		TaskUtil.runSync(new Runnable() {
 			public void run() {
-				firework.playEffect(EntityEffect.FIREWORK_EXPLODE);
+				if (!silent) {
+					firework.playEffect(EntityEffect.FIREWORK_EXPLODE);
+				}
 				firework.remove();
 			}
 		}, 2L);

@@ -11,10 +11,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
+import ninja.egg82.concurrent.DynamicConcurrentDeque;
+import ninja.egg82.concurrent.IConcurrentDeque;
 import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.exceptions.ArgumentNullException;
-import ninja.egg82.patterns.DynamicObjectPool;
-import ninja.egg82.patterns.IObjectPool;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.commands.PluginCommand;
 import ninja.egg82.utils.CollectionUtil;
@@ -23,8 +23,8 @@ import ninja.egg82.utils.ReflectUtil;
 public final class CommandHandler {
 	//vars
 	private ConcurrentHashMap<String, String> commandAliases = new ConcurrentHashMap<String, String>();
-	private ConcurrentHashMap<String, IObjectPool<Class<? extends PluginCommand>>> commands = new ConcurrentHashMap<String, IObjectPool<Class<? extends PluginCommand>>>();
-	private ConcurrentHashMap<String, IObjectPool<PluginCommand>> initializedCommands = new ConcurrentHashMap<String, IObjectPool<PluginCommand>>();
+	private ConcurrentHashMap<String, IConcurrentDeque<Class<? extends PluginCommand>>> commands = new ConcurrentHashMap<String, IConcurrentDeque<Class<? extends PluginCommand>>>();
+	private ConcurrentHashMap<String, IConcurrentDeque<PluginCommand>> initializedCommands = new ConcurrentHashMap<String, IConcurrentDeque<PluginCommand>>();
 	
 	//constructor
 	public CommandHandler() {
@@ -41,7 +41,9 @@ public final class CommandHandler {
 		}
 		
 		for (String alias : aliases) {
-			commandAliases.put(alias, command);
+			if (alias != null) {
+				commandAliases.put(alias, command);
+			}
 		}
 	}
 	public void removeAliases(String... aliases) {
@@ -50,7 +52,9 @@ public final class CommandHandler {
 		}
 		
 		for (String alias : aliases) {
-			commandAliases.remove(alias);
+			if (alias != null) {
+				commandAliases.remove(alias);
+			}
 		}
 	}
 	
@@ -58,25 +62,32 @@ public final class CommandHandler {
 		if (command == null) {
 			throw new ArgumentNullException("command");
 		}
+		if (clazz == null) {
+			throw new ArgumentNullException("clazz");
+		}
 		
 		String key = command.toLowerCase();
 		
-		IObjectPool<Class<? extends PluginCommand>> pool = commands.get(key);
+		IConcurrentDeque<Class<? extends PluginCommand>> pool = commands.get(key);
 		if (pool == null) {
-			pool = new DynamicObjectPool<Class<? extends PluginCommand>>();
+			pool = new DynamicConcurrentDeque<Class<? extends PluginCommand>>();
 		}
 		pool = CollectionUtil.putIfAbsent(commands, key, pool);
-		if (!pool.contains(clazz)) {
-			pool.add(clazz);
-			initializedCommands.remove(key);
-			return true;
-		} else {
+		
+		if (pool.contains(clazz)) {
 			return false;
 		}
+		
+		initializedCommands.remove(key);
+		return pool.add(clazz);
 	}
 	public boolean removeCommandHandler(Class<? extends PluginCommand> clazz) {
+		if (clazz == null) {
+			throw new ArgumentNullException("clazz");
+		}
+		
 		boolean modified = false;
-		for (Entry<String, IObjectPool<Class<? extends PluginCommand>>> kvp : commands.entrySet()) {
+		for (Entry<String, IConcurrentDeque<Class<? extends PluginCommand>>> kvp : commands.entrySet()) {
 			if (kvp.getValue().remove(clazz)) {
 				initializedCommands.remove(kvp.getKey());
 				modified = true;
@@ -85,22 +96,29 @@ public final class CommandHandler {
 		return modified;
 	}
 	public boolean removeCommandHandler(String command, Class<? extends PluginCommand> clazz) {
+		if (command == null) {
+			throw new ArgumentNullException("command");
+		}
+		if (clazz == null) {
+			throw new ArgumentNullException("clazz");
+		}
+		
 		String key = command.toLowerCase();
 		
-		IObjectPool<Class<? extends PluginCommand>> pool = commands.get(key);
+		IConcurrentDeque<Class<? extends PluginCommand>> pool = commands.get(key);
 		if (pool == null) {
 			return false;
 		}
 		
 		if (!pool.remove(clazz)) {
 			return false;
-		} else {
-			initializedCommands.remove(key);
-			return true;
 		}
+		
+		initializedCommands.remove(key);
+		return true;
 	}
 	public boolean hasCommand(String command) {
-		return command != null && (commands.containsKey(command.toLowerCase()) || commandAliases.containsKey(command.toLowerCase()));
+		return (command != null && (commands.containsKey(command.toLowerCase()) || commandAliases.containsKey(command.toLowerCase()))) ? true : false;
 	}
 	public void clear() {
 		initializedCommands.clear();
@@ -163,7 +181,7 @@ public final class CommandHandler {
 	}
 	
 	public void runCommand(CommandSender sender, Command command, String label, String[] args) {
-		IObjectPool<PluginCommand> run = getCommands(sender, command, label, args);
+		IConcurrentDeque<PluginCommand> run = getCommands(sender, command, label, args);
 		
 		if (run == null || run.size() == 0) {
 			return;
@@ -184,7 +202,7 @@ public final class CommandHandler {
 	}
 	public void undoInitializedCommands(CommandSender sender, String[] args) {
 		Exception lastEx = null;
-		for (Entry<String, IObjectPool<PluginCommand>> kvp : initializedCommands.entrySet()) {
+		for (Entry<String, IConcurrentDeque<PluginCommand>> kvp : initializedCommands.entrySet()) {
 			for (PluginCommand c : kvp.getValue()) {
 				c.setSender(sender);
 				c.setCommand(null);
@@ -205,7 +223,7 @@ public final class CommandHandler {
 		}
 	}
 	public List<String> tabComplete(CommandSender sender, Command command, String label, String[] args) {
-		IObjectPool<PluginCommand> run = getCommands(sender, command, label, args);
+		IConcurrentDeque<PluginCommand> run = getCommands(sender, command, label, args);
 		
 		if (run == null || run.size() == 0) {
 			return null;
@@ -235,8 +253,8 @@ public final class CommandHandler {
 	}
 	
 	//private
-	private IObjectPool<PluginCommand> getCommands(CommandSender sender, Command command, String label, String[] args) {
-		IObjectPool<PluginCommand> run = getCommands(command.getName());
+	private IConcurrentDeque<PluginCommand> getCommands(CommandSender sender, Command command, String label, String[] args) {
+		IConcurrentDeque<PluginCommand> run = getCommands(command.getName());
 		
 		for (PluginCommand cmd : run) {
 			cmd.setSender(sender);
@@ -248,15 +266,15 @@ public final class CommandHandler {
 		
 		return run;
 	}
-	private IObjectPool<PluginCommand> getCommands(String key) {
+	private IConcurrentDeque<PluginCommand> getCommands(String key) {
 		key = key.toLowerCase();
 		
 		if (commandAliases.containsKey(key)) {
 			key = commandAliases.get(key);
 		}
 		
-		IObjectPool<PluginCommand> run = initializedCommands.get(key);
-		IObjectPool<Class<? extends PluginCommand>> c = commands.get(key);
+		IConcurrentDeque<PluginCommand> run = initializedCommands.get(key);
+		IConcurrentDeque<Class<? extends PluginCommand>> c = commands.get(key);
 		
 		// run might be null, but c will never be as long as the command actually exists
 		if (c == null) {
@@ -266,7 +284,7 @@ public final class CommandHandler {
 		// Lazy initialize. No need to create a command until it's actually going to be used
 		if (run == null) {
 			// Create a new command and store it
-			run = new DynamicObjectPool<PluginCommand>();
+			run = new DynamicConcurrentDeque<PluginCommand>();
 			
 			for (Class<? extends PluginCommand> e : c) {
 				try {

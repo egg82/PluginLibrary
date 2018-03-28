@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <artifactId>plugin-lib</artifactId>
-  <version>2.4.30</version>
+  <version>3.5.31</version>
   <name>egg82-plugin-lib</name>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -17,7 +17,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -40,6 +40,17 @@
                 </filter>
               </filters>
               <minimizeJar>false</minimizeJar>
+              <relocations>
+                <!-- Relocating injected deps -->
+                <!-- <relocation>
+                  <pattern>com.rabbitmq</pattern>
+                  <shadedPattern>ninja.egg82.lib.com.rabbitmq</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>it.unimi.dsi.fastutil</pattern>
+                  <shadedPattern>ninja.egg82.lib.it.unimi.dsi.fastutil</shadedPattern>
+                </relocation> -->
+              </relocations>
             </configuration>
           </execution>
         </executions>
@@ -64,6 +75,10 @@
       <id>pex-repo</id>
       <url>http://pex-repo.aoeu.xyz</url>
     </repository>
+    <repository>
+      <id>aikar</id>
+      <url>https://repo.aikar.co/content/groups/aikar/</url>
+    </repository>
   </repositories>
   <dependencies>
     <dependency>
@@ -75,7 +90,7 @@
     <dependency>
       <groupId>ninja.egg82.lib</groupId>
       <artifactId>egg82-lib</artifactId>
-      <version>2.8.42</version>
+      <version>3.9.43</version>
     </dependency>
     <dependency>
       <groupId>commons-lang</groupId>
@@ -86,18 +101,19 @@
     <dependency>
       <groupId>ninja.egg82.lib</groupId>
       <artifactId>exception-lib</artifactId>
-      <version>1.2.21</version>
+      <version>1.3.22</version>
     </dependency>
     <dependency>
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
-      <version>20171018</version>
+      <version>20180130</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.rabbitmq</groupId>
       <artifactId>amqp-client</artifactId>
       <version>5.1.2</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>ru.tehkode</groupId>
@@ -109,6 +125,18 @@
       <groupId>me.lucko.luckperms</groupId>
       <artifactId>luckperms-api</artifactId>
       <version>4.1</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>co.aikar</groupId>
+      <artifactId>fastutil-lite</artifactId>
+      <version>1.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>it.unimi.dsi</groupId>
+      <artifactId>fastutil</artifactId>
+      <version>8.1.1</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>

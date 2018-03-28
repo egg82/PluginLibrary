@@ -1,11 +1,11 @@
 package ninja.egg82.bungeecord.utils;
 
 import net.md_5.bungee.config.Configuration;
-import ninja.egg82.patterns.IRegistry;
+import ninja.egg82.patterns.registries.IVariableRegistry;
 
 public class ConfigUtil {
 	//vars
-	private static IRegistry<String> configRegistry = null;
+	private static IVariableRegistry<String> configRegistry = null;
 	
 	//constructor
 	public ConfigUtil() {
@@ -13,10 +13,10 @@ public class ConfigUtil {
 	}
 	
 	//public
-	public static void setRegistry(IRegistry<String> newRegistry) {
+	public static void setRegistry(IVariableRegistry<String> newRegistry) {
 		configRegistry = newRegistry;
 	}
-	public static IRegistry<String> getRegistry() {
+	public static IVariableRegistry<String> getRegistry() {
 		return configRegistry;
 	}
 	

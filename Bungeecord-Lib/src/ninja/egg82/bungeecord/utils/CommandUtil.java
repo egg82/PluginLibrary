@@ -43,7 +43,7 @@ public final class CommandUtil {
 	
 	public static boolean isArrayOfAllowedLength(Object[] arr, int... allowedLengths) {
 		for (int i = 0; i < allowedLengths.length; i++) {
-			if ((arr == null && allowedLengths[i] == 0) || arr.length == allowedLengths[i]) {
+			if ((arr == null && allowedLengths[i] == 0) || (arr != null && arr.length == allowedLengths[i])) {
 				return true;
 			}
 		}
@@ -154,10 +154,10 @@ public final class CommandUtil {
 			filter(retVal, args);
 			
 			return retVal;
-		} else {
-			// No args specified. Get ALL players
-			return new ArrayList<ProxiedPlayer>(ProxyServer.getInstance().getPlayers());
 		}
+		
+		// No args specified. Get ALL players
+		return new ArrayList<ProxiedPlayer>(ProxyServer.getInstance().getPlayers());
 	}
 	private static List<ProxiedPlayer> parseESymbol(String symbol) {
 		// @e means ALL entities
@@ -173,11 +173,10 @@ public final class CommandUtil {
 			filter(retVal, args);
 			
 			return retVal;
-		} else {
-			// No args specified. Get EVERYTHING
-			
-			return new ArrayList<ProxiedPlayer>(ProxyServer.getInstance().getPlayers());
 		}
+		
+		// No args specified. Get EVERYTHING
+		return new ArrayList<ProxiedPlayer>(ProxyServer.getInstance().getPlayers());
 	}
 	private static List<ProxiedPlayer> parsePSymbol(String symbol) {
 		// @p means closest player (or entity with "type" argument set)
@@ -193,21 +192,20 @@ public final class CommandUtil {
 			filter(retVal, args);
 			
 			return retVal;
-		} else {
-			// No args specified. Get closest player
-			ProxiedPlayer closest = null;
-			
-			Collection<ProxiedPlayer> players = ProxyServer.getInstance().getPlayers();
-			if (!players.isEmpty()) {
-				closest = players.iterator().next();
-			}
-			
-			if (closest == null) {
-				return new ArrayList<ProxiedPlayer>();
-			} else {
-				return new ArrayList<ProxiedPlayer>(Arrays.asList(closest));
-			}
 		}
+		
+		// No args specified. Get closest player
+		ProxiedPlayer closest = null;
+		
+		Collection<ProxiedPlayer> players = ProxyServer.getInstance().getPlayers();
+		if (!players.isEmpty()) {
+			closest = players.iterator().next();
+		}
+		
+		if (closest == null) {
+			return new ArrayList<ProxiedPlayer>();
+		}
+		return new ArrayList<ProxiedPlayer>(Arrays.asList(closest));
 	}
 	private static List<ProxiedPlayer> parseRSymbol(String symbol) {
 		// @r means random player (or entity with "type" argument set)
@@ -225,16 +223,15 @@ public final class CommandUtil {
 			filter(retVal, args);
 			
 			return retVal;
-		} else {
-			// No args specified. Get random player
-			ArrayList<ProxiedPlayer> players = new ArrayList<ProxiedPlayer>(ProxyServer.getInstance().getPlayers());
-			
-			if (players.size() == 0) {
-				return new ArrayList<ProxiedPlayer>();
-			} else {
-				return new ArrayList<ProxiedPlayer>(Arrays.asList(players.get(MathUtil.fairRoundedRandom(0, players.size()))));
-			}
 		}
+		
+		// No args specified. Get random player
+		ArrayList<ProxiedPlayer> players = new ArrayList<ProxiedPlayer>(ProxyServer.getInstance().getPlayers());
+		
+		if (players.size() == 0) {
+			return new ArrayList<ProxiedPlayer>();
+		}
+		return new ArrayList<ProxiedPlayer>(Arrays.asList(players.get(MathUtil.fairRoundedRandom(0, players.size()))));
 	}
 	
 	private static Map<String, String> getArguments(String symbol) {
@@ -252,11 +249,12 @@ public final class CommandUtil {
 		return retVal;
 	}
 	private static void filter(List<ProxiedPlayer> list, Map<String, String> args) {
-		Integer c = null;
+		int c = -1;
+		boolean goodVal = true;
 		try {
 			c = Integer.parseInt(args.get("c"));
 		} catch (Exception ex) {
-			
+			goodVal = true;
 		}
 		String name = args.get("name");
 		
@@ -269,7 +267,7 @@ public final class CommandUtil {
 		}
 		list.removeAll(removalList);
 		
-		if (c != null) {
+		if (goodVal) {
 			while (list.size() > c) {
 				list.remove(list.size() - 1);
 			}

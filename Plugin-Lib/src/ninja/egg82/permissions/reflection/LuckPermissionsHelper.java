@@ -3,6 +3,7 @@ package ninja.egg82.permissions.reflection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 import org.bukkit.entity.Player;
 
@@ -15,7 +16,7 @@ import me.lucko.luckperms.api.caching.UserData;
 
 public class LuckPermissionsHelper implements IPermissionsHelper {
 	//vars
-	LuckPermsApi api = null;
+	private LuckPermsApi api = null;
 	
 	//constructor
 	public LuckPermissionsHelper() {
@@ -67,7 +68,7 @@ public class LuckPermissionsHelper implements IPermissionsHelper {
 		
 		// Shamelessly copied from LuckCommands ParentInfo.java
 		List<Node> nodes = new ArrayList<Node>(user.getOwnNodes());
-		nodes.removeIf(node -> !node.isGroupNode() || !node.getValuePrimitive());
+		nodes.removeIf(removePredicate);
 		
 		if (nodes.isEmpty()) {
 			return new ArrayList<String>();
@@ -136,5 +137,9 @@ public class LuckPermissionsHelper implements IPermissionsHelper {
 	}
 	
 	//private
-	
+	private Predicate<? super Node> removePredicate = new Predicate<Node>() {
+		public boolean test(Node t) {
+			return (!t.isGroupNode() || !t.getValuePrimitive()) ? true : false;
+		}
+	};
 }

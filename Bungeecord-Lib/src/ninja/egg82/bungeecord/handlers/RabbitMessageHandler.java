@@ -21,17 +21,16 @@ import com.rabbitmq.client.ShutdownListener;
 import com.rabbitmq.client.ShutdownSignalException;
 import com.rabbitmq.client.AMQP.BasicProperties;
 
-import net.md_5.bungee.api.plugin.Plugin;
 import ninja.egg82.bungeecord.BasePlugin;
 import ninja.egg82.bungeecord.commands.AsyncMessageCommand;
 import ninja.egg82.bungeecord.core.RabbitMessageQueueData;
 import ninja.egg82.bungeecord.enums.MessageHandlerType;
 import ninja.egg82.bungeecord.enums.SenderType;
+import ninja.egg82.concurrent.DynamicConcurrentDeque;
+import ninja.egg82.concurrent.FixedConcurrentDeque;
+import ninja.egg82.concurrent.IConcurrentDeque;
 import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.exceptions.ArgumentNullException;
-import ninja.egg82.patterns.DynamicObjectPool;
-import ninja.egg82.patterns.FixedObjectPool;
-import ninja.egg82.patterns.IObjectPool;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.patterns.tuples.Unit;
 import ninja.egg82.utils.CollectionUtil;
@@ -47,18 +46,16 @@ public class RabbitMessageHandler implements IMessageHandler {
 	private volatile Channel channel = null;
 	
 	// Queue names. Called "channels" because it's easier for plugin devs to understand
-	private IObjectPool<String> channelNames = new DynamicObjectPool<String>();
+	private IConcurrentDeque<String> channelNames = new DynamicConcurrentDeque<String>();
 	// Message backlog/queue - for storing messages in case of disconnect
-	private IObjectPool<RabbitMessageQueueData> backlog = new DynamicObjectPool<RabbitMessageQueueData>();
-	// Object pool for storing "dead" message data - so we don't re-create a new data object for every message. We'll only have 150 messages in queue, max
-	private IObjectPool<RabbitMessageQueueData> queueDataPool = new FixedObjectPool<RabbitMessageQueueData>(150);
+	private IConcurrentDeque<RabbitMessageQueueData> backlog = new FixedConcurrentDeque<RabbitMessageQueueData>(150);
 	// Connected state. Atomic because multithreading is HARD
 	private AtomicBoolean connected = new AtomicBoolean(false);
 	
 	// Thread pool for message sending thread. The thread count for actually sending messages should never exceed 1 for data consistency
-	private ScheduledExecutorService threadPool = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat(ServiceLocator.getService(Plugin.class).getDescription().getName() + "-RabbitMQ_snd-%d").build());
+	private ScheduledExecutorService threadPool = null;
 	// Custom thread pool for incoming messages that uses a min + max. Extra threads expire after 2 mins
-	private ScheduledExecutorService recvPool = ThreadUtil.createScheduledPool(3, Runtime.getRuntime().availableProcessors(), 120L * 1000L, new ThreadFactoryBuilder().setNameFormat(ServiceLocator.getService(Plugin.class).getDescription().getName() + "-RabbitMQ_recv-%d").build());
+	private ScheduledExecutorService recvPool = null;
 	
 	// The plugin using this code
 	private BasePlugin plugin = ServiceLocator.getService(BasePlugin.class);
@@ -71,7 +68,7 @@ public class RabbitMessageHandler implements IMessageHandler {
 	// Properties used for sending messages
 	private BasicProperties props = null;
 	
-	// Map for storing commands to run when a message is recieved
+	// Map for storing commands to run when a message is received
 	private ConcurrentHashMap<Class<? extends AsyncMessageCommand>, Unit<AsyncMessageCommand>> commands = new ConcurrentHashMap<Class<? extends AsyncMessageCommand>, Unit<AsyncMessageCommand>>();
 	
 	//constructor
@@ -92,20 +89,18 @@ public class RabbitMessageHandler implements IMessageHandler {
 			throw new ArgumentNullException("password");
 		}
 		
-		// Fill the dead message data pool
-		while (queueDataPool.remainingCapacity() > 0) {
-			queueDataPool.add(new RabbitMessageQueueData());
-		}
+		threadPool = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat((plugin != null) ? plugin.getDescription().getName() + "-RabbitMQ_snd-%d" : "RabbitMQ_snd-%d").build());
+		recvPool = ThreadUtil.createScheduledPool(3, Runtime.getRuntime().availableProcessors(), 120L * 1000L, new ThreadFactoryBuilder().setNameFormat((plugin != null) ? plugin.getDescription().getName() + "-RabbitMQ_recv-%d" : "RabbitMQ_recv-%d").build());
 		
-		// Temporary workaround for Mainframe using Bukkit libraries when it's not actually running under Bukkit
+		// Temporary workaround for Mainframe using Bungee libraries when it's not actually running under Bungee
 		senderId = (plugin != null) ? plugin.getServerId() : UUID.randomUUID().toString();
 		
 		// Need to make sure if something bad happens the queues don't fill up with messages
-		queueArgs.put("x-message-ttl", 60000);
-		queueArgs.put("x-expires", 300000);
+		queueArgs.put("x-message-ttl", Integer.valueOf(60 * 1000));
+		queueArgs.put("x-expires", Integer.valueOf(300 * 1000));
 		
 		// Add basic properties like reply-to and sender type
-		props = new BasicProperties.Builder().replyTo(senderId).type(SenderType.BUNGEE.name()).deliveryMode(2).build();
+		props = new BasicProperties.Builder().replyTo(senderId).type(SenderType.BUNGEE.name()).deliveryMode(Integer.valueOf(2)).build();
 		
 		// Create a new connection and pre-populate values
 		ConnectionFactory factory = new ConnectionFactory();
@@ -165,10 +160,6 @@ public class RabbitMessageHandler implements IMessageHandler {
 		threadPool.scheduleAtFixedRate(onBacklogThread, 150L, 150L, TimeUnit.MILLISECONDS);
 		connected.set(true);
 	}
-	public void finalize() {
-		// Shutdown with garbage collection. This should never really happen, but hey.
-		destroy();
-	}
 	
 	//public
 	public String getSenderId() {
@@ -185,7 +176,7 @@ public class RabbitMessageHandler implements IMessageHandler {
 		
 		// Set the new sender ID and update it in the properties for all unsent and new messages
 		this.senderId = senderId;
-		props = new BasicProperties.Builder().replyTo(senderId).type(SenderType.BUNGEE.name()).deliveryMode(2).build();
+		props = new BasicProperties.Builder().replyTo(senderId).type(SenderType.BUNGEE.name()).deliveryMode(Integer.valueOf(2)).build();
 		
 		// Re-create the queues with the new name
 		for (String c : ch) {
@@ -223,7 +214,7 @@ public class RabbitMessageHandler implements IMessageHandler {
 				public void handleDelivery(String consumerTag, Envelope envelope, BasicProperties properties, byte[] body) {
 					// Message sender
 					String sender = properties.getReplyTo();
-					// The sender type. Bukkit or bungee?
+					// The sender type. Bukkit or Bungee?
 					SenderType senderType = SenderType.valueOf(properties.getType());
 					
 					// The last exception thrown by the message command handlers
@@ -242,6 +233,7 @@ public class RabbitMessageHandler implements IMessageHandler {
 								// Send the exception off to the current available handler handler and store it
 								ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 								lastEx = ex;
+								continue;
 							}
 						} else {
 							c = kvp.getValue().getType();
@@ -320,19 +312,12 @@ public class RabbitMessageHandler implements IMessageHandler {
 			throw new RuntimeException("Channel \"" + channelName + "\" does not exist.");
 		}
 		
-		// Grab a new data object if we can. Pop the last instead of the first so we don't need to re-order the entire array
-		RabbitMessageQueueData messageData = queueDataPool.popLast();
-		
-		if (messageData == null) {
-			// We ran out of queue space. We'll grab the oldest data to be sent instead
-			messageData = backlog.popFirst();
+		// Grab a new data object
+		RabbitMessageQueueData messageData = new RabbitMessageQueueData(channelName, channelName + "-" + serverId, data);
+		// Add the new data to the send queue, tossing the oldest messages if needed
+		while (!backlog.offerLast(messageData) && !backlog.isEmpty()) {
+			backlog.pollFirst();
 		}
-		
-		// Set the new data and add it to the send queue
-		messageData.setQueue(channelName);
-		messageData.setRoutingKey(channelName + "-" + serverId);
-		messageData.setData(data);
-		backlog.add(messageData);
 		
 		// Submit a new send task
 		threadPool.submit(onSendThread);
@@ -354,19 +339,12 @@ public class RabbitMessageHandler implements IMessageHandler {
 			throw new RuntimeException("Channel \"" + channelName + "\" does not exist.");
 		}
 		
-		// Grab a new data object if we can. Pop the last instead of the first so we don't need to re-order the entire array
-		RabbitMessageQueueData messageData = queueDataPool.popLast();
-		
-		if (messageData == null) {
-			// We ran out of queue space. We'll grab the oldest data to be sent instead
-			messageData = backlog.popFirst();
+		// Grab a new data object
+		RabbitMessageQueueData messageData = new RabbitMessageQueueData(channelName, channelName + "-bungee", data);
+		// Add the new data to the send queue, tossing the oldest messages if needed
+		while (!backlog.offerLast(messageData) && !backlog.isEmpty()) {
+			backlog.pollFirst();
 		}
-		
-		// Set the new data and add it to the send queue
-		messageData.setQueue(channelName);
-		messageData.setRoutingKey(channelName + "-bungee");
-		messageData.setData(data);
-		backlog.add(messageData);
 		
 		// Submit a new send task
 		threadPool.submit(onSendThread);
@@ -388,19 +366,12 @@ public class RabbitMessageHandler implements IMessageHandler {
 			throw new RuntimeException("Channel \"" + channelName + "\" does not exist.");
 		}
 		
-		// Grab a new data object if we can. Pop the last instead of the first so we don't need to re-order the entire array
-		RabbitMessageQueueData messageData = queueDataPool.popLast();
-		
-		if (messageData == null) {
-			// We ran out of queue space. We'll grab the oldest data to be sent instead
-			messageData = backlog.popFirst();
+		// Grab a new data object
+		RabbitMessageQueueData messageData = new RabbitMessageQueueData(channelName, channelName + "-bukkit", data);
+		// Add the new data to the send queue, tossing the oldest messages if needed
+		while (!backlog.offerLast(messageData) && !backlog.isEmpty()) {
+			backlog.pollFirst();
 		}
-		
-		// Set the new data and add it to the send queue
-		messageData.setQueue(channelName);
-		messageData.setRoutingKey(channelName + "-bukkit");
-		messageData.setData(data);
-		backlog.add(messageData);
 		
 		// Submit a new send task
 		threadPool.submit(onSendThread);
@@ -463,7 +434,7 @@ public class RabbitMessageHandler implements IMessageHandler {
 			}
 		}
 	}
-	public void destroy() {
+	public void close() {
 		// Set connected state to false, or return if it's already false
 		if (!connected.getAndSet(false)) {
 			return;
@@ -524,7 +495,7 @@ public class RabbitMessageHandler implements IMessageHandler {
 				}
 				
 				// Grab the oldest data first
-				RabbitMessageQueueData first = backlog.popFirst();
+				RabbitMessageQueueData first = backlog.pollFirst();
 				if (first == null) {
 					// Data is null, which means we prematurely reached the end of the queue
 					break;
@@ -535,9 +506,6 @@ public class RabbitMessageHandler implements IMessageHandler {
 					// Publish the data and make sure it was committed
 					channel.basicPublish(exchangeName, first.getRoutingKey(), props, first.getData());
 					channel.txCommit();
-					// Clear the container object and add it back to the data pool
-					first.clear();
-					queueDataPool.add(first);
 				} catch (Exception ex) {
 					// Message send failed. Re-add it to the front of the backlog
 					backlog.addFirst(first);
@@ -560,7 +528,7 @@ public class RabbitMessageHandler implements IMessageHandler {
 				}
 				
 				// Grab the oldest data first
-				RabbitMessageQueueData first = backlog.popFirst();
+				RabbitMessageQueueData first = backlog.pollFirst();
 				if (first == null) {
 					// Data is null, which means we prematurely reached the end of the queue
 					break;
@@ -571,9 +539,6 @@ public class RabbitMessageHandler implements IMessageHandler {
 					// Publish the data and make sure it was committed
 					channel.basicPublish(exchangeName, first.getRoutingKey(), props, first.getData());
 					channel.txCommit();
-					// Clear the container object and add it back to the data pool
-					first.clear();
-					queueDataPool.add(first);
 				} catch (Exception ex) {
 					// Message send failed. Re-add it to the front of the backlog
 					backlog.addFirst(first);

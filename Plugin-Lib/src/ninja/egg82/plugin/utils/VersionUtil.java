@@ -1,8 +1,10 @@
 package ninja.egg82.plugin.utils;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.utils.ReflectUtil;
 
@@ -49,26 +51,28 @@ public final class VersionUtil {
 		List<Class<T>> enums = ReflectUtil.getClasses(clazz, pkg, recursive, false, false);
 		
 		// Sort by version, ascending
-		enums.sort((v1, v2) -> {
-			int[] v1Name = parseVersion(v1.getSimpleName(), '_');
-			int[] v2Name = parseVersion(v2.getSimpleName(), '_');
-			
-			if (v1Name.length == 0) {
-				return -1;
-			}
-			if (v2Name.length == 0) {
-				return 1;
-			}
-			
-			for (int i = 0; i < Math.min(v1Name.length, v2Name.length); i++) {
-				if (v1Name[i] < v2Name[i]) {
+		enums.sort(new Comparator<Class<T>>() {
+			public int compare(Class<T> v1, Class<T> v2) {
+				int[] v1Name = parseVersion(v1.getSimpleName(), '_');
+				int[] v2Name = parseVersion(v2.getSimpleName(), '_');
+				
+				if (v1Name.length == 0) {
 					return -1;
-				} else if (v1Name[i] > v2Name[i]) {
+				}
+				if (v2Name.length == 0) {
 					return 1;
 				}
+				
+				for (int i = 0; i < Math.min(v1Name.length, v2Name.length); i++) {
+					if (v1Name[i] < v2Name[i]) {
+						return -1;
+					} else if (v1Name[i] > v2Name[i]) {
+						return 1;
+					}
+				}
+				
+				return 0;
 			}
-			
-			return 0;
 		});
 		
 		int[] currentVersion = parseVersion(version, '.');
@@ -114,7 +118,7 @@ public final class VersionUtil {
 			throw new ArgumentNullException("version");
 		}
 		
-		ArrayList<Integer> ints = new ArrayList<Integer>();
+		IntList ints = new IntArrayList();
 		
 		int lastIndex = 0;
 	    int currentIndex = version.indexOf(separator);
@@ -133,7 +137,7 @@ public final class VersionUtil {
 	    	ints.add(current);
 	    }
 		
-		return ints.stream().mapToInt(i -> i).toArray();
+		return ints.toIntArray();
 	}
 	
 	//private

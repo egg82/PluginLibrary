@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.bukkit.Bukkit;
@@ -13,13 +14,17 @@ import org.bukkit.entity.Player;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import ninja.egg82.enums.ExpirationPolicy;
 import ninja.egg82.exceptions.ArgumentNullException;
-import ninja.egg82.patterns.IRegistry;
-import ninja.egg82.patterns.ServiceLocator;
+import ninja.egg82.patterns.registries.ExpiringRegistry;
+import ninja.egg82.patterns.registries.IRegistry;
 import ninja.egg82.utils.ReflectUtil;
 
 public class ProxiedOfflinePlayer {
 	//vars
+	private static IRegistry<UUID, String> uuidToNameRegistry = new ExpiringRegistry<UUID, String>(UUID.class, String.class, 300L * 1000L, TimeUnit.MILLISECONDS, ExpirationPolicy.ACCESSED);
+	private static IRegistry<String, UUID> nameToUuidRegistry = new ExpiringRegistry<String, UUID>(String.class, UUID.class, 300L * 1000L, TimeUnit.MILLISECONDS, ExpirationPolicy.ACCESSED);
+	
 	private UUID uuid = null;
 	private String name = null;
 	
@@ -30,7 +35,15 @@ public class ProxiedOfflinePlayer {
 		}
 		
 		this.name = name;
-		fetchPlayerUuid(name);
+		this.uuid = nameToUuidRegistry.getRegister(name.toLowerCase());
+		
+		if (uuid == null) {
+			uuid = fetchPlayerUuid(name);
+		}
+		if (uuid != null) {
+			nameToUuidRegistry.setRegister(name.toLowerCase(), uuid);
+			uuidToNameRegistry.setRegister(uuid, name);
+		}
 	}
 	public ProxiedOfflinePlayer(UUID uuid) {
 		if (uuid == null) {
@@ -38,7 +51,15 @@ public class ProxiedOfflinePlayer {
 		}
 		
 		this.uuid = uuid;
-		fetchPlayerName(uuid);
+		name = uuidToNameRegistry.getRegister(uuid);
+		
+		if (name == null) {
+			name = fetchPlayerName(uuid);
+		}
+		if (name != null) {
+			nameToUuidRegistry.setRegister(name.toLowerCase(), uuid);
+			uuidToNameRegistry.setRegister(uuid, name);
+		}
 	}
 	
 	//public
@@ -68,7 +89,13 @@ public class ProxiedOfflinePlayer {
 		}
 		
 		ProxiedOfflinePlayer p = (ProxiedOfflinePlayer) obj;
-		if (uuid.equals(p.uuid) && name.equals(p.name)) {
+		final String n = p.name;
+		final UUID u = p.uuid;
+		
+		if (
+			((n == null && name == null) || (n != null && n.equals(name)))
+			&& ((u == null && uuid == null) || (u != null && u.equals(uuid)))
+		) {
 			return true;
 		}
 		
@@ -79,31 +106,12 @@ public class ProxiedOfflinePlayer {
 	}
 	
 	//private
-	private void fetchPlayerName(UUID uuid) {
-		IRegistry<UUID> offlinePlayerRegistry = ServiceLocator.getService(OfflinePlayerRegistry.class);
-		IRegistry<String> offlinePlayerReverseRegistry = ServiceLocator.getService(OfflinePlayerReverseRegistry.class);
-		
-		name = offlinePlayerRegistry.getRegister(uuid, String.class);
-		if (name != null) {
-			return;
-		}
-		
+	private static String fetchPlayerName(UUID uuid) {
 		HttpURLConnection conn = null;
 		try {
-			conn = (HttpURLConnection) new URL("https://api.mojang.com/user/profiles/" + uuid.toString().replace("-", "") + "/names").openConnection();
+			conn = getConnection("https://api.mojang.com/user/profiles/" + uuid.toString().replace("-", "") + "/names");
 		} catch (Exception ex) {
-			return;
-		}
-		
-		conn.setDoInput(true);
-		conn.setRequestProperty("Accept", "application/json");
-		conn.setRequestProperty("Connection", "close");
-		conn.setRequestProperty("User-Agent", "egg82/BungeecordLibrary/ProxiedOfflinePlayer");
-		
-		try {
-			conn.setRequestMethod("GET");
-		} catch (Exception ex) {
-			return;
+			return null;
 		}
 		
 		try {
@@ -124,45 +132,23 @@ public class ProxiedOfflinePlayer {
 			if (code == 200) {
 				JSONArray json = new JSONArray(builder.toString());
 				JSONObject first = json.getJSONObject(0);
-				name = first.getString("name");
+				return first.getString("name");
 			} else if (code == 204) {
 				// No data exists
-				name = "";
+				return "";
 			}
 		} catch (Exception ex) {
-			return;
+			
 		}
 		
-		if (name != null) {
-			offlinePlayerRegistry.setRegister(uuid, name);
-			offlinePlayerReverseRegistry.setRegister(name, uuid);
-		}
+		return null;
 	}
-	private void fetchPlayerUuid(String name) {
-		IRegistry<UUID> offlinePlayerRegistry = ServiceLocator.getService(OfflinePlayerRegistry.class);
-		IRegistry<String> offlinePlayerReverseRegistry = ServiceLocator.getService(OfflinePlayerReverseRegistry.class);
-		
-		uuid = offlinePlayerReverseRegistry.getRegister(name, UUID.class);
-		if (uuid != null) {
-			return;
-		}
-		
+	private static UUID fetchPlayerUuid(String name) {
 		HttpURLConnection conn = null;
 		try {
-			conn = (HttpURLConnection) new URL("https://api.mojang.com/users/profiles/minecraft/" + name).openConnection();
+			conn = getConnection("https://api.mojang.com/users/profiles/minecraft/" + name);
 		} catch (Exception ex) {
-			return;
-		}
-		
-		conn.setDoInput(true);
-		conn.setRequestProperty("Accept", "application/json");
-		conn.setRequestProperty("Connection", "close");
-		conn.setRequestProperty("User-Agent", "egg82/BungeecordLibrary/ProxiedOfflinePlayer");
-		
-		try {
-			conn.setRequestMethod("GET");
-		} catch (Exception ex) {
-			return;
+			return null;
 		}
 		
 		try {
@@ -182,18 +168,27 @@ public class ProxiedOfflinePlayer {
 			
 			if (code == 200) {
 				JSONObject json = new JSONObject(builder.toString());
-				uuid = UUID.fromString(json.getString("id").replaceFirst("(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}+)", "$1-$2-$3-$4-$5"));
+				return UUID.fromString(json.getString("id").replaceFirst("(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}+)", "$1-$2-$3-$4-$5"));
 			} else if (code == 204) {
 				// No data exists
-				uuid = UUID.fromString("00000000-0000-0000-0000-000000000000");
+				return new UUID(0L, 0L);
 			}
 		} catch (Exception ex) {
-			return;
+			
 		}
 		
-		if (uuid != null) {
-			offlinePlayerRegistry.setRegister(uuid, name);
-			offlinePlayerReverseRegistry.setRegister(name, uuid);
-		}
+		return null;
+	}
+	
+	private static HttpURLConnection getConnection(String url) throws Exception {
+		HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+		
+		conn.setDoInput(true);
+		conn.setRequestProperty("Accept", "application/json");
+		conn.setRequestProperty("Connection", "close");
+		conn.setRequestProperty("User-Agent", "egg82/BungeecordLibrary/ProxiedOfflinePlayer");
+		conn.setRequestMethod("GET");
+		
+		return conn;
 	}
 }

@@ -10,6 +10,8 @@ import org.bukkit.entity.Player;
 
 import com.comphenix.protocol.events.PacketContainer;
 
+import it.unimi.dsi.fastutil.shorts.ShortArrayList;
+import it.unimi.dsi.fastutil.shorts.ShortList;
 import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.enums.BukkitInitType;
@@ -44,7 +46,7 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 			return;
 		}
 		
-		if (blockLocation.getWorld().getName() == player.getWorld().getName()) {
+		if (blockLocation.getWorld().getName().equals(player.getWorld().getName())) {
 			ProtocolReflectUtil.sendPacket(packetHelper.blockChange(blockLocation, newMaterial, newMetadata), player);
 		}
 	}
@@ -95,7 +97,7 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 			
 			for (int i = tempLocs.size() - 1; i >= 0; i--) {
 				if (
-					tempLocs.get(i).getWorld().getName() == name
+					tempLocs.get(i).getWorld().getName().equals(name)
 					&& tempLocs.get(i).getBlockX() >> 4 == chunkX
 					&& tempLocs.get(i).getBlockZ() >> 4 == chunkZ
 				) {
@@ -103,7 +105,7 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 				}
 			}
 			
-			if (name == player.getWorld().getName()) {
+			if (name.equals(player.getWorld().getName())) {
 				packets.add(packetHelper.multiBlockChange(currentLocs.toArray(new Location[0]), newMaterial, newMetadata));
 			}
 		}
@@ -138,7 +140,7 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 		ArrayList<PacketContainer> packets = new ArrayList<PacketContainer>();
 		ArrayList<Location> tempLocs = new ArrayList<Location>(Arrays.asList(blockLocations));
 		ArrayList<Material> tempMats = new ArrayList<Material>(Arrays.asList(newMaterials));
-		ArrayList<Short> tempMeta = new ArrayList<Short>();
+		ShortList tempMeta = new ShortArrayList();
 		
 		for (int i = 0; i < newMetadata.length; i++) {
 			tempMeta.add(newMetadata[i]);
@@ -147,7 +149,7 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 		while (tempLocs.size() > 0) {
 			ArrayList<Location> currentLocs = new ArrayList<Location>();
 			ArrayList<Material> currentMats = new ArrayList<Material>();
-			ArrayList<Short> currentMeta = new ArrayList<Short>();
+			ShortList currentMeta = new ShortArrayList();
 			
 			String name = tempLocs.get(0).getWorld().getName();
 			int chunkX = tempLocs.get(0).getBlockX() >> 4;
@@ -155,7 +157,7 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 			
 			currentLocs.add(tempLocs.remove(0));
 			currentMats.add(tempMats.remove(0));
-			currentMeta.add(tempMeta.remove(0));
+			currentMeta.add(tempMeta.removeShort(0));
 			
 			for (int i = tempLocs.size() - 1; i >= 0; i--) {
 				if (
@@ -165,16 +167,16 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 				) {
 					currentLocs.add(tempLocs.remove(i));
 					currentMats.add(tempMats.remove(i));
-					currentMeta.add(tempMeta.remove(i));
+					currentMeta.add(tempMeta.removeShort(i));
 				}
 			}
 			
 			short[] metaOut = new short[currentMeta.size()];
 			for (int i = 0; i < currentMeta.size(); i++) {
-				metaOut[i] = currentMeta.get(i);
+				metaOut[i] = currentMeta.getShort(i);
 			}
 			
-			if (name == player.getWorld().getName()) {
+			if (name.equals(player.getWorld().getName())) {
 				packets.add(packetHelper.multiBlockChange(currentLocs.toArray(new Location[0]), currentMats.toArray(new Material[0]), metaOut));
 			}
 		}

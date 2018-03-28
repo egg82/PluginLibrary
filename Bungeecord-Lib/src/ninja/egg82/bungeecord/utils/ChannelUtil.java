@@ -16,6 +16,7 @@ public class ChannelUtil {
 	}
 	
 	//public
+	@SuppressWarnings("resource")
 	public static void sendToServer(String serverId, String channelName, byte[] data) {
 		if (serverId == null) {
 			throw new ArgumentNullException("serverId");
@@ -30,6 +31,7 @@ public class ChannelUtil {
 		IMessageHandler handler = ServiceLocator.getService(IMessageHandler.class);
 		handler.sendToServer(serverId, channelName, data);
 	}
+	@SuppressWarnings("resource")
 	public static void broadcastToBungee(String channelName, byte[] data) {
 		if (channelName == null) {
 			throw new ArgumentNullException("channelName");
@@ -41,6 +43,7 @@ public class ChannelUtil {
 		IMessageHandler handler = ServiceLocator.getService(IMessageHandler.class);
 		handler.broadcastToBungee(channelName, data);
 	}
+	@SuppressWarnings("resource")
 	public static void broadcastToBukkit(String channelName, byte[] data) {
 		if (channelName == null) {
 			throw new ArgumentNullException("channelName");
@@ -61,21 +64,21 @@ public class ChannelUtil {
 				if (obj instanceof byte[]) {
 					out.write((byte[]) obj);
 				} else if (obj instanceof Boolean) {
-					out.writeBoolean((boolean) obj);
+					out.writeBoolean(((Boolean) obj).booleanValue());
 				} else if (obj instanceof Byte) {
-					out.writeByte((byte) obj);
+					out.writeByte(((Byte) obj).byteValue());
 				} else if (obj instanceof Short) {
-					out.writeShort((short) obj);
+					out.writeShort(((Short) obj).shortValue());
 				} else if (obj instanceof Character) {
-					out.writeChar((char) obj);
+					out.writeChar(((Character) obj).charValue());
 				} else if (obj instanceof Integer) {
-					out.writeInt((int) obj);
+					out.writeInt(((Integer) obj).intValue());
 				} else if (obj instanceof Long) {
-					out.writeLong((long) obj);
+					out.writeLong(((Long) obj).longValue());
 				} else if (obj instanceof Float) {
-					out.writeFloat((float) obj);
+					out.writeFloat(((Float) obj).floatValue());
 				} else if (obj instanceof Double) {
-					out.writeDouble((double) obj);
+					out.writeDouble(((Double) obj).doubleValue());
 				} else if (obj instanceof String) {
 					out.writeUTF((String) obj);
 				} else {

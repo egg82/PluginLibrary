@@ -1,6 +1,11 @@
 package ninja.egg82.bungeecord;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,10 +14,10 @@ import java.util.logging.Handler;
 import java.util.logging.Logger;
 
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
-import ninja.egg82.bungeecord.core.OfflinePlayerRegistry;
-import ninja.egg82.bungeecord.core.OfflinePlayerReverseRegistry;
 import ninja.egg82.bungeecord.enums.BungeeInitType;
 import ninja.egg82.bungeecord.handlers.EnhancedBungeeMessageHandler;
 import ninja.egg82.bungeecord.handlers.CommandHandler;
@@ -26,15 +31,19 @@ import ninja.egg82.bungeecord.utils.ConfigUtil;
 import ninja.egg82.bungeecord.utils.LanguageUtil;
 import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.exceptionHandlers.NullExceptionHandler;
-import ninja.egg82.patterns.IRegistry;
 import ninja.egg82.patterns.ServiceLocator;
+import ninja.egg82.patterns.registries.IVariableRegistry;
 import ninja.egg82.startup.InitRegistry;
 import ninja.egg82.startup.Start;
 import ninja.egg82.utils.FileUtil;
+import ninja.egg82.utils.ReflectUtil;
 
 public abstract class BasePlugin extends Plugin {
 	//vars
 	private Logger logger = null;
+	private CommandSender consoleSender = null;
+	
+	private volatile String externalIp = null;
 	private String serverId = null;
 	
 	//constructor
@@ -49,20 +58,19 @@ public abstract class BasePlugin extends Plugin {
 	
 	//public
 	public void onLoad() {
+		loadClasses((URLClassLoader) getClass().getClassLoader());
+		
 		logger = getLogger();
 		ServiceLocator.provideService(logger);
 		logger.addHandler((Handler) ServiceLocator.getService(IExceptionHandler.class));
 		
-		IRegistry<String> initRegistry = ServiceLocator.getService(InitRegistry.class);
+		IVariableRegistry<String> initRegistry = ServiceLocator.getService(InitRegistry.class);
 		initRegistry.setRegister(BungeeInitType.PLUGIN_VERSION, getDescription().getVersion());
 		
 		ServiceLocator.provideService(ConfigRegistry.class, false);
 		ConfigUtil.setRegistry(ServiceLocator.getService(ConfigRegistry.class));
 		ServiceLocator.provideService(LanguageRegistry.class, false);
 		LanguageUtil.setRegistry(ServiceLocator.getService(LanguageRegistry.class));
-		
-		ServiceLocator.provideService(OfflinePlayerRegistry.class);
-		ServiceLocator.provideService(OfflinePlayerReverseRegistry.class);
 		
 		ServiceLocator.provideService(CommandHandler.class, false);
 		
@@ -71,6 +79,8 @@ public abstract class BasePlugin extends Plugin {
 			serverId = UUID.randomUUID().toString();
 			writeProperties();
 		}
+		
+		consoleSender = getProxy().getConsole();
 	}
 	
 	public void onEnable() {
@@ -88,23 +98,57 @@ public abstract class BasePlugin extends Plugin {
 		ServiceLocator.provideService(EventListener.class, false);
 	}
 	public void onDisable() {
-		ServiceLocator.getService(IMessageHandler.class).destroy();
-		ServiceLocator.getService(EventListener.class).destroy();
+		try {
+			ServiceLocator.getService(IMessageHandler.class).close();
+		} catch (Exception ex) {
+			
+		}
+		ServiceLocator.getService(EventListener.class).close();
 	}
 	
+	public String getServerIp() {
+		if (externalIp == null) {
+			externalIp = getExternalIp();
+		}
+		return externalIp;
+	}
 	public String getServerId() {
 		return serverId;
 	}
 	
 	//private
 	protected final void printInfo(String message) {
-		logger.info(ChatColor.GRAY + "[INFO] " + ChatColor.RESET + message);
+		if (consoleSender == null) {
+			consoleSender = getProxy().getConsole();
+		}
+		
+		if (consoleSender != null) {
+			consoleSender.sendMessage(new TextComponent(ChatColor.GRAY + "[INFO] " + ChatColor.RESET + message));
+		} else {
+			logger.info(message);
+		}
 	}
 	protected final void printWarning(String message) {
-		logger.warning(ChatColor.YELLOW + "[WARN] " + ChatColor.RESET + message);
+		if (consoleSender == null) {
+			consoleSender = getProxy().getConsole();
+		}
+		
+		if (consoleSender != null) {
+			consoleSender.sendMessage(new TextComponent(ChatColor.YELLOW + "[WARN] " + ChatColor.RESET + message));
+		} else {
+			logger.warning(message);
+		}
 	}
 	protected final void printError(String message) {
-		logger.severe(ChatColor.RED + "[ERROR] " + ChatColor.RESET + message);
+		if (consoleSender == null) {
+			consoleSender = getProxy().getConsole();
+		}
+		
+		if (consoleSender != null) {
+			consoleSender.sendMessage(new TextComponent(ChatColor.RED + "[ERROR] " + ChatColor.RESET + message));
+		} else {
+			logger.severe(message);
+		}
 	}
 	
 	private String getId() {
@@ -168,5 +212,63 @@ public abstract class BasePlugin extends Plugin {
 	}
 	private String toString(byte[] input, Charset enc) {
 		return new String(input, enc);
+	}
+	
+	private String getExternalIp() {
+		URL url = null;
+		BufferedReader in = null;
+		
+		String[] sites = new String[] {
+			"http://checkip.amazonaws.com",
+			"https://icanhazip.com/",
+			"http://www.trackip.net/ip",
+			"http://myexternalip.com/raw",
+			"http://ipecho.net/plain",
+			"https://bot.whatismyipaddress.com/"
+		};
+		
+		for (String addr : sites) {
+			try {
+				url = new URL(addr);
+				in = new BufferedReader(new InputStreamReader(url.openStream()));
+				String ip = in.readLine();
+				InetAddress.getByName(ip);
+				return ip;
+			} catch (Exception ex) {
+				continue;
+			} finally {
+				if (in != null) {
+					try {
+						in.close();
+						in = null;
+					} catch (Exception ex) {
+						
+					}
+				}
+			}
+		}
+		
+		return null;
+	}
+	
+	private void loadClasses(URLClassLoader loader) {
+    	ReflectUtil.loadClasses(
+    		"http://central.maven.org/maven2/com/github/ben-manes/caffeine/caffeine/2.6.2/caffeine-2.6.2.jar",
+    		"caffeine-2.6.2.jar",
+    		//"com.github.benmanes.caffeine", "ninja.egg82.lib.com.github.benmanes.caffeine",
+    		loader
+    	);
+    	ReflectUtil.loadClasses(
+    		"http://central.maven.org/maven2/it/unimi/dsi/fastutil/8.1.1/fastutil-8.1.1.jar",
+    		"fastutil-8.1.1.jar",
+    		//"it.unimi.dsi.fastutil", "ninja.egg82.lib.it.unimi.dsi.fastutil",
+    		loader
+    	);
+		ReflectUtil.loadClasses(
+			"http://central.maven.org/maven2/com/rabbitmq/amqp-client/5.2.0/amqp-client-5.2.0.jar",
+			"amqp-client-5.2.0.jar",
+			//"com.rabbitmq", "ninja.egg82.lib.com.rabbitmq",
+			loader
+		);
 	}
 }

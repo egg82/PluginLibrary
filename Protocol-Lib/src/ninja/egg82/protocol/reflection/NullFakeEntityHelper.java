@@ -17,10 +17,10 @@ public class NullFakeEntityHelper implements IFakeEntityHelper {
 	
 	//public
 	public IFakeLivingEntity createEntity(Location loc, EntityType type) {
-		return new NullFakeLivingEntity(loc, type);
+		return new NullFakeLivingEntity();
 	}
 	public IFakeLivingEntity toEntity(LivingEntity entity) {
-		return new NullFakeLivingEntity(entity);
+		return new NullFakeLivingEntity();
 	}
 	
 	public boolean isValidLibrary() {

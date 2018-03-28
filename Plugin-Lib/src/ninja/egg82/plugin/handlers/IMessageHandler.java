@@ -1,9 +1,11 @@
 package ninja.egg82.plugin.handlers;
 
+import java.io.Closeable;
+
 import ninja.egg82.plugin.commands.AsyncMessageCommand;
 import ninja.egg82.plugin.enums.MessageHandlerType;
 
-public interface IMessageHandler {
+public interface IMessageHandler extends Closeable {
 	//functions
 	String getSenderId();
 	void setSenderId(String senderId);
@@ -23,7 +25,6 @@ public interface IMessageHandler {
 	
 	void clearCommands();
 	void clearChannels();
-	void destroy();
 	
 	MessageHandlerType getType();
 }

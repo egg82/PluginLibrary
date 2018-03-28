@@ -3,6 +3,8 @@ package ninja.egg82.protocol.utils;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.bukkit.entity.Player;
 
@@ -20,7 +22,10 @@ import ninja.egg82.utils.ReflectUtil;
 public class ProtocolReflectUtil {
 	//vars
 	private static ConcurrentHashMap<Class<ProtocolEventCommand>, ProtocolEventCommand> events = new ConcurrentHashMap<Class<ProtocolEventCommand>, ProtocolEventCommand>();
-	private static ProtocolManager manager = null;
+	private volatile static ProtocolManager manager = null;
+	
+	// Double-lock, preventing race conditions in a multi-threaded environment
+	private static Lock objLock = new ReentrantLock();
 	
 	//constructor
 	public ProtocolReflectUtil() {
@@ -44,9 +49,11 @@ public class ProtocolReflectUtil {
 			return;
 		}
 		
+		objLock.lock();
 		if (manager == null) {
 			manager = ProtocolLibrary.getProtocolManager();
 		}
+		objLock.unlock();
 		
 		try {
 			manager.sendServerPacket(player, packet);
@@ -66,9 +73,11 @@ public class ProtocolReflectUtil {
 			throw new ArgumentNullException("players");
 		}
 		
+		objLock.lock();
 		if (manager == null) {
 			manager = ProtocolLibrary.getProtocolManager();
 		}
+		objLock.unlock();
 		
 		try {
 			for (int i = 0; i < players.length; i++) {
@@ -95,9 +104,11 @@ public class ProtocolReflectUtil {
 			return false;
 		}
 		
+		objLock.lock();
 		if (manager == null) {
 			manager = ProtocolLibrary.getProtocolManager();
 		}
+		objLock.unlock();
 		
 		if (CollectionUtil.putIfAbsent(events, clazz, run).hashCode() == run.hashCode()) {
 			manager.addPacketListener(run);
@@ -115,9 +126,11 @@ public class ProtocolReflectUtil {
 			return false;
 		}
 		
+		objLock.lock();
 		if (manager == null) {
 			manager = ProtocolLibrary.getProtocolManager();
 		}
+		objLock.unlock();
 		manager.removePacketListener(run);
 		return true;
 	}
@@ -129,9 +142,11 @@ public class ProtocolReflectUtil {
 		
 		int numEvents = 0;
 		
+		objLock.lock();
 		if (manager == null) {
 			manager = ProtocolLibrary.getProtocolManager();
 		}
+		objLock.unlock();
 		
 		List<Class<ProtocolEventCommand>> enums = ReflectUtil.getClasses(ProtocolEventCommand.class, packageName, recursive, false, false);
 		for (Class<ProtocolEventCommand> c : enums) {

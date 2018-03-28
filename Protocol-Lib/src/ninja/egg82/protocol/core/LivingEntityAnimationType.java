@@ -1,4 +1,4 @@
-package ninja.egg82.plugin.enums;
+package ninja.egg82.protocol.core;
 
 public class LivingEntityAnimationType {
 	//vars

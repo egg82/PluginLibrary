@@ -13,9 +13,9 @@ import com.comphenix.protocol.events.PacketListener;
 import com.comphenix.protocol.injector.GamePhase;
 
 import ninja.egg82.patterns.ServiceLocator;
-import ninja.egg82.patterns.SynchronousCommand;
+import ninja.egg82.patterns.Command;
 
-public abstract class ProtocolEventCommand extends SynchronousCommand implements PacketListener {
+public abstract class ProtocolEventCommand extends Command implements PacketListener {
 	//vars
 	private ListeningWhitelist sendingWhitelist = null;
 	private ListeningWhitelist receivingWhitelist = null;

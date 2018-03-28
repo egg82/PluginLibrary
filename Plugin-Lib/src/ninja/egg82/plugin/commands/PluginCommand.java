@@ -2,15 +2,14 @@ package ninja.egg82.plugin.commands;
 
 import java.util.List;
 
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
-import ninja.egg82.patterns.SynchronousCommand;
+import ninja.egg82.patterns.Command;
 
-public abstract class PluginCommand extends SynchronousCommand {
+public abstract class PluginCommand extends Command {
 	//vars
 	protected CommandSender sender = null;
-	protected Command command = null;
+	protected org.bukkit.command.Command command = null;
 	protected String commandName = null;
 	protected String label = null;
 	protected String[] args = null;
@@ -28,10 +27,10 @@ public abstract class PluginCommand extends SynchronousCommand {
 		this.sender = sender;
 	}
 	
-	public final Command getCommand() {
+	public final org.bukkit.command.Command getCommand() {
 		return command;
 	}
-	public final void setCommand(Command command) {
+	public final void setCommand(org.bukkit.command.Command command) {
 		this.command = command;
 	}
 	

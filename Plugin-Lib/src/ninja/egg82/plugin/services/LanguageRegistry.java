@@ -2,15 +2,15 @@ package ninja.egg82.plugin.services;
 
 import org.bukkit.ChatColor;
 
-import ninja.egg82.patterns.Registry;
+import ninja.egg82.patterns.registries.Registry;
 import ninja.egg82.plugin.enums.SpigotLanguageType;
 
-public class LanguageRegistry extends Registry<String> {
+public class LanguageRegistry extends Registry<String, String> {
 	//vars
 	
 	//constructor
 	public LanguageRegistry() {
-		super(String.class);
+		super(String.class, String.class);
 		
 		setRegister(SpigotLanguageType.INCORRECT_COMMAND_USAGE, ChatColor.RED + "Incorrect usage.");
 		setRegister(SpigotLanguageType.INVALID_PERMISSIONS, ChatColor.RED + "You do not have permissions to run this command!");

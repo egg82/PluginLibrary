@@ -13,26 +13,26 @@ import com.google.common.collect.Iterables;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
-import ninja.egg82.bungeecord.commands.PluginCommand;
+import ninja.egg82.bungeecord.commands.AsyncPluginCommand;
 import ninja.egg82.bungeecord.core.BungeeCommand;
+import ninja.egg82.concurrent.DynamicConcurrentDeque;
+import ninja.egg82.concurrent.IConcurrentDeque;
+import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.exceptions.ArgumentNullException;
-import ninja.egg82.patterns.DynamicObjectPool;
-import ninja.egg82.patterns.IObjectPool;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.utils.CollectionUtil;
 import ninja.egg82.utils.ReflectUtil;
 
 public final class CommandHandler {
 	//vars
-	private Plugin plugin;
+	private Plugin plugin = ServiceLocator.getService(Plugin.class);
 	private PluginManager manager = null;
 	
 	private ConcurrentHashMap<String, String> commandAliases = new ConcurrentHashMap<String, String>();
-	private ConcurrentHashMap<String, IObjectPool<BungeeCommand>> bungeeCommands = new ConcurrentHashMap<String, IObjectPool<BungeeCommand>>();
+	private ConcurrentHashMap<String, IConcurrentDeque<BungeeCommand>> bungeeCommands = new ConcurrentHashMap<String, IConcurrentDeque<BungeeCommand>>();
 	
 	//constructor
 	public CommandHandler() {
-		plugin = ServiceLocator.getService(Plugin.class);
 		manager = plugin.getProxy().getPluginManager();
 	}
 	
@@ -46,7 +46,9 @@ public final class CommandHandler {
 		}
 		
 		for (String alias : aliases) {
-			commandAliases.put(alias, command);
+			if (alias != null) {
+				commandAliases.put(alias, command);
+			}
 		}
 	}
 	public void removeAliases(String... aliases) {
@@ -55,39 +57,47 @@ public final class CommandHandler {
 		}
 		
 		for (String alias : aliases) {
-			commandAliases.remove(alias);
+			if (alias != null) {
+				commandAliases.remove(alias);
+			}
 		}
 	}
 	
-	public boolean addCommandHandler(String command, Class<? extends PluginCommand> clazz) {
+	public boolean addCommandHandler(String command, Class<? extends AsyncPluginCommand> clazz) {
 		if (command == null) {
 			throw new ArgumentNullException("command");
+		}
+		if (clazz == null) {
+			throw new ArgumentNullException("clazz");
 		}
 		
 		String key = command.toLowerCase();
 		
-		IObjectPool<BungeeCommand> pool = bungeeCommands.get(key);
+		IConcurrentDeque<BungeeCommand> pool = bungeeCommands.get(key);
 		if (pool == null) {
-			pool = new DynamicObjectPool<BungeeCommand>();
+			pool = new DynamicConcurrentDeque<BungeeCommand>();
 		}
 		pool = CollectionUtil.putIfAbsent(bungeeCommands, key, pool);
 		
 		for (BungeeCommand c : pool) {
-			if (c.getClass().equals(clazz)) {
+			if (c.getCommand().equals(clazz)) {
 				return false;
 			}
 		}
 		
 		BungeeCommand c = new BungeeCommand(key, clazz);
-		pool.add(c);
 		manager.registerCommand(plugin, c);
-		return true;
+		return pool.add(c);
 	}
-	public boolean removeCommandHandler(Class<? extends PluginCommand> clazz) {
+	public boolean removeCommandHandler(Class<? extends AsyncPluginCommand> clazz) {
+		if (clazz == null) {
+			throw new ArgumentNullException("clazz");
+		}
+		
 		boolean modified = false;
-		for (Entry<String, IObjectPool<BungeeCommand>> kvp : bungeeCommands.entrySet()) {
+		for (Entry<String, IConcurrentDeque<BungeeCommand>> kvp : bungeeCommands.entrySet()) {
 			for (BungeeCommand c : kvp.getValue()) {
-				if (c.getClass().equals(clazz)) {
+				if (c.getCommand().equals(clazz)) {
 					kvp.getValue().remove(c);
 					modified = true;
 				}
@@ -95,10 +105,17 @@ public final class CommandHandler {
 		}
 		return modified;
 	}
-	public boolean removeCommandHandler(String command, Class<? extends PluginCommand> clazz) {
+	public boolean removeCommandHandler(String command, Class<? extends AsyncPluginCommand> clazz) {
+		if (command == null) {
+			throw new ArgumentNullException("command");
+		}
+		if (clazz == null) {
+			throw new ArgumentNullException("clazz");
+		}
+		
 		String key = command.toLowerCase();
 		
-		IObjectPool<BungeeCommand> pool = bungeeCommands.get(key);
+		IConcurrentDeque<BungeeCommand> pool = bungeeCommands.get(key);
 		if (pool == null) {
 			return false;
 		}
@@ -113,14 +130,14 @@ public final class CommandHandler {
 		return modified;
 	}
 	public boolean hasCommand(String command) {
-		return command != null && (bungeeCommands.containsKey(command.toLowerCase()) || commandAliases.containsKey(command.toLowerCase()));
+		return (command != null && (bungeeCommands.containsKey(command.toLowerCase()) || commandAliases.containsKey(command.toLowerCase()))) ? true : false;
 	}
 	public void clear() {
-		bungeeCommands.forEach((k, v) -> {
-			for (BungeeCommand c : v) {
+		for (Entry<String, IConcurrentDeque<BungeeCommand>> kvp : bungeeCommands.entrySet()) {
+			for (BungeeCommand c : kvp.getValue()) {
 				manager.unregisterCommand(c);
 			}
-		});
+		}
 		
 		bungeeCommands.clear();
 		commandAliases.clear();
@@ -160,8 +177,8 @@ public final class CommandHandler {
 		
 		int numCommands = 0;
 		
-		List<Class<PluginCommand>> enums = ReflectUtil.getClasses(PluginCommand.class, packageName, recursive, false, false);
-		for (Class<PluginCommand> c : enums) {
+		List<Class<AsyncPluginCommand>> enums = ReflectUtil.getClasses(AsyncPluginCommand.class, packageName, recursive, false, false);
+		for (Class<AsyncPluginCommand> c : enums) {
 			String name = c.getName().toLowerCase();
 			String command = classCommandMap.remove(name);
 			
@@ -181,25 +198,43 @@ public final class CommandHandler {
 	}
 	
 	public void runCommand(CommandSender sender, String command, String[] args) {
-		IObjectPool<BungeeCommand> run = getCommands(sender, command, args);
+		IConcurrentDeque<BungeeCommand> run = getCommands(command);
 		
 		if (run == null || run.size() == 0) {
 			return;
 		}
 		
+		Exception lastEx = null;
 		for (BungeeCommand c : run) {
-			c.execute(sender, args);
+			try {
+				c.execute(sender, args);
+			} catch (Exception ex) {
+				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				lastEx = ex;
+			}
+		}
+		if (lastEx != null) {
+			throw new RuntimeException("Cannot run command.", lastEx);
 		}
 	}
 	public void undoInitializedCommands(CommandSender sender, String[] args) {
-		bungeeCommands.forEach((k, run) -> {
-			for (BungeeCommand c : run) {
-				c.undo(sender, args);
+		Exception lastEx = null;
+		for (Entry<String, IConcurrentDeque<BungeeCommand>> kvp : bungeeCommands.entrySet()) {
+			for (BungeeCommand c : kvp.getValue()) {
+				try {
+					c.undo(sender, args);
+				} catch (Exception ex) {
+					ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+					lastEx = ex;
+				}
 			}
-		});
+		}
+		if (lastEx != null) {
+			throw new RuntimeException("Cannot undo command.", lastEx);
+		}
 	}
 	public Iterable<String> tabComplete(CommandSender sender, String command, String[] args) {
-		IObjectPool<BungeeCommand> run = getCommands(sender, command, args);
+		IConcurrentDeque<BungeeCommand> run = getCommands(command);
 		
 		if (run == null || run.size() == 0) {
 			return null;
@@ -213,7 +248,13 @@ public final class CommandHandler {
 		ArrayList<String> retVal = new ArrayList<String>();
 		
 		for (BungeeCommand c : run) {
-			Iterable<String> complete = c.onTabComplete(sender, args);
+			Iterable<String> complete = null;
+			try {
+				complete = c.onTabComplete(sender, args);
+			} catch (Exception ex) {
+				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				throw ex;
+			}
 			if (complete != null) {
 				Iterables.addAll(retVal, complete);
 			}
@@ -223,7 +264,7 @@ public final class CommandHandler {
 	}
 	
 	//private
-	private IObjectPool<BungeeCommand> getCommands(CommandSender sender, String command, String[] args) {
+	private IConcurrentDeque<BungeeCommand> getCommands(String command) {
 		String key = command.toLowerCase();
 		
 		if (commandAliases.containsKey(key)) {

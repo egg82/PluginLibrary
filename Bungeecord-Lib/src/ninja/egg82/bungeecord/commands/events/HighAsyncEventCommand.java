@@ -1,14 +1,14 @@
-package ninja.egg82.bungeecord.commands;
+package ninja.egg82.bungeecord.commands.events;
 
 import net.md_5.bungee.api.plugin.Event;
-import ninja.egg82.patterns.SynchronousCommand;
+import ninja.egg82.patterns.Command;
 
-public abstract class EventCommand<T extends Event> extends SynchronousCommand {
+public abstract class HighAsyncEventCommand<T extends Event> extends Command implements IAsyncEventCommand<T> {
 	//vars
 	protected T event = null;
 	
 	//constructor
-	public EventCommand() {
+	public HighAsyncEventCommand() {
 		super();
 	}
 	

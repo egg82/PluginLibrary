@@ -32,9 +32,9 @@ public class InventoryUtil {
 		}
 	}
 	public static Inventory getClickedInventory(InventoryDragEvent event) {
-		if (!event.getRawSlots().iterator().hasNext() || event.getRawSlots().iterator().next() < 0) {
+		if (!event.getRawSlots().iterator().hasNext() || event.getRawSlots().iterator().next().intValue() < 0) {
 			return null;
-		} else if (event.getView().getTopInventory() != null && event.getRawSlots().iterator().next() < event.getView().getTopInventory().getSize()) {
+		} else if (event.getView().getTopInventory() != null && event.getRawSlots().iterator().next().intValue() < event.getView().getTopInventory().getSize()) {
 			return event.getView().getTopInventory();
 		} else {
 			return event.getView().getBottomInventory();
@@ -142,7 +142,7 @@ public class InventoryUtil {
 		return retVal;
 	}
 	private static void addClose(Inventory inventory) {
-		int middle = (int) Math.floor(((double) inventory.getSize()) / 2.0d) - 5;
+		int middle = (int) Math.floor(inventory.getSize() / 2.0d) - 5;
 		inventory.setItem(middle, getCloseItem());
 	}
 	private static ItemStack getCloseItem() {

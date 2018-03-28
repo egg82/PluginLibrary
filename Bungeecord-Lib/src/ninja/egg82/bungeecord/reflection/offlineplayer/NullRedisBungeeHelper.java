@@ -15,7 +15,13 @@ public class NullRedisBungeeHelper implements IRedisBungeeHelper {
 	public String getName(UUID playerUuid) {
 		return null;
 	}
+	public String getName(UUID playerUuid, boolean expensive) {
+		return null;
+	}
 	public UUID getUuid(String playerName) {
+		return null;
+	}
+	public UUID getUuid(String playerName, boolean expensive) {
 		return null;
 	}
 	public InetAddress getIp(UUID playerUuid) {
