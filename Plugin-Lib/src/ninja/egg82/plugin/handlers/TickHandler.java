@@ -6,13 +6,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
-import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.commands.AsyncTickCommand;
 import ninja.egg82.plugin.commands.TickCommand;
+import ninja.egg82.primitive.ints.Object2IntArrayMap;
+import ninja.egg82.primitive.ints.Object2IntMap;
 import ninja.egg82.utils.ReflectUtil;
 
 public final class TickHandler {

@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +35,6 @@ import ninja.egg82.patterns.registries.IVariableRegistry;
 import ninja.egg82.startup.InitRegistry;
 import ninja.egg82.startup.Start;
 import ninja.egg82.utils.FileUtil;
-import ninja.egg82.utils.ReflectUtil;
 
 public abstract class BasePlugin extends Plugin {
 	//vars
@@ -58,8 +56,6 @@ public abstract class BasePlugin extends Plugin {
 	
 	//public
 	public void onLoad() {
-		loadClasses((URLClassLoader) getClass().getClassLoader());
-		
 		logger = getLogger();
 		ServiceLocator.provideService(logger);
 		logger.addHandler((Handler) ServiceLocator.getService(IExceptionHandler.class));
@@ -249,26 +245,5 @@ public abstract class BasePlugin extends Plugin {
 		}
 		
 		return null;
-	}
-	
-	private void loadClasses(URLClassLoader loader) {
-    	ReflectUtil.loadClasses(
-    		"http://central.maven.org/maven2/com/github/ben-manes/caffeine/caffeine/2.6.2/caffeine-2.6.2.jar",
-    		"caffeine-2.6.2.jar",
-    		//"com.github.benmanes.caffeine", "ninja.egg82.lib.com.github.benmanes.caffeine",
-    		loader
-    	);
-    	ReflectUtil.loadClasses(
-    		"http://central.maven.org/maven2/it/unimi/dsi/fastutil/8.1.1/fastutil-8.1.1.jar",
-    		"fastutil-8.1.1.jar",
-    		//"it.unimi.dsi.fastutil", "ninja.egg82.lib.it.unimi.dsi.fastutil",
-    		loader
-    	);
-		ReflectUtil.loadClasses(
-			"http://central.maven.org/maven2/com/rabbitmq/amqp-client/5.2.0/amqp-client-5.2.0.jar",
-			"amqp-client-5.2.0.jar",
-			//"com.rabbitmq", "ninja.egg82.lib.com.rabbitmq",
-			loader
-		);
 	}
 }

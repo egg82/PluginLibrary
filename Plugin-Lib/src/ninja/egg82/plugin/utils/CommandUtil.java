@@ -24,10 +24,10 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Team;
 
-import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.handlers.PermissionsManager;
+import ninja.egg82.primitive.ints.Object2IntArrayMap;
+import ninja.egg82.primitive.ints.Object2IntMap;
 import ninja.egg82.utils.MathUtil;
 
 public final class CommandUtil {
