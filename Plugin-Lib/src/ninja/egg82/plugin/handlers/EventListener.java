@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import ninja.egg82.concurrent.DynamicConcurrentSet;
 import ninja.egg82.concurrent.IConcurrentSet;
 import ninja.egg82.exceptions.ArgumentNullException;
+import ninja.egg82.patterns.DoubleBuffer;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.patterns.tuples.pair.Pair;
 import ninja.egg82.plugin.BasePlugin;
@@ -43,23 +44,21 @@ public class EventListener implements Listener, Closeable {
 	private CoreEventHandler lowestEventHandler = new CoreEventHandler();
 	private CoreEventHandler monitorEventHandler = new CoreEventHandler();
 	
-	private IConcurrentSet<Pair<Event, EventPriority>> lastEvents = new DynamicConcurrentSet<Pair<Event, EventPriority>>();
+	private IConcurrentSet<String> events =  new DynamicConcurrentSet<String>();
+	private DoubleBuffer<Pair<Event, EventPriority>> lastEvents = new DoubleBuffer<Pair<Event, EventPriority>>();
 	
 	private BasePlugin plugin = ServiceLocator.getService(BasePlugin.class);
 	private PluginManager manager = Bukkit.getServer().getPluginManager();
 	
 	//constructor
+	@SuppressWarnings("deprecation")
 	public EventListener() {
-		List<Class<Event>> events = ReflectUtil.getClasses(Event.class, "org.bukkit.event", true, false, false);
-		for (Class<Event> e : events) {
-			registerEvent(e);
-		}
-		
-		Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
+		Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, new Runnable() {
 			public void run() {
-				lastEvents.clear();
+				lastEvents.swapBuffers();
+				lastEvents.getBackBuffer().clear();
 			}
-		}, 1L, 1L);
+		}, 20L, 20L);
 	}
 	
 	//public
@@ -70,6 +69,8 @@ public class EventListener implements Listener, Closeable {
 		if (clazz == null) {
 			throw new ArgumentNullException("clazz");
 		}
+		
+		registerEvent(event);
 		
 		if (ReflectUtil.doesExtend(EventCommand.class, clazz)) {
 			return normalEventHandler.addEventHandler(event, clazz);
@@ -171,6 +172,10 @@ public class EventListener implements Listener, Closeable {
 	}
 	
 	public void registerEvent(Class<? extends Event> e) {
+		if (!events.add(e.getName())) {
+			return;
+		}
+		
 		manager.registerEvent(e, this, EventPriority.HIGHEST, highestEventExecutor, plugin, false);
 		manager.registerEvent(e, this, EventPriority.HIGH, highEventExecutor, plugin, false);
 		manager.registerEvent(e, this, EventPriority.NORMAL, normalEventExecutor, plugin, false);
@@ -179,6 +184,10 @@ public class EventListener implements Listener, Closeable {
 		manager.registerEvent(e, this, EventPriority.MONITOR, monitorEventExecutor, plugin, false);
 	}
 	public void unregisterEvent(Class<? extends Event> e) {
+		if (!events.remove(e.getName())) {
+			return;
+		}
+		
 		Method m = ReflectUtil.getMethod("getHandlerList", e);
 		
 		if (m == null) {
@@ -277,7 +286,7 @@ public class EventListener implements Listener, Closeable {
 	}
 	
 	private boolean isDuplicate(Event event, EventPriority priority) {
-		if (!lastEvents.add(new Pair<Event, EventPriority>(event, priority))) {
+		if (!lastEvents.getCurrentBuffer().add(new Pair<Event, EventPriority>(event, priority))) {
 			return true;
 		}
 		return false;

@@ -1,5 +1,8 @@
 package ninja.egg82.plugin.reflection.player;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -7,6 +10,8 @@ import ninja.egg82.exceptions.ArgumentNullException;
 
 public final class PlayerHelper_1_8 implements IPlayerHelper {
 	//vars
+	private static Method getHandleMethod;
+	private static Field pingField;
 	
 	//constructor
 	public PlayerHelper_1_8() {
@@ -42,6 +47,31 @@ public final class PlayerHelper_1_8 implements IPlayerHelper {
 		if (player.getInventory().addItem(item).size() > 0) {
 			player.setItemInHand(item);
 		}
+	}
+	
+	public int getPing(Player player) {
+		int ping = -1;
+		
+		try {
+			if (getHandleMethod == null) {
+				getHandleMethod = player.getClass().getDeclaredMethod("getHandle");
+				getHandleMethod.setAccessible(true);
+			}
+			Object entityPlayer = getHandleMethod.invoke(player);
+			if (pingField == null) {
+				pingField = entityPlayer.getClass().getDeclaredField("ping");
+				pingField.setAccessible(true);
+			}
+			
+			ping = pingField.getInt(entityPlayer);
+			if (ping < 0) {
+				ping = 0;
+			}
+		} catch (Exception ex) {
+			
+		}
+		
+		return ping;
 	}
 	
 	public boolean supportsOffhand() {

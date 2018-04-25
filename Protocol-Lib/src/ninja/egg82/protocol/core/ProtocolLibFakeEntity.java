@@ -6,6 +6,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.accessors.Accessors;
 import com.comphenix.protocol.reflect.accessors.FieldAccessor;
@@ -31,6 +33,8 @@ public abstract class ProtocolLibFakeEntity implements IFakeEntity {
 	private FieldAccessor nextEntityId = Accessors.getFieldAccessor(MinecraftReflection.getEntityClass(), "entityCount", true);
 	private static int currentEntityId = Integer.MAX_VALUE;
 	
+	private ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
+	
 	//constructor
 	public ProtocolLibFakeEntity() {
 		
@@ -47,7 +51,7 @@ public abstract class ProtocolLibFakeEntity implements IFakeEntity {
 		if (!players.contains(uuid)) {
 			players.add(uuid);
 			if (spawnPacket != null) {
-				ProtocolReflectUtil.sendPacket(spawnPacket, player);
+				ProtocolReflectUtil.sendPacket(protocolManager, spawnPacket, player);
 			}
 			return true;
 		}
@@ -62,7 +66,7 @@ public abstract class ProtocolLibFakeEntity implements IFakeEntity {
 		
 		if (players.remove(uuid)) {
 			if (destroyPacket != null) {
-				ProtocolReflectUtil.sendPacket(destroyPacket, player);
+				ProtocolReflectUtil.sendPacket(protocolManager, destroyPacket, player);
 			}
 			return true;
 		}
@@ -71,7 +75,7 @@ public abstract class ProtocolLibFakeEntity implements IFakeEntity {
 	public void removeAllPlayers() {
 		if (destroyPacket != null) {
 			for (UUID uuid : players) {
-				ProtocolReflectUtil.sendPacket(destroyPacket, Bukkit.getPlayer(uuid));
+				ProtocolReflectUtil.sendPacket(protocolManager, destroyPacket, Bukkit.getPlayer(uuid));
 			}
 		}
 		players.clear();

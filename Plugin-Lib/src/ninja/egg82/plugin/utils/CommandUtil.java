@@ -25,6 +25,7 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Team;
 
 import ninja.egg82.patterns.ServiceLocator;
+import ninja.egg82.permissions.reflection.IPermissionsHelper;
 import ninja.egg82.plugin.handlers.PermissionsManager;
 import ninja.egg82.primitive.ints.Object2IntArrayMap;
 import ninja.egg82.primitive.ints.Object2IntMap;
@@ -160,21 +161,31 @@ public final class CommandUtil {
 		// is because some plugins don't handle permissions that way.
 		// This way is slower by a country mile, but guaranteed the result the sender wants.
 		
-		if (sender.isOp()) {
-			boolean backup = senderForLocation.isOp();
-			senderForLocation.setOp(true);
-			senderForLocation.recalculatePermissions();
+		IPermissionsHelper permissionsHelper = ServiceLocator.getService(IPermissionsHelper.class);
+		
+		if (permissionsHelper.isValidLibrary() && senderForLocation instanceof Player) {
+			//TODO: Finish
+			/*Set<String> backup = permissionsHelper.getPermissions((Player) senderForLocation, true);
+			permissionsHelper.setPermissions((Player) senderForLocation, (sender instanceof Player) ? permissionsHelper.getPermissions((Player) sender) : Arrays.asList("*"));
 			Bukkit.dispatchCommand(senderForLocation, command);
-			senderForLocation.setOp(backup);
-			senderForLocation.recalculatePermissions();
+			permissionsHelper.setPermissions((Player) senderForLocation, backup);*/
 		} else {
-			HashSet<PermissionAttachmentInfo> backup = new HashSet<PermissionAttachmentInfo>(senderForLocation.getEffectivePermissions());
-			senderForLocation.getEffectivePermissions().addAll(sender.getEffectivePermissions());
-			senderForLocation.recalculatePermissions();
-			Bukkit.dispatchCommand(senderForLocation, command);
-			senderForLocation.getEffectivePermissions().clear();
-			senderForLocation.getEffectivePermissions().addAll(backup);
-			senderForLocation.recalculatePermissions();
+			if (sender.isOp()) {
+				boolean backup = senderForLocation.isOp();
+				senderForLocation.setOp(true);
+				senderForLocation.recalculatePermissions();
+				Bukkit.dispatchCommand(senderForLocation, command);
+				senderForLocation.setOp(backup);
+				senderForLocation.recalculatePermissions();
+			} else {
+				HashSet<PermissionAttachmentInfo> backup = new HashSet<PermissionAttachmentInfo>(senderForLocation.getEffectivePermissions());
+				senderForLocation.getEffectivePermissions().addAll(sender.getEffectivePermissions());
+				senderForLocation.recalculatePermissions();
+				Bukkit.dispatchCommand(senderForLocation, command);
+				senderForLocation.getEffectivePermissions().clear();
+				senderForLocation.getEffectivePermissions().addAll(backup);
+				senderForLocation.recalculatePermissions();
+			}
 		}
 	}
 	

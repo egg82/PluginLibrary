@@ -8,6 +8,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 
 import it.unimi.dsi.fastutil.shorts.ShortArrayList;
@@ -23,6 +25,8 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 	//vars
 	private IPacketBlockHelper packetHelper = null;
 	private int maxDistance = Bukkit.getViewDistance() * 16;
+	
+	private ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
 	
 	//constructor
 	public ProtocolLibFakeBlockHelper() {
@@ -47,7 +51,7 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 		}
 		
 		if (blockLocation.getWorld().getName().equals(player.getWorld().getName())) {
-			ProtocolReflectUtil.sendPacket(packetHelper.blockChange(blockLocation, newMaterial, newMetadata), player);
+			ProtocolReflectUtil.sendPacket(protocolManager, packetHelper.blockChange(blockLocation, newMaterial, newMetadata), player);
 		}
 	}
 	public void updateBlock(Player[] players, Location blockLocation, Material newMaterial) {
@@ -111,7 +115,7 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 		}
 		
 		for (int i = 0; i < packets.size(); i++) {
-			ProtocolReflectUtil.sendPacket(packets.get(i), player);
+			ProtocolReflectUtil.sendPacket(protocolManager, packets.get(i), player);
 		}
 	}
 	public void updateBlocks(Player player, Location[] blockLocations, Material[] newMaterials) {
@@ -182,7 +186,7 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 		}
 		
 		for (int i = 0; i < packets.size(); i++) {
-			ProtocolReflectUtil.sendPacket(packets.get(i), player);
+			ProtocolReflectUtil.sendPacket(protocolManager, packets.get(i), player);
 		}
 	}
 	public void updateBlocks(Player[] players, Location[] blockLocations, Material newMaterial) {

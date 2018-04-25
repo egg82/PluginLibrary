@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.util.Vector;
 
+import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 
 import ninja.egg82.exceptions.ArgumentNullException;
@@ -80,7 +81,7 @@ public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implement
 			if (teleportSpawnPacket != null) {
 				// Bit of a hack since the spawn packet for 1.8 seems to always spawn at 0,0,0 regardless of input
 				if (gameVersion == "1.8" || gameVersion == "1.8.1" || gameVersion == "1.8.3" || gameVersion == "1.8.8") {
-					ProtocolReflectUtil.sendPacket(teleportSpawnPacket, player);
+					ProtocolReflectUtil.sendPacket(ProtocolLibrary.getProtocolManager(), teleportSpawnPacket, player);
 				}
 			}
 			return true;
@@ -103,7 +104,7 @@ public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implement
 		}
 		
 		for (UUID uuid : players) {
-			ProtocolReflectUtil.sendPacket(packet, Bukkit.getPlayer(uuid));
+			ProtocolReflectUtil.sendPacket(ProtocolLibrary.getProtocolManager(), packet, Bukkit.getPlayer(uuid));
 		}
 	}
 	
@@ -120,7 +121,7 @@ public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implement
 			PacketContainer deathPacket = packetHelper.death(id);
 			
 			for (UUID uuid : players) {
-				ProtocolReflectUtil.sendPacket(deathPacket, Bukkit.getPlayer(uuid));
+				ProtocolReflectUtil.sendPacket(ProtocolLibrary.getProtocolManager(), deathPacket, Bukkit.getPlayer(uuid));
 			}
 		}
 	}
@@ -143,8 +144,8 @@ public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implement
 		currentLocation.setYaw(yaw);
 		
 		for (UUID uuid : players) {
-			ProtocolReflectUtil.sendPacket(lookPacket, Bukkit.getPlayer(uuid));
-			ProtocolReflectUtil.sendPacket(headLookPacket, Bukkit.getPlayer(uuid));
+			ProtocolReflectUtil.sendPacket(ProtocolLibrary.getProtocolManager(), lookPacket, Bukkit.getPlayer(uuid));
+			ProtocolReflectUtil.sendPacket(ProtocolLibrary.getProtocolManager(), headLookPacket, Bukkit.getPlayer(uuid));
 		}
 	}
 	public void moveTo(Location loc) {
@@ -157,7 +158,7 @@ public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implement
 		currentLocation = LocationUtil.makeEqualXYZ(loc, currentLocation);
 		
 		for (UUID uuid : players) {
-			ProtocolReflectUtil.sendPacket(movePacket, Bukkit.getPlayer(uuid));
+			ProtocolReflectUtil.sendPacket(ProtocolLibrary.getProtocolManager(), movePacket, Bukkit.getPlayer(uuid));
 		}
 	}
 	public void teleportTo(Location loc) {
@@ -170,14 +171,14 @@ public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implement
 		currentLocation = loc.clone();
 		
 		for (UUID uuid : players) {
-			ProtocolReflectUtil.sendPacket(teleportPacket, Bukkit.getPlayer(uuid));
+			ProtocolReflectUtil.sendPacket(ProtocolLibrary.getProtocolManager(), teleportPacket, Bukkit.getPlayer(uuid));
 		}
 	}
 	
 	public void animate(int animationId) {
 		PacketContainer animatePacket = packetHelper.animate(id, animationId);
 		for (UUID uuid : players) {
-			ProtocolReflectUtil.sendPacket(animatePacket, Bukkit.getPlayer(uuid));
+			ProtocolReflectUtil.sendPacket(ProtocolLibrary.getProtocolManager(), animatePacket, Bukkit.getPlayer(uuid));
 		}
 	}
 	public void attack(Damageable entity, double damage) {

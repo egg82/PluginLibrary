@@ -240,6 +240,13 @@ public class LocationUtil {
 		return to;
 	}
 	
+	public static boolean areEqualPitchYaw(Location from, Location to) {
+		return areEqualPitchYaw(from, to, 0.0d);
+	}
+	public static boolean areEqualPitchYaw(Location from, Location to, double epsilon) {
+		return (Math.abs(from.getPitch() - to.getPitch()) > epsilon || Math.abs(from.getYaw() - to.getYaw()) > epsilon) ? false : true;
+	}
+	
 	//private
 	private static double getTargetVelocity(double d, double a, double t) {
 		a *= -0.5d;

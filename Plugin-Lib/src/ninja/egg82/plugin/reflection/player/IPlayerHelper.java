@@ -10,5 +10,7 @@ public interface IPlayerHelper {
 	void setItemInMainHand(Player player, ItemStack item);
 	void setItemInOffHand(Player player, ItemStack item);
 	
+	int getPing(Player player);
+	
 	boolean supportsOffhand();
 }
