@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <artifactId>disguise-lib</artifactId>
-  <version>1.1.4</version>
+  <version>1.1.5</version>
   <name>egg82-disguise-lib</name>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -54,6 +54,10 @@
   </parent> -->
   <repositories>
     <repository>
+      <id>dmulloy2-repo</id>
+      <url>http://repo.dmulloy2.net/content/groups/public/</url>
+    </repository>
+    <repository>
       <id>robingrether-repo</id>
       <url>http://repo.robingrether.de/</url>
     </repository>
@@ -66,7 +70,7 @@
     <dependency>
        <groupId>LibsDisguises</groupId>
        <artifactId>LibsDisguises</artifactId>
-       <version>9.5.0</version>
+       <version>9.5.1</version>
        <scope>provided</scope>
     </dependency>
     <dependency>

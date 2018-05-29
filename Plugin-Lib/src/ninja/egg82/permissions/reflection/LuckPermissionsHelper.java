@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -12,10 +13,12 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import me.lucko.luckperms.LuckPerms;
+import me.lucko.luckperms.api.Contexts;
 import me.lucko.luckperms.api.LuckPermsApi;
 import me.lucko.luckperms.api.Node;
 import me.lucko.luckperms.api.User;
 import me.lucko.luckperms.api.caching.MetaData;
+import me.lucko.luckperms.api.caching.PermissionData;
 import me.lucko.luckperms.api.caching.UserData;
 import ninja.egg82.patterns.tuples.pair.Boolean2Pair;
 
@@ -82,7 +85,7 @@ public class LuckPermissionsHelper implements IPermissionsHelper {
 		List<Node> nodes = new ArrayList<Node>(user.getOwnNodes());
 		for (Iterator<Node> i = nodes.iterator(); i.hasNext();) {
 			Node n = i.next();
-			if (!n.isGroupNode() || !n.getValuePrimitive()) {
+			if (!n.isGroupNode() || !n.getValue()) {
 				i.remove();
 			}
 		}
@@ -157,8 +160,51 @@ public class LuckPermissionsHelper implements IPermissionsHelper {
 		}
 		
 		UserData data = user.getCachedData();
-		MetaData meta = data.getMetaData(api.getContextsForPlayer(player));
+		Optional<Contexts> contexts = api.getContextForUser(user);
+		MetaData meta = null;
+		if (contexts.isPresent()) {
+			meta = data.getMetaData(contexts.get());
+		} else {
+			meta = data.getMetaData(Contexts.global());
+		}
 		return meta.getSuffix();
+	}
+	
+	public boolean hasPermission(Player player, String permission) {
+		return hasPermission(player, permission, false);
+	}
+	public boolean hasPermission(OfflinePlayer player, String permission, boolean expensive) {
+		if (player == null) {
+			return false;
+		}
+		
+		if (api == null) {
+			api = LuckPerms.getApi();
+		}
+		
+		UUID uuid = player.getUniqueId();
+		
+		if (expensive && !player.isOnline()) {
+			// Load a user even if offline
+			api.getUserManager().loadUser(uuid);
+		}
+		
+		User user = api.getUser(uuid);
+		
+		if (user == null) {
+			// No storage data for user, even offline
+			return false;
+		}
+		
+		UserData data = user.getCachedData();
+		Optional<Contexts> contexts = api.getContextForUser(user);
+		PermissionData perms = null;
+		if (contexts.isPresent()) {
+			perms = data.getPermissionData(contexts.get());
+		} else {
+			perms = data.getPermissionData(Contexts.global());
+		}
+		return perms.getPermissionValue(permission).asBoolean();
 	}
 	
 	/*public Set<Boolean2Pair<String>> getPermissions(Player player) {

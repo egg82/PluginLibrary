@@ -67,6 +67,14 @@ public class PEXPermissionsHelper implements IPermissionsHelper {
 		return user.getSuffix();
 	}
 	
+	public boolean hasPermission(Player player, String permission) {
+		return hasPermission(player, permission, false);
+	}
+	public boolean hasPermission(OfflinePlayer player, String permission, boolean expensive) {
+		PermissionUser user = PermissionsEx.getUser(player.getUniqueId().toString());
+		return user.has(permission);
+	}
+	
 	/*public Set<Boolean2Pair<String>> getPermissions(Player player) {
 		return getPermissions(player, false);
 	}

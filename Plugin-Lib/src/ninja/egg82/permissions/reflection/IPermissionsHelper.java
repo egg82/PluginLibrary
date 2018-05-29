@@ -21,6 +21,9 @@ public interface IPermissionsHelper {
 	String getSuffix(Player player);
 	String getSuffix(OfflinePlayer player, boolean expensive);
 	
+	boolean hasPermission(Player player, String permission);
+	boolean hasPermission(OfflinePlayer player, String permission, boolean expensive);
+	
 	/*Set<Boolean2Pair<String>> getPermissions(Player player);
 	Set<Boolean2Pair<String>> getPermissions(OfflinePlayer player, boolean expensive);
 	void setTempPermissions(OfflinePlayer player, Collection<Boolean2Pair<String>> permissions, long expireTime, TimeUnit expireTimeUnit);*/

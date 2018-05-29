@@ -43,6 +43,13 @@ public class NullPermissionsHelper implements IPermissionsHelper {
 		return null;
 	}
 	
+	public boolean hasPermission(Player player, String permission) {
+		return hasPermission(player, permission, false);
+	}
+	public boolean hasPermission(OfflinePlayer player, String permission, boolean expensive) {
+		return false;
+	}
+	
 	public Set<Boolean2Pair<String>> getPermissions(Player player) {
 		return getPermissions(player, false);
 	}
