@@ -2,15 +2,12 @@ package ninja.egg82.permissions.reflection;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.UUID;
-
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 
 import me.lucko.luckperms.LuckPerms;
 import me.lucko.luckperms.api.Contexts;
@@ -20,7 +17,6 @@ import me.lucko.luckperms.api.User;
 import me.lucko.luckperms.api.caching.MetaData;
 import me.lucko.luckperms.api.caching.PermissionData;
 import me.lucko.luckperms.api.caching.UserData;
-import ninja.egg82.patterns.tuples.pair.Boolean2Pair;
 
 public class LuckPermissionsHelper implements IPermissionsHelper {
 	//vars
@@ -32,11 +28,11 @@ public class LuckPermissionsHelper implements IPermissionsHelper {
 	}
 	
 	//public
-	public boolean hasGroup(Player player, Collection<String> groups, boolean caseSensitive) {
-		return hasGroup(player, groups, caseSensitive, false);
+	public boolean hasGroup(UUID playerUuid, Collection<String> groups, boolean caseSensitive) {
+		return hasGroup(playerUuid, groups, caseSensitive, false);
 	}
-	public boolean hasGroup(OfflinePlayer player, Collection<String> groups, boolean caseSensitive, boolean expensive) {
-		Set<String> actualGroups = getGroups(player, expensive);
+	public boolean hasGroup(UUID playerUuid, Collection<String> groups, boolean caseSensitive, boolean expensive) {
+		SortedSet<String> actualGroups = getGroups(playerUuid, expensive);
 		
 		if (caseSensitive) {
 			for (String g : groups) {
@@ -56,30 +52,28 @@ public class LuckPermissionsHelper implements IPermissionsHelper {
 		
 		return false;
 	}
-	public Set<String> getGroups(Player player) {
-		return getGroups(player, false);
+	public SortedSet<String> getGroups(UUID playerUuid) {
+		return getGroups(playerUuid, false);
 	}
-	public Set<String> getGroups(OfflinePlayer player, boolean expensive) {
-		if (player == null) {
-			return new HashSet<String>();
+	public SortedSet<String> getGroups(UUID playerUuid, boolean expensive) {
+		if (playerUuid == null) {
+			return new TreeSet<String>();
 		}
 		
 		if (api == null) {
 			api = LuckPerms.getApi();
 		}
 		
-		UUID uuid = player.getUniqueId();
-		
-		if (expensive && !player.isOnline()) {
+		if (expensive && !api.isUserLoaded(playerUuid)) {
 			// Load a user even if offline
-			api.getUserManager().loadUser(uuid);
+			api.getUserManager().loadUser(playerUuid);
 		}
 		
-		User user = api.getUser(uuid);
+		User user = api.getUser(playerUuid);
 		
 		if (user == null) {
 			// No storage data for user, even offline
-			return new HashSet<String>();
+			return new TreeSet<String>();
 		}
 		
 		List<Node> nodes = new ArrayList<Node>(user.getOwnNodes());
@@ -91,10 +85,10 @@ public class LuckPermissionsHelper implements IPermissionsHelper {
 		}
 		
 		if (nodes.isEmpty()) {
-			return new HashSet<String>();
+			return new TreeSet<String>();
 		}
 		
-		Set<String> retVal = new HashSet<String>();
+		SortedSet<String> retVal = new TreeSet<String>();
 		
 		for (Node n : nodes) {
 			retVal.add(n.getGroupName());
@@ -103,11 +97,11 @@ public class LuckPermissionsHelper implements IPermissionsHelper {
 		return retVal;
 	}
 	
-	public String getPrefix(Player player) {
-		return getPrefix(player, false);
+	public String getPrefix(UUID playerUuid) {
+		return getPrefix(playerUuid, false);
 	}
-	public String getPrefix(OfflinePlayer player, boolean expensive) {
-		if (player == null) {
+	public String getPrefix(UUID playerUuid, boolean expensive) {
+		if (playerUuid == null) {
 			return "";
 		}
 		
@@ -115,14 +109,12 @@ public class LuckPermissionsHelper implements IPermissionsHelper {
 			api = LuckPerms.getApi();
 		}
 		
-		UUID uuid = player.getUniqueId();
-		
-		if (expensive && !player.isOnline()) {
+		if (expensive && !api.isUserLoaded(playerUuid)) {
 			// Load a user even if offline
-			api.getUserManager().loadUser(uuid);
+			api.getUserManager().loadUser(playerUuid);
 		}
 		
-		User user = api.getUser(uuid);
+		User user = api.getUser(playerUuid);
 		
 		if (user == null) {
 			// No storage data for user, even offline
@@ -130,14 +122,20 @@ public class LuckPermissionsHelper implements IPermissionsHelper {
 		}
 		
 		UserData data = user.getCachedData();
-		MetaData meta = data.getMetaData(api.getContextsForPlayer(player));
+		Optional<Contexts> contexts = api.getContextForUser(user);
+		MetaData meta = null;
+		if (contexts.isPresent()) {
+			meta = data.getMetaData(contexts.get());
+		} else {
+			meta = data.getMetaData(Contexts.global());
+		}
 		return meta.getPrefix();
 	}
-	public String getSuffix(Player player) {
-		return getSuffix(player, false);
+	public String getSuffix(UUID playerUuid) {
+		return getSuffix(playerUuid, false);
 	}
-	public String getSuffix(OfflinePlayer player, boolean expensive) {
-		if (player == null) {
+	public String getSuffix(UUID playerUuid, boolean expensive) {
+		if (playerUuid == null) {
 			return "";
 		}
 		
@@ -145,14 +143,12 @@ public class LuckPermissionsHelper implements IPermissionsHelper {
 			api = LuckPerms.getApi();
 		}
 		
-		UUID uuid = player.getUniqueId();
-		
-		if (expensive && !player.isOnline()) {
+		if (expensive && !api.isUserLoaded(playerUuid)) {
 			// Load a user even if offline
-			api.getUserManager().loadUser(uuid);
+			api.getUserManager().loadUser(playerUuid);
 		}
 		
-		User user = api.getUser(uuid);
+		User user = api.getUser(playerUuid);
 		
 		if (user == null) {
 			// No storage data for user, even offline
@@ -170,11 +166,11 @@ public class LuckPermissionsHelper implements IPermissionsHelper {
 		return meta.getSuffix();
 	}
 	
-	public boolean hasPermission(Player player, String permission) {
-		return hasPermission(player, permission, false);
+	public boolean hasPermission(UUID playerUuid, String permission) {
+		return hasPermission(playerUuid, permission, false);
 	}
-	public boolean hasPermission(OfflinePlayer player, String permission, boolean expensive) {
-		if (player == null) {
+	public boolean hasPermission(UUID playerUuid, String permission, boolean expensive) {
+		if (playerUuid == null) {
 			return false;
 		}
 		
@@ -182,14 +178,12 @@ public class LuckPermissionsHelper implements IPermissionsHelper {
 			api = LuckPerms.getApi();
 		}
 		
-		UUID uuid = player.getUniqueId();
-		
-		if (expensive && !player.isOnline()) {
+		if (expensive && !api.isUserLoaded(playerUuid)) {
 			// Load a user even if offline
-			api.getUserManager().loadUser(uuid);
+			api.getUserManager().loadUser(playerUuid);
 		}
 		
-		User user = api.getUser(uuid);
+		User user = api.getUser(playerUuid);
 		
 		if (user == null) {
 			// No storage data for user, even offline

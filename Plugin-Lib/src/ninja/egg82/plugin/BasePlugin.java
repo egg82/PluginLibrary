@@ -17,12 +17,16 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.exceptionHandlers.NullExceptionHandler;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.patterns.registries.IVariableRegistry;
+import ninja.egg82.permissions.reflection.LuckPermissionsHelper;
+import ninja.egg82.permissions.reflection.NullPermissionsHelper;
+import ninja.egg82.permissions.reflection.PEXPermissionsHelper;
 import ninja.egg82.plugin.enums.BukkitInitType;
 import ninja.egg82.plugin.handlers.EnhancedBungeeMessageHandler;
 import ninja.egg82.plugin.handlers.CommandHandler;
@@ -91,6 +95,19 @@ public abstract class BasePlugin extends JavaPlugin {
 		ServiceLocator.provideService(PermissionsManager.class, false);
 		ServiceLocator.provideService(CommandHandler.class, false);
 		ServiceLocator.provideService(TickHandler.class, false);
+		
+		PluginManager manager = getServer().getPluginManager();
+		
+		if (manager.getPlugin("LuckPerms") != null) {
+			printInfo(ChatColor.GREEN + "[PluginLib] Enabling support for LuckPerms.");
+			ServiceLocator.provideService(LuckPermissionsHelper.class);
+		} else if (manager.getPlugin("PermissionsEx") != null) {
+			printInfo(ChatColor.GREEN + "[PluginLib] Enabling support for PEX.");
+			ServiceLocator.provideService(PEXPermissionsHelper.class);
+		} else {
+			printWarning(ChatColor.RED + "[PluginLib] Neither PEX nor LuckPerms were found. Skipping support for them.");
+			ServiceLocator.provideService(NullPermissionsHelper.class);
+		}
 		
 		commandHandler = ServiceLocator.getService(CommandHandler.class);
 		

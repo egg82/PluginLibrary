@@ -32,6 +32,9 @@ import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.exceptionHandlers.NullExceptionHandler;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.patterns.registries.IVariableRegistry;
+import ninja.egg82.permissions.reflection.LuckPermissionsHelper;
+import ninja.egg82.permissions.reflection.NullPermissionsHelper;
+import ninja.egg82.permissions.reflection.PEXPermissionsHelper;
 import ninja.egg82.startup.InitRegistry;
 import ninja.egg82.startup.Start;
 import ninja.egg82.utils.FileUtil;
@@ -88,6 +91,17 @@ public abstract class BasePlugin extends Plugin {
 		} else {
 			printWarning(ChatColor.YELLOW + "[BungeeLib] RedisBungee was not found. Skipping support for it.");
 			ServiceLocator.provideService(NullRedisBungeeHelper.class);
+		}
+		
+		if (manager.getPlugin("LuckPerms") != null) {
+			printInfo(ChatColor.GREEN + "[BungeeLib] Enabling support for LuckPerms.");
+			ServiceLocator.provideService(LuckPermissionsHelper.class);
+		} else if (manager.getPlugin("PermissionsEx") != null) {
+			printInfo(ChatColor.GREEN + "[BungeeLib] Enabling support for PEX.");
+			ServiceLocator.provideService(PEXPermissionsHelper.class);
+		} else {
+			printWarning(ChatColor.RED + "[BungeeLib] Neither PEX nor LuckPerms were found. Skipping support for them.");
+			ServiceLocator.provideService(NullPermissionsHelper.class);
 		}
 		
 		ServiceLocator.provideService(EnhancedBungeeMessageHandler.class);

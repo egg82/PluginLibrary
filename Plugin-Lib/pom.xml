@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <artifactId>plugin-lib</artifactId>
-  <version>3.7.35</version>
+  <version>3.7.36</version>
   <name>egg82-plugin-lib</name>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -90,10 +90,6 @@
       <url>https://www.myget.org/F/egg82-java/maven/</url>
     </repository>
     <repository>
-      <id>pex-repo</id>
-      <url>http://pex-repo.aoeu.xyz</url>
-    </repository>
-    <repository>
       <id>aikar</id>
       <url>https://repo.aikar.co/content/groups/aikar/</url>
     </repository>
@@ -131,21 +127,14 @@
       <version>5.1.2</version>
     </dependency>
     <dependency>
-      <groupId>ru.tehkode</groupId>
-      <artifactId>PermissionsEx</artifactId>
-      <version>1.23.1</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>me.lucko.luckperms</groupId>
-      <artifactId>luckperms-api</artifactId>
-      <version>4.2</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>co.aikar</groupId>
       <artifactId>fastutil-lite</artifactId>
       <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>ninja.egg82.lib</groupId>
+      <artifactId>permissions-lib</artifactId>
+      <version>1.0.0</version>
     </dependency>
   </dependencies>
   <description>Base library containing useful things for every plugin</description>

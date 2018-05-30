@@ -9,6 +9,7 @@
     <sourceDirectory>src</sourceDirectory>
   </build>
   <modules>
+    <module>Permissions-Lib</module>
     <module>Bungeecord-Lib</module>
 	<module>Plugin-Lib</module>
 	<module>Eco-Lib</module>
