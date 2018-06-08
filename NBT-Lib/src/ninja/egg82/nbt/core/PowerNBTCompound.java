@@ -15,8 +15,6 @@ import me.dpohvar.powernbt.api.NBTCompound.NBTEntrySet;
 import me.dpohvar.powernbt.api.NBTList;
 import me.dpohvar.powernbt.api.NBTList.NBTIterator;
 import me.dpohvar.powernbt.api.NBTManager;
-import ninja.egg82.exceptions.ArgumentNullException;
-import ninja.egg82.utils.ReflectUtil;
 
 public class PowerNBTCompound implements INBTCompound {
 	//vars
@@ -76,7 +74,7 @@ public class PowerNBTCompound implements INBTCompound {
 	}
 	public void removeTag(String name) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		NBTCompound compound = readCompound();
@@ -90,7 +88,7 @@ public class PowerNBTCompound implements INBTCompound {
 	
 	public void setBoolean(String name, boolean data) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		NBTCompound compound = readCompound();
@@ -99,14 +97,14 @@ public class PowerNBTCompound implements INBTCompound {
 	}
 	public boolean getBoolean(String name) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		return readCompound().getBoolean(name);
 	}
 	public void setByte(String name, byte data) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		NBTCompound compound = readCompound();
@@ -115,14 +113,14 @@ public class PowerNBTCompound implements INBTCompound {
 	}
 	public byte getByte(String name) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		return readCompound().getByte(name);
 	}
 	public void setShort(String name, short data) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		NBTCompound compound = readCompound();
@@ -131,14 +129,14 @@ public class PowerNBTCompound implements INBTCompound {
 	}
 	public short getShort(String name) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		return readCompound().getShort(name);
 	}
 	public void setInt(String name, int data) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		NBTCompound compound = readCompound();
@@ -147,14 +145,14 @@ public class PowerNBTCompound implements INBTCompound {
 	}
 	public int getInt(String name) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		return readCompound().getInt(name);
 	}
 	public void setLong(String name, long data) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		NBTCompound compound = readCompound();
@@ -163,14 +161,14 @@ public class PowerNBTCompound implements INBTCompound {
 	}
 	public long getLong(String name) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		return readCompound().getLong(name);
 	}
 	public void setFloat(String name, float data) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		NBTCompound compound = readCompound();
@@ -179,14 +177,14 @@ public class PowerNBTCompound implements INBTCompound {
 	}
 	public float getFloat(String name) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		return readCompound().getFloat(name);
 	}
 	public void setDouble(String name, double data) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		NBTCompound compound = readCompound();
@@ -195,14 +193,14 @@ public class PowerNBTCompound implements INBTCompound {
 	}
 	public double getDouble(String name) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		return readCompound().getDouble(name);
 	}
 	public void setString(String name, String data) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		NBTCompound compound = readCompound();
@@ -211,14 +209,14 @@ public class PowerNBTCompound implements INBTCompound {
 	}
 	public String getString(String name) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		return readCompound().getString(name);
 	}
 	public void setByteArray(String name, byte[] data) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		NBTCompound compound = readCompound();
@@ -227,14 +225,14 @@ public class PowerNBTCompound implements INBTCompound {
 	}
 	public byte[] getByteArray(String name) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		return readCompound().getByteArray(name);
 	}
 	public void setIntArray(String name, int[] data) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		NBTCompound compound = readCompound();
@@ -243,7 +241,7 @@ public class PowerNBTCompound implements INBTCompound {
 	}
 	public int[] getIntArray(String name) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		return readCompound().getIntArray(name);
@@ -251,7 +249,7 @@ public class PowerNBTCompound implements INBTCompound {
 	
 	public void setObject(String name, Object data) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		NBTCompound compound = readCompound();
@@ -260,7 +258,7 @@ public class PowerNBTCompound implements INBTCompound {
 	}
 	public Object getObject(String name) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		return tryWrap(readCompound().get(name));
@@ -268,12 +266,12 @@ public class PowerNBTCompound implements INBTCompound {
 	@SuppressWarnings("unchecked")
 	public <T> T getObject(String name, Class<T> type) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		Object retVal = readCompound().get(name);
 		if (retVal != null) {
-			if (!ReflectUtil.doesExtend(type, retVal.getClass())) {
+			if (!NBTReflectUtil.doesExtend(type, retVal.getClass())) {
 				try {
 					retVal = type.cast(retVal);
 				} catch (Exception ex) {
@@ -289,7 +287,7 @@ public class PowerNBTCompound implements INBTCompound {
 	
 	public INBTCompound addCompound(String name) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		NBTCompound compound = readCompound();
@@ -299,7 +297,7 @@ public class PowerNBTCompound implements INBTCompound {
 	}
 	public INBTCompound getCompound(String name) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		return new PowerNBTCompound(this, readCompound().getCompound(name));
@@ -307,7 +305,7 @@ public class PowerNBTCompound implements INBTCompound {
 	
 	public INBTList addList(String name) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		NBTCompound compound = readCompound();
@@ -317,7 +315,7 @@ public class PowerNBTCompound implements INBTCompound {
 	}
 	public INBTList getList(String name) {
 		if (name == null) {
-			throw new ArgumentNullException("name");
+			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
 		return new PowerNBTList(this, readCompound().getList(name));
@@ -423,9 +421,9 @@ public class PowerNBTCompound implements INBTCompound {
 			return null;
 		}
 		
-		if (ReflectUtil.doesExtend(NBTCompound.class, obj.getClass())) {
+		if (NBTReflectUtil.doesExtend(NBTCompound.class, obj.getClass())) {
 			return new PowerNBTCompound(this, (NBTCompound) obj);
-		} else if (ReflectUtil.doesExtend(NBTList.class, obj.getClass())) {
+		} else if (NBTReflectUtil.doesExtend(NBTList.class, obj.getClass())) {
 			return new PowerNBTList(this, (NBTList) obj);
 		}
 		return obj;
@@ -435,9 +433,9 @@ public class PowerNBTCompound implements INBTCompound {
 			return null;
 		}
 		
-		if (ReflectUtil.doesExtend(PowerNBTCompound.class, obj.getClass())) {
+		if (NBTReflectUtil.doesExtend(PowerNBTCompound.class, obj.getClass())) {
 			return ((PowerNBTCompound) obj).getSelf();
-		} else if (ReflectUtil.doesExtend(PowerNBTList.class, obj.getClass())) {
+		} else if (NBTReflectUtil.doesExtend(PowerNBTList.class, obj.getClass())) {
 			return ((PowerNBTList) obj).getSelf();
 		}
 		

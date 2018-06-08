@@ -11,7 +11,6 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 
-import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.protocol.reflection.wrappers.entity.PacketEntityHelper_1_8;
 
 public class PacketEntityLivingHelper_1_9 extends PacketEntityHelper_1_8 implements IPacketEntityLivingHelper {
@@ -30,16 +29,16 @@ public class PacketEntityLivingHelper_1_9 extends PacketEntityHelper_1_8 impleme
 	@SuppressWarnings({ "deprecation", "boxing" })
 	public PacketContainer spawn(int entityId, UUID uuid, EntityType type, Location spawnLoc, Vector velocity) {
 		if (uuid == null) {
-			throw new ArgumentNullException("uuid");
+			throw new IllegalArgumentException("uuid cannot be null.");
 		}
 		if (type == null) {
-			throw new ArgumentNullException("type");
+			throw new IllegalArgumentException("type cannot be null.");
 		}
 		if (spawnLoc == null) {
-			throw new ArgumentNullException("spawnLoc");
+			throw new IllegalArgumentException("spawnLoc cannot be null.");
 		}
 		if (velocity == null) {
-			throw new ArgumentNullException("velocity");
+			throw new IllegalArgumentException("velocity cannot be null.");
 		}
 		
 		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.SPAWN_ENTITY_LIVING);
@@ -90,11 +89,12 @@ public class PacketEntityLivingHelper_1_9 extends PacketEntityHelper_1_8 impleme
 	@SuppressWarnings("boxing")
 	public PacketContainer move(int entityId, Location from, Location to, boolean isFlying) {
 		if (from == null) {
-			throw new ArgumentNullException("from");
+			throw new IllegalArgumentException("from cannot be null.");
 		}
 		if (to == null) {
-			throw new ArgumentNullException("to");
+			throw new IllegalArgumentException("to cannot be null.");
 		}
+		
 		
 		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.REL_ENTITY_MOVE);
 		
@@ -111,7 +111,7 @@ public class PacketEntityLivingHelper_1_9 extends PacketEntityHelper_1_8 impleme
 	@SuppressWarnings("boxing")
 	public PacketContainer teleport(int entityId, Location to, boolean isFlying) {
 		if (to == null) {
-			throw new ArgumentNullException("to");
+			throw new IllegalArgumentException("to cannot be null.");
 		}
 		
 		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_TELEPORT);

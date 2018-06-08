@@ -17,22 +17,20 @@ import org.bukkit.util.Vector;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 
-import ninja.egg82.exceptions.ArgumentNullException;
+import ninja.egg82.bukkit.BasePlugin;
+import ninja.egg82.bukkit.reflection.entity.IEntityHelper;
+import ninja.egg82.bukkit.utils.BlockUtil;
+import ninja.egg82.bukkit.utils.LocationUtil;
 import ninja.egg82.patterns.ServiceLocator;
-import ninja.egg82.plugin.enums.BukkitInitType;
-import ninja.egg82.plugin.reflection.entity.IEntityHelper;
-import ninja.egg82.plugin.utils.BlockUtil;
-import ninja.egg82.plugin.utils.LocationUtil;
 import ninja.egg82.protocol.reflection.wrappers.entityLiving.IPacketEntityLivingHelper;
 import ninja.egg82.protocol.utils.ProtocolReflectUtil;
-import ninja.egg82.startup.InitRegistry;
 
 public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implements IFakeLivingEntity {
 	//vars
 	private IPacketEntityLivingHelper packetHelper = ServiceLocator.getService(IPacketEntityLivingHelper.class);
 	private PacketContainer teleportSpawnPacket = null;
 	
-	private String gameVersion = ServiceLocator.getService(InitRegistry.class).getRegister(BukkitInitType.GAME_VERSION, String.class);
+	private String gameVersion = ServiceLocator.getService(BasePlugin.class).getGameVersion();
 	private IEntityHelper entityHelper = ServiceLocator.getService(IEntityHelper.class);
 	
 	private volatile long lastAttackTime = -1L;
@@ -43,7 +41,7 @@ public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implement
 		super();
 		
 		if (entity == null) {
-			throw new ArgumentNullException("entity");
+			throw new IllegalArgumentException("entity cannot be null.");
 		}
 		
 		currentLocation = entity.getLocation().clone();
@@ -60,10 +58,10 @@ public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implement
 		super();
 		
 		if (loc == null) {
-			throw new ArgumentNullException("loc");
+			throw new IllegalArgumentException("loc cannot be null.");
 		}
 		if (type == null) {
-			throw new ArgumentNullException("type");
+			throw new IllegalArgumentException("type cannot be null.");
 		}
 		
 		currentLocation = loc.clone();
@@ -128,7 +126,7 @@ public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implement
 	
 	public void lookTo(Location loc) {
 		if (loc == null) {
-			throw new ArgumentNullException("loc");
+			throw new IllegalArgumentException("loc cannot be null.");
 		}
 		
 		double dX = currentLocation.getX() - loc.getX();
@@ -150,7 +148,7 @@ public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implement
 	}
 	public void moveTo(Location loc) {
 		if (loc == null) {
-			throw new ArgumentNullException("loc");
+			throw new IllegalArgumentException("loc cannot be null.");
 		}
 		
 		PacketContainer movePacket = packetHelper.move(id, currentLocation, loc, (BlockUtil.getTopWalkableBlock(loc).getY() == loc.getY()) ? false : true);
@@ -163,7 +161,7 @@ public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implement
 	}
 	public void teleportTo(Location loc) {
 		if (loc == null) {
-			throw new ArgumentNullException("loc");
+			throw new IllegalArgumentException("loc cannot be null.");
 		}
 		
 		PacketContainer teleportPacket = packetHelper.teleport(id, loc, (BlockUtil.getTopWalkableBlock(loc).getY() == loc.getY()) ? false : true);
@@ -183,7 +181,7 @@ public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implement
 	}
 	public void attack(Damageable entity, double damage) {
 		if (entity == null) {
-			throw new ArgumentNullException("entity");
+			throw new IllegalArgumentException("entity cannot be null.");
 		}
 		
 		long currentTime = System.currentTimeMillis();
@@ -207,7 +205,7 @@ public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implement
 	
 	public void collideF(Collection<IFakeLivingEntity> entities) {
 		if (entities == null) {
-			throw new ArgumentNullException("entities");
+			throw new IllegalArgumentException("entities cannot be null.");
 		}
 		
 		for (IFakeLivingEntity e : entities) {
@@ -219,7 +217,7 @@ public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implement
 	}
 	public void collideE(Collection<Entity> entities) {
 		if (entities == null) {
-			throw new ArgumentNullException("entities");
+			throw new IllegalArgumentException("entities cannot be null.");
 		}
 		
 		for (Entity e : entities) {
@@ -234,7 +232,7 @@ public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implement
 	}
 	public void collide(IFakeLivingEntity entity) {
 		if (entity == null) {
-			throw new ArgumentNullException("entity");
+			throw new IllegalArgumentException("entity cannot be null.");
 		}
 		
 		if (currentLocation.distanceSquared(entity.getLocation()) < 0.5625d) { //0.75^2
@@ -244,7 +242,7 @@ public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implement
 	}
 	public void collide(Entity entity) {
 		if (entity == null) {
-			throw new ArgumentNullException("entity");
+			throw new IllegalArgumentException("entity cannot be null.");
 		}
 		
 		if (currentLocation.distanceSquared(entity.getLocation()) < 0.5625d) { //0.75^2

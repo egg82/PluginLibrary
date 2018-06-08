@@ -10,9 +10,8 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 
-import ninja.egg82.exceptions.ArgumentNullException;
+import ninja.egg82.bukkit.utils.VersionUtil;
 import ninja.egg82.patterns.ServiceLocator;
-import ninja.egg82.plugin.utils.VersionUtil;
 import ninja.egg82.protocol.commands.ProtocolEventCommand;
 import ninja.egg82.utils.CollectionUtil;
 import ninja.egg82.utils.ReflectUtil;
@@ -51,14 +50,14 @@ public class ProtocolReflectUtil {
 	}
 	public static void sendPacket(ProtocolManager manager, PacketContainer packet, List<Player> players) {
 		if (players == null) {
-			throw new ArgumentNullException("players");
+			throw new IllegalArgumentException("players cannot be null.");
 		}
 		
 		sendPacket(manager, packet, players.toArray(new Player[0]));
 	}
 	public static void sendPacket(ProtocolManager manager, PacketContainer packet, Player[] players) {
 		if (players == null) {
-			throw new ArgumentNullException("players");
+			throw new IllegalArgumentException("players cannot be null.");
 		}
 		
 		try {
@@ -75,7 +74,7 @@ public class ProtocolReflectUtil {
 	
 	public static boolean addEventHandler(ProtocolManager manager, Class<ProtocolEventCommand> clazz) {
 		if (clazz == null) {
-			throw new ArgumentNullException("clazz");
+			throw new IllegalArgumentException("clazz cannot be null.");
 		}
 		if (events.containsKey(clazz)) {
 			return false;
@@ -94,7 +93,7 @@ public class ProtocolReflectUtil {
 	}
 	public static boolean removeEventHandler(ProtocolManager manager, Class<ProtocolEventCommand> clazz) {
 		if (clazz == null) {
-			throw new ArgumentNullException("clazz");
+			throw new IllegalArgumentException("clazz cannot be null.");
 		}
 		
 		ProtocolEventCommand run = events.remove(clazz);
@@ -108,7 +107,7 @@ public class ProtocolReflectUtil {
 	
 	public static int addEventsFromPackage(ProtocolManager manager, String packageName, boolean recursive) {
 		if (packageName == null) {
-			throw new ArgumentNullException("packageName");
+			throw new IllegalArgumentException("packageName cannot be null.");
 		}
 		
 		int numEvents = 0;

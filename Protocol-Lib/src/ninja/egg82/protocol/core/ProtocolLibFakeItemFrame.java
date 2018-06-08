@@ -13,7 +13,6 @@ import org.bukkit.inventory.ItemStack;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 
-import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.protocol.reflection.wrappers.itemFrame.IPacketItemFrameHelper;
 import ninja.egg82.protocol.utils.ProtocolReflectUtil;
@@ -34,7 +33,7 @@ public class ProtocolLibFakeItemFrame extends ProtocolLibFakeEntity implements I
 		super();
 		
 		if (frame == null) {
-			throw new ArgumentNullException("frame");
+			throw new IllegalArgumentException("frame cannot be null.");
 		}
 		
 		currentLocation = frame.getLocation().clone();
@@ -52,10 +51,10 @@ public class ProtocolLibFakeItemFrame extends ProtocolLibFakeEntity implements I
 		super();
 		
 		if (loc == null) {
-			throw new ArgumentNullException("loc");
+			throw new IllegalArgumentException("loc cannot be null.");
 		}
 		if (facing == null) {
-			throw new ArgumentNullException("facing");
+			throw new IllegalArgumentException("facing cannot be null.");
 		}
 		
 		this.item = item.clone();

@@ -18,7 +18,6 @@ import com.comphenix.protocol.wrappers.WrappedDataWatcher.Registry;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher.WrappedDataWatcherObject;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 
-import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.protocol.reflection.wrappers.entity.PacketEntityHelper_1_8;
 
 public class PacketItemFrameHelper_1_8 extends PacketEntityHelper_1_8 implements IPacketItemFrameHelper {
@@ -34,13 +33,13 @@ public class PacketItemFrameHelper_1_8 extends PacketEntityHelper_1_8 implements
 	@SuppressWarnings({ "deprecation", "boxing" })
 	public PacketContainer spawn(int entityId, UUID uuid, Location spawnLoc, BlockFace facingDirection) {
 		if (uuid == null) {
-			throw new ArgumentNullException("uuid");
+			throw new IllegalArgumentException("uuid cannot be null.");
 		}
 		if (spawnLoc == null) {
-			throw new ArgumentNullException("spawnLoc");
+			throw new IllegalArgumentException("spawnLoc cannot be null.");
 		}
 		if (facingDirection == null) {
-			throw new ArgumentNullException("facingDirection");
+			throw new IllegalArgumentException("facingDirection cannot be null.");
 		}
 		if (facingDirection != BlockFace.NORTH && facingDirection != BlockFace.EAST && facingDirection != BlockFace.SOUTH && facingDirection != BlockFace.WEST) {
 			throw new IllegalStateException("facingDirection must be in one of the four cardinal directions! (N, E, S, W)");
@@ -150,7 +149,7 @@ public class PacketItemFrameHelper_1_8 extends PacketEntityHelper_1_8 implements
 	@SuppressWarnings("boxing")
 	public PacketContainer updateRotation(int entityId, Rotation itemRotation) {
 		if (itemRotation == null) {
-			throw new ArgumentNullException("itemRotation");
+			throw new IllegalArgumentException("itemRotation cannot be null.");
 		}
 		
 		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_METADATA);

@@ -6,10 +6,9 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 
-import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.nbt.core.INBTCompound;
+import ninja.egg82.nbt.core.NBTFileUtil;
 import ninja.egg82.nbt.core.PowerNBTCompound;
-import ninja.egg82.utils.FileUtil;
 
 public class PowerNBTHelper implements INBTHelper {
 	//vars
@@ -22,36 +21,36 @@ public class PowerNBTHelper implements INBTHelper {
 	//public
 	public INBTCompound getCompound(ItemStack stack) {
 		if (stack == null) {
-			throw new ArgumentNullException("stack");
+			throw new IllegalArgumentException("stack cannot be null.");
 		}
 		
 		return new PowerNBTCompound(stack);
 	}
 	public INBTCompound getCompound(Entity entity) {
 		if (entity == null) {
-			throw new ArgumentNullException("entity");
+			throw new IllegalArgumentException("entity cannot be null.");
 		}
 		
 		return new PowerNBTCompound(entity);
 	}
 	public INBTCompound getCompound(Block block) {
 		if (block == null) {
-			throw new ArgumentNullException("block");
+			throw new IllegalArgumentException("block cannot be null.");
 		}
 		
 		return new PowerNBTCompound(block);
 	}
 	public INBTCompound getCompound(File file) {
 		if (file == null) {
-			throw new ArgumentNullException("file");
+			throw new IllegalArgumentException("file cannot be null.");
 		}
 		
 		file = file.getAbsoluteFile();
 		
-		if (!FileUtil.pathExists(file)) {
+		if (!NBTFileUtil.pathExists(file)) {
 			throw new IllegalArgumentException("file does not exist.");
 		}
-		if (!FileUtil.pathIsFile(file)) {
+		if (!NBTFileUtil.pathIsFile(file)) {
 			throw new IllegalArgumentException("file is not a file.");
 		}
 		
@@ -59,14 +58,14 @@ public class PowerNBTHelper implements INBTHelper {
 	}
 	public INBTCompound getCompound(byte[] serialized) {
 		if (serialized == null) {
-			throw new ArgumentNullException("serialized");
+			throw new IllegalArgumentException("serialized cannot be null.");
 		}
 		
 		return new PowerNBTCompound(serialized);
 	}
 	public INBTCompound getCompound(String fromString) {
 		if (fromString == null) {
-			throw new ArgumentNullException("fromString");
+			throw new IllegalArgumentException("fromString cannot be null.");
 		}
 		
 		return new PowerNBTCompound(fromString);

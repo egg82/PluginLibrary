@@ -18,8 +18,6 @@ import com.comphenix.protocol.wrappers.EnumWrappers.Direction;
 import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
 
-import ninja.egg82.exceptions.ArgumentNullException;
-
 public class PacketBlockHelper_1_8 implements IPacketBlockHelper {
 	//vars
 	private ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
@@ -32,10 +30,10 @@ public class PacketBlockHelper_1_8 implements IPacketBlockHelper {
 	//public
 	public PacketContainer blockChange(Location blockLocation, Material newMaterial, short newMetadata) {
 		if (blockLocation == null) {
-			throw new ArgumentNullException("blockLocation");
+			throw new IllegalArgumentException("blockLocation cannot be null.");
 		}
 		if (newMaterial == null) {
-			throw new ArgumentNullException("newMaterial");
+			throw new IllegalArgumentException("newMaterial cannot be null.");
 		}
 		
 		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.BLOCK_CHANGE);
@@ -49,10 +47,10 @@ public class PacketBlockHelper_1_8 implements IPacketBlockHelper {
 	}
 	public PacketContainer blockChange(Location blockLocation, Material newMaterial, short newMetadata, BlockFace facing) {
 		if (blockLocation == null) {
-			throw new ArgumentNullException("blockLocation");
+			throw new IllegalArgumentException("blockLocation cannot be null.");
 		}
 		if (newMaterial == null) {
-			throw new ArgumentNullException("newMaterial");
+			throw new IllegalArgumentException("newMaterial cannot be null.");
 		}
 		
 		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.BLOCK_CHANGE);
@@ -68,7 +66,7 @@ public class PacketBlockHelper_1_8 implements IPacketBlockHelper {
 	
 	public PacketContainer multiBlockChange(Location[] blockLocations, Material newMaterial, short newMetadata) {
 		if (blockLocations == null) {
-			throw new ArgumentNullException("blockLocations");
+			throw new IllegalArgumentException("blockLocations cannot be null.");
 		}
 		if (blockLocations.length == 0) {
 			throw new RuntimeException("blockLocations must have at least one element.");
@@ -76,7 +74,7 @@ public class PacketBlockHelper_1_8 implements IPacketBlockHelper {
 			return blockChange(blockLocations[0], newMaterial, newMetadata);
 		}
 		if (newMaterial == null) {
-			throw new ArgumentNullException("newMaterial");
+			throw new IllegalArgumentException("newMaterial cannot be null.");
 		}
 		
 		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.MULTI_BLOCK_CHANGE);
@@ -104,7 +102,7 @@ public class PacketBlockHelper_1_8 implements IPacketBlockHelper {
 	}
 	public PacketContainer multiBlockChange(Location[] blockLocations, Material newMaterial, short newMetadata, BlockFace facing) {
 		if (blockLocations == null) {
-			throw new ArgumentNullException("blockLocations");
+			throw new IllegalArgumentException("blockLocations cannot be null.");
 		}
 		if (blockLocations.length == 0) {
 			throw new RuntimeException("blockLocations must have at least one element.");
@@ -112,7 +110,7 @@ public class PacketBlockHelper_1_8 implements IPacketBlockHelper {
 			return blockChange(blockLocations[0], newMaterial, newMetadata, facing);
 		}
 		if (newMaterial == null) {
-			throw new ArgumentNullException("newMaterial");
+			throw new IllegalArgumentException("newMaterial cannot be null.");
 		}
 		
 		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.MULTI_BLOCK_CHANGE);
@@ -140,13 +138,13 @@ public class PacketBlockHelper_1_8 implements IPacketBlockHelper {
 	}
 	public PacketContainer multiBlockChange(Location[] blockLocations, Material[] newMaterials, short[] newMetadata) {
 		if (blockLocations == null) {
-			throw new ArgumentNullException("blockLocations");
+			throw new IllegalArgumentException("blockLocations cannot be null.");
 		}
 		if (newMaterials == null) {
-			throw new ArgumentNullException("newMaterials");
+			throw new IllegalArgumentException("newMaterials cannot be null.");
 		}
 		if (newMetadata == null) {
-			throw new ArgumentNullException("newMetadata");
+			throw new IllegalArgumentException("newMetadata cannot be null.");
 		}
 		if (newMetadata.length != newMaterials.length) {
 			throw new RuntimeException("newMetaData must be equal in length to newMaterials");
@@ -182,13 +180,13 @@ public class PacketBlockHelper_1_8 implements IPacketBlockHelper {
 	}
 	public PacketContainer multiBlockChange(Location[] blockLocations, Material[] newMaterials, short[] newMetadata, BlockFace[] facing) {
 		if (blockLocations == null) {
-			throw new ArgumentNullException("blockLocations");
+			throw new IllegalArgumentException("blockLocations cannot be null.");
 		}
 		if (newMaterials == null) {
-			throw new ArgumentNullException("newMaterials");
+			throw new IllegalArgumentException("newMaterials cannot be null.");
 		}
 		if (newMetadata == null) {
-			throw new ArgumentNullException("newMetadata");
+			throw new IllegalArgumentException("newMetadata cannot be null.");
 		}
 		if (newMetadata.length != newMaterials.length) {
 			throw new RuntimeException("newMetaData must be equal in length to newMaterials");

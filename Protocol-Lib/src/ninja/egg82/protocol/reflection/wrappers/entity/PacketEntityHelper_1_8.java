@@ -6,7 +6,6 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 
 import it.unimi.dsi.fastutil.ints.IntList;
-import ninja.egg82.exceptions.ArgumentNullException;
 
 public abstract class PacketEntityHelper_1_8 implements IPacketEntityHelper {
 	//vars
@@ -20,7 +19,7 @@ public abstract class PacketEntityHelper_1_8 implements IPacketEntityHelper {
 	//public
 	public PacketContainer destroy(IntList entityIds) {
 		if (entityIds == null) {
-			throw new ArgumentNullException("entityIds");
+			throw new IllegalArgumentException("entityIds cannot be null.");
 		}
 		
 		return destroy(entityIds.toIntArray());
@@ -30,7 +29,7 @@ public abstract class PacketEntityHelper_1_8 implements IPacketEntityHelper {
 	}
 	public PacketContainer destroy(int[] entityIds) {
 		if (entityIds == null) {
-			throw new ArgumentNullException("entityIds");
+			throw new IllegalArgumentException("entityIds cannot be null.");
 		}
 		
 		PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_DESTROY);

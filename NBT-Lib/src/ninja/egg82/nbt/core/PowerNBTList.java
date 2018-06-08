@@ -8,7 +8,6 @@ import java.util.ListIterator;
 
 import me.dpohvar.powernbt.api.NBTCompound;
 import me.dpohvar.powernbt.api.NBTList;
-import ninja.egg82.utils.ReflectUtil;
 
 public class PowerNBTList implements INBTList {
 	//vars
@@ -224,7 +223,7 @@ public class PowerNBTList implements INBTList {
 	public <T> T getObject(int index, Class<T> type) {
 		Object retVal = tryWrap(list.get(index));
 		if (retVal != null) {
-			if (!ReflectUtil.doesExtend(type, retVal.getClass())) {
+			if (!NBTReflectUtil.doesExtend(type, retVal.getClass())) {
 				try {
 					retVal = type.cast(retVal);
 				} catch (Exception ex) {
@@ -259,9 +258,9 @@ public class PowerNBTList implements INBTList {
 			return null;
 		}
 		
-		if (ReflectUtil.doesExtend(NBTCompound.class, obj.getClass())) {
+		if (NBTReflectUtil.doesExtend(NBTCompound.class, obj.getClass())) {
 			return new PowerNBTCompound(this, (NBTCompound) obj);
-		} else if (ReflectUtil.doesExtend(NBTList.class, obj.getClass())) {
+		} else if (NBTReflectUtil.doesExtend(NBTList.class, obj.getClass())) {
 			return new PowerNBTList(this, (NBTList) obj);
 		}
 		return obj;
@@ -271,9 +270,9 @@ public class PowerNBTList implements INBTList {
 			return null;
 		}
 		
-		if (ReflectUtil.doesExtend(PowerNBTCompound.class, obj.getClass())) {
+		if (NBTReflectUtil.doesExtend(PowerNBTCompound.class, obj.getClass())) {
 			return ((PowerNBTCompound) obj).getSelf();
-		} else if (ReflectUtil.doesExtend(PowerNBTList.class, obj.getClass())) {
+		} else if (NBTReflectUtil.doesExtend(PowerNBTList.class, obj.getClass())) {
 			return ((PowerNBTList) obj).getSelf();
 		}
 		
@@ -340,9 +339,9 @@ class PowerNBTIterator implements ListIterator<Object> {
 			return null;
 		}
 		
-		if (ReflectUtil.doesExtend(NBTCompound.class, obj.getClass())) {
+		if (NBTReflectUtil.doesExtend(NBTCompound.class, obj.getClass())) {
 			return new PowerNBTCompound(parentList, (NBTCompound) obj);
-		} else if (ReflectUtil.doesExtend(NBTList.class, obj.getClass())) {
+		} else if (NBTReflectUtil.doesExtend(NBTList.class, obj.getClass())) {
 			return new PowerNBTList(parentList, (NBTList) obj);
 		}
 		return obj;
@@ -352,9 +351,9 @@ class PowerNBTIterator implements ListIterator<Object> {
 			return null;
 		}
 		
-		if (ReflectUtil.doesExtend(PowerNBTCompound.class, obj.getClass())) {
+		if (NBTReflectUtil.doesExtend(PowerNBTCompound.class, obj.getClass())) {
 			return ((PowerNBTCompound) obj).getSelf();
-		} else if (ReflectUtil.doesExtend(PowerNBTList.class, obj.getClass())) {
+		} else if (NBTReflectUtil.doesExtend(PowerNBTList.class, obj.getClass())) {
 			return ((PowerNBTList) obj).getSelf();
 		}
 		
@@ -529,9 +528,9 @@ class PowerNBTSubList implements List<Object> {
 			return null;
 		}
 		
-		if (ReflectUtil.doesExtend(NBTCompound.class, obj.getClass())) {
+		if (NBTReflectUtil.doesExtend(NBTCompound.class, obj.getClass())) {
 			return new PowerNBTCompound(parentList, (NBTCompound) obj);
-		} else if (ReflectUtil.doesExtend(NBTList.class, obj.getClass())) {
+		} else if (NBTReflectUtil.doesExtend(NBTList.class, obj.getClass())) {
 			return new PowerNBTList(parentList, (NBTList) obj);
 		}
 		return obj;
@@ -541,9 +540,9 @@ class PowerNBTSubList implements List<Object> {
 			return null;
 		}
 		
-		if (ReflectUtil.doesExtend(PowerNBTCompound.class, obj.getClass())) {
+		if (NBTReflectUtil.doesExtend(PowerNBTCompound.class, obj.getClass())) {
 			return ((PowerNBTCompound) obj).getSelf();
-		} else if (ReflectUtil.doesExtend(PowerNBTList.class, obj.getClass())) {
+		} else if (NBTReflectUtil.doesExtend(PowerNBTList.class, obj.getClass())) {
 			return ((PowerNBTList) obj).getSelf();
 		}
 		

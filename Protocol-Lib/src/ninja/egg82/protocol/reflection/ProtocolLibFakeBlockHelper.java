@@ -12,14 +12,12 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 
-import it.unimi.dsi.fastutil.shorts.ShortArrayList;
-import it.unimi.dsi.fastutil.shorts.ShortList;
-import ninja.egg82.exceptions.ArgumentNullException;
+import ninja.egg82.bukkit.BasePlugin;
 import ninja.egg82.patterns.ServiceLocator;
-import ninja.egg82.plugin.enums.BukkitInitType;
+import ninja.egg82.primitive.shorts.ShortArrayList;
+import ninja.egg82.primitive.shorts.ShortList;
 import ninja.egg82.protocol.reflection.wrappers.block.IPacketBlockHelper;
 import ninja.egg82.protocol.utils.ProtocolReflectUtil;
-import ninja.egg82.startup.InitRegistry;
 
 public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 	//vars
@@ -30,7 +28,7 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 	
 	//constructor
 	public ProtocolLibFakeBlockHelper() {
-		String gameVersion = ServiceLocator.getService(InitRegistry.class).getRegister(BukkitInitType.GAME_VERSION, String.class);
+		String gameVersion = ServiceLocator.getService(BasePlugin.class).getGameVersion();
 		ProtocolReflectUtil.reflect(gameVersion, "ninja.egg82.protocol.reflection.wrappers.block");
 		packetHelper = ServiceLocator.getService(IPacketBlockHelper.class);
 	}
@@ -41,10 +39,10 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 	}
 	public void updateBlock(Player player, Location blockLocation, Material newMaterial, short newMetadata) {
 		if (player == null) {
-			throw new ArgumentNullException("player");
+			throw new IllegalArgumentException("player cannot be null.");
 		}
 		if (blockLocation == null) {
-			throw new ArgumentNullException("blockLocation");
+			throw new IllegalArgumentException("blockLocation cannot be null.");
 		}
 		if (!blockLocation.getWorld().equals(player.getWorld()) || blockLocation.distanceSquared(player.getLocation()) > maxDistance * maxDistance) {
 			return;
@@ -59,7 +57,7 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 	}
 	public void updateBlock(Player[] players, Location blockLocation, Material newMaterial, short newMetadata) {
 		if (players == null) {
-			throw new ArgumentNullException("players");
+			throw new IllegalArgumentException("players cannot be null.");
 		}
 		if (players.length == 0) {
 			return;
@@ -78,13 +76,13 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 	}
 	public void updateBlocks(Player player, Location[] blockLocations, Material newMaterial, short newMetadata) {
 		if (player == null) {
-			throw new ArgumentNullException("player");
+			throw new IllegalArgumentException("player cannot be null.");
 		}
 		if (blockLocations == null) {
-			throw new ArgumentNullException("blockLocations");
+			throw new IllegalArgumentException("blockLocations cannot be null.");
 		}
 		if (newMaterial == null) {
-			throw new ArgumentNullException("newMaterial");
+			throw new IllegalArgumentException("newMaterial cannot be null.");
 		}
 		
 		ArrayList<PacketContainer> packets = new ArrayList<PacketContainer>();
@@ -123,13 +121,13 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 	}
 	public void updateBlocks(Player player, Location[] blockLocations, Material[] newMaterials, short[] newMetadata) {
 		if (player == null) {
-			throw new ArgumentNullException("player");
+			throw new IllegalArgumentException("player cannot be null.");
 		}
 		if (blockLocations == null) {
-			throw new ArgumentNullException("blockLocations");
+			throw new IllegalArgumentException("newLocations cannot be null.");
 		}
 		if (newMaterials == null) {
-			throw new ArgumentNullException("newMaterials");
+			throw new IllegalArgumentException("newMaterials cannot be null.");
 		}
 		if (blockLocations.length == 0 || newMaterials.length == 0) {
 			return;
@@ -194,7 +192,7 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 	}
 	public void updateBlocks(Player[] players, Location[] blockLocations, Material newMaterial, short newMetadata) {
 		if (players == null) {
-			throw new ArgumentNullException("players");
+			throw new IllegalArgumentException("players cannot be null.");
 		}
 		if (players.length == 0) {
 			return;
@@ -203,7 +201,7 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 			return;
 		}
 		if (blockLocations == null) {
-			throw new ArgumentNullException("blockLocations");
+			throw new IllegalArgumentException("blockLocations cannot be null.");
 		}
 		if (blockLocations.length == 0) {
 			return;
@@ -221,7 +219,7 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 	}
 	public void updateBlocks(Player[] players, Location[] blockLocations, Material[] newMaterials, short[] newMetadata) {
 		if (players == null) {
-			throw new ArgumentNullException("players");
+			throw new IllegalArgumentException("players cannot be null.");
 		}
 		if (players.length == 0) {
 			return;
@@ -230,13 +228,13 @@ public class ProtocolLibFakeBlockHelper implements IFakeBlockHelper {
 			return;
 		}
 		if (blockLocations == null) {
-			throw new ArgumentNullException("blockLocations");
+			throw new IllegalArgumentException("blockLocations cannot be null.");
 		}
 		if (newMaterials == null) {
-			throw new ArgumentNullException("newMaterials");
+			throw new IllegalArgumentException("newMaterials cannot be null.");
 		}
 		if (newMetadata == null) {
-			throw new ArgumentNullException("newMetadata");
+			throw new IllegalArgumentException("newMetadata cannot be null.");
 		}
 		if (newMetadata.length != newMaterials.length) {
 			throw new RuntimeException("newMetaData must be equal in length to newMaterials");

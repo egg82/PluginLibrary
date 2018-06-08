@@ -15,7 +15,6 @@ import com.comphenix.protocol.utility.MinecraftReflection;
 
 import ninja.egg82.concurrent.DynamicConcurrentDeque;
 import ninja.egg82.concurrent.IConcurrentDeque;
-import ninja.egg82.exceptions.ArgumentNullException;
 import ninja.egg82.protocol.utils.ProtocolReflectUtil;
 
 public abstract class ProtocolLibFakeEntity implements IFakeEntity {
@@ -43,7 +42,7 @@ public abstract class ProtocolLibFakeEntity implements IFakeEntity {
 	//public
 	public boolean addPlayer(Player player) {
 		if (player == null) {
-			throw new ArgumentNullException("player");
+			throw new IllegalArgumentException("player cannot be null.");
 		}
 		
 		UUID uuid = player.getUniqueId();
@@ -59,7 +58,7 @@ public abstract class ProtocolLibFakeEntity implements IFakeEntity {
 	}
 	public boolean removePlayer(Player player) {
 		if (player == null) {
-			throw new ArgumentNullException("player");
+			throw new IllegalArgumentException("player cannot be null.");
 		}
 		
 		UUID uuid = player.getUniqueId();
