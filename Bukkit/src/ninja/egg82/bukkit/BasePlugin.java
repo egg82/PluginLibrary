@@ -107,6 +107,9 @@ public abstract class BasePlugin extends JavaPlugin {
 	}
 	public final List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
 		Collection<String> retVal = commandProcessor.tabComplete(new BukkitSender(sender), command.getName(), args);
+		if (retVal == null) {
+			return new ArrayList<String>();
+		}
 		if (retVal instanceof List) {
 			return (List<String>) retVal;
 		}
