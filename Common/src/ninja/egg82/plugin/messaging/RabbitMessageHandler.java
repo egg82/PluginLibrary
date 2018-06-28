@@ -38,6 +38,8 @@ import ninja.egg82.utils.ThreadUtil;
 public class RabbitMessageHandler implements IMessageHandler {
 	//vars
 	
+	// Rabbit connection factory (for reconnects)
+	private ConnectionFactory factory = new ConnectionFactory();
 	// Rabbit connection
 	private Connection conn = null;
 	// Channel - one per plugin
@@ -113,58 +115,14 @@ public class RabbitMessageHandler implements IMessageHandler {
 		props = new BasicProperties.Builder().replyTo(senderId).type(thisType.name()).deliveryMode(Integer.valueOf(2)).build();
 		
 		// Create a new connection and pre-populate values
-		ConnectionFactory factory = new ConnectionFactory();
 		factory.setHost(ip);
 		factory.setPort(port);
 		factory.setUsername(username);
 		factory.setPassword(password);
 		factory.setVirtualHost(vHost);
 		
-		// Recover connection
-		factory.setAutomaticRecoveryEnabled(true);
-		// Recover queues
-		factory.setTopologyRecoveryEnabled(true);
-		// Heartbeat sent every 5 seconds
-		factory.setRequestedHeartbeat(10);
-		// Connection timeout after 10 seconds to retry
-		factory.setConnectionTimeout(10000);
-		// Wait 3 seconds before retrying
-		factory.setNetworkRecoveryInterval(3000);
-		
-		try {
-			// SSL with cert trust
-			ConnectionFactory sslFactory = factory.clone();
-			sslFactory.useSslProtocol("TLSv1.2");
-			conn = sslFactory.newConnection(recvPool);
-		} catch (Exception ex) {
-			try {
-				// SSL without cert trust
-				ConnectionFactory sslFactory = factory.clone();
-				sslFactory.useSslProtocol();
-				conn = sslFactory.newConnection(recvPool);
-			} catch (Exception ex2) {
-				try {
-					// Plaintext
-					conn = factory.newConnection(recvPool);
-				} catch (Exception ex3) {
-					ServiceLocator.getService(IExceptionHandler.class).silentException(ex3);
-					throw new RuntimeException("Cannot create RabbitMQ connection.", ex3);
-				}
-			}
-		}
-		
-		// Create a new channel. One per plugin using this library is usually enough
-		try {
-			channel = conn.createChannel();
-			channel.addShutdownListener(onChannelShutdown);
-			channel.exchangeDeclare(exchangeName, "direct", true);
-			channel.txSelect();
-		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
-			throw new RuntimeException("Cannot create RabbitMQ connection.", ex);
-		}
-		
-		conn.addShutdownListener(onShutdown);
+		// Initiate the actual connection
+		connect();
 		
 		// Start the flush timer and set the connected state
 		threadPool.scheduleAtFixedRate(onBacklogThread, 150L, 150L, TimeUnit.MILLISECONDS);
@@ -195,88 +153,7 @@ public class RabbitMessageHandler implements IMessageHandler {
 	}
 	
 	public void createChannel(String channelName) {
-		if (channelName == null) {
-			throw new IllegalArgumentException("channelName cannot be null.");
-		}
-		
-		if (!connected.get()) {
-			// Connection closed, throw an exception
-			throw new IllegalStateException("Connection has been closed or was never able to be opened.");
-		}
-		
-		if (channelNames.contains(channelName)) {
-			// Channel already exists. No need to re-create it
-			return;
-		}
-		
-		// Queue name. Shows up on Rabbit's end
-		String queueName = senderId + "-" + pluginName + "-" + channelName;
-		
-		try {
-			// Declare the queue
-			channel.queueDeclare(queueName, true, false, false, queueArgs);
-			// Bind the queue to accept all fanned broadcasts
-			channel.queueBind(queueName, exchangeName, channelName + "-" + ((thisType == SenderType.PROXY) ? "proxy" : "server"));
-			// Bind the queue to accept messages directed at this server
-			channel.queueBind(queueName, exchangeName, channelName + "-" + senderId);
-			// Add a consumer to the queue
-			channel.basicConsume(queueName, true, new DefaultConsumer(channel) {
-				public void handleDelivery(String consumerTag, Envelope envelope, BasicProperties properties, byte[] body) {
-					// Message sender
-					String sender = properties.getReplyTo();
-					// The sender type. Server or proxy?
-					SenderType senderType = SenderType.valueOf(properties.getType());
-					
-					// The last exception thrown by the message command handlers
-					Exception lastEx = null;
-					// Loop the current message handlers
-					for (Entry<Class<? extends AsyncMessageHandler>, Unit<AsyncMessageHandler>> kvp : handlers.entrySet()) {
-						// The current message handler
-						AsyncMessageHandler c = null;
-						
-						// Lazy initialization. Create if not exists, or use the current handler if it does
-						if (kvp.getValue().getType() == null) {
-							try {
-								c = createHandler(kvp.getKey());
-								kvp.getValue().setType(c);
-							} catch (Exception ex) {
-								// Send the exception off to the current available handler handler and store it
-								ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
-								lastEx = ex;
-								continue;
-							}
-						} else {
-							c = kvp.getValue().getType();
-						}
-						
-						// Set data values
-						c.setSender(sender);
-						c.setSenderType(senderType);
-						c.setChannelName(channelName);
-						c.setData(body);
-						
-						// Catch exceptions thrown by the handlers so it doesn't interrupt the loop
-						try {
-							c.start();
-						} catch (Exception ex) {
-							// Send the exception off to the current available handler handler and store it
-							ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
-							lastEx = ex;
-						}
-					}
-					
-					// Did an exception get thrown by the handlers? If so, re-throw it here
-					if (lastEx != null) {
-						throw new RuntimeException("Cannot run message handler.", lastEx);
-					}
-				}
-			});
-		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
-			throw new RuntimeException("Cannot create channel.", ex);
-		}
-		
-		channelNames.add(channelName);
+		createChannel(channelName, false);
 	}
 	public void destroyChannel(String channelName) {
 		if (channelName == null) {
@@ -558,6 +435,97 @@ public class RabbitMessageHandler implements IMessageHandler {
 		}
 	};
 	
+	private void createChannel(String channelName, boolean force) {
+		if (channelName == null) {
+			throw new IllegalArgumentException("channelName cannot be null.");
+		}
+		
+		if (!connected.get()) {
+			// Connection closed, throw an exception
+			throw new IllegalStateException("Connection has been closed or was never able to be opened.");
+		}
+		
+		if (!force && channelNames.contains(channelName)) {
+			// Channel already exists. No need to re-create it
+			return;
+		}
+		
+		// Queue name. Shows up on Rabbit's end
+		String queueName = senderId + "-" + pluginName + "-" + channelName;
+		
+		try {
+			// Declare the queue
+			channel.queueDeclare(queueName, true, false, false, queueArgs);
+			// Bind the queue to accept all fanned broadcasts
+			channel.queueBind(queueName, exchangeName, channelName + "-" + ((thisType == SenderType.PROXY) ? "proxy" : "server"));
+			// Bind the queue to accept messages directed at this server
+			channel.queueBind(queueName, exchangeName, channelName + "-" + senderId);
+			// Add a consumer to the queue
+			channel.basicConsume(queueName, true, new DefaultConsumer(channel) {
+				public void handleDelivery(String consumerTag, Envelope envelope, BasicProperties properties, byte[] body) {
+					// Message sender
+					String sender = properties.getReplyTo();
+					// The sender type. Server or proxy?
+					SenderType senderType = SenderType.valueOf(properties.getType());
+					
+					// The last exception thrown by the message command handlers
+					Exception lastEx = null;
+					// Loop the current message handlers
+					for (Entry<Class<? extends AsyncMessageHandler>, Unit<AsyncMessageHandler>> kvp : handlers.entrySet()) {
+						// The current message handler
+						AsyncMessageHandler c = null;
+						
+						// Lazy initialization. Create if not exists, or use the current handler if it does
+						if (kvp.getValue().getType() == null) {
+							try {
+								c = createHandler(kvp.getKey());
+								kvp.getValue().setType(c);
+							} catch (Exception ex) {
+								// Send the exception off to the current available handler handler and store it
+								ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+								lastEx = ex;
+								continue;
+							}
+						} else {
+							c = kvp.getValue().getType();
+						}
+						
+						// Set data values
+						c.setSender(sender);
+						c.setSenderType(senderType);
+						c.setChannelName(channelName);
+						c.setData(body);
+						
+						// Catch exceptions thrown by the handlers so it doesn't interrupt the loop
+						try {
+							c.start();
+						} catch (Exception ex) {
+							// Send the exception off to the current available handler handler and store it
+							ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+							lastEx = ex;
+						}
+					}
+					
+					// Did an exception get thrown by the handlers? If so, re-throw it here
+					if (lastEx != null) {
+						throw new RuntimeException("Cannot run message handler.", lastEx);
+					}
+				}
+			});
+		} catch (Exception ex) {
+			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			throw new RuntimeException("Cannot create channel.", ex);
+		}
+		
+		if (!force) {
+			channelNames.add(channelName);
+		} else {
+			if (!channelNames.contains(channelName)) {
+				channelNames.add(channelName);
+			}
+		}
+	}
+	
 	private ShutdownListener onShutdown = new ShutdownListener() {
 		public void shutdownCompleted(ShutdownSignalException cause) {
 			if (!connected.get()) {
@@ -565,7 +533,22 @@ public class RabbitMessageHandler implements IMessageHandler {
 				return;
 			}
 			
-			// Whoa. Something bad happened. Log it and throw it
+			// Close the connection gracefully
+			try {
+				conn.close();
+			} catch (Exception ex) {
+				// Close the connection forcefully if doing so gracefully fails
+				try {
+					conn.abort();
+				} catch (Exception ex2) {
+					// If this exception is ever raised something is really fucked. We'll ignore it.
+				}
+			}
+			
+			// Attempt to reconnect
+			connect();
+			
+			// Something bad happened. Log it and throw it
 			ServiceLocator.getService(IExceptionHandler.class).silentException(cause);
 			throw cause;
 		}
@@ -575,6 +558,24 @@ public class RabbitMessageHandler implements IMessageHandler {
 			if (!connected.get()) {
 				// This was a standard shutdown. No need to panic
 				return;
+			}
+			
+			Channel chan = (Channel) cause.getReference();
+			// Close the channel gracefully
+			try {
+				chan.close();
+			} catch (Exception ex) {
+				// Close the channel forcefully if doing so gracefully fails
+				try {
+					chan.abort();
+				} catch (Exception ex2) {
+					// If this exception is ever raised something is really fucked. We'll ignore it.
+				}
+			}
+			
+			// Attempt to reconnect
+			for (String channel : channelNames) {
+				createChannel(channel, true);
 			}
 			
 			// Whoa. Something bad happened. Log it and throw it
@@ -596,5 +597,53 @@ public class RabbitMessageHandler implements IMessageHandler {
 		}
 		
 		return run;
+	}
+	
+	private void connect() {
+		// Recover connection
+		factory.setAutomaticRecoveryEnabled(true);
+		// Recover queues
+		factory.setTopologyRecoveryEnabled(true);
+		// Heartbeat sent every 5 seconds
+		factory.setRequestedHeartbeat(10);
+		// Connection timeout after 10 seconds to retry
+		factory.setConnectionTimeout(10000);
+		// Wait 3 seconds before retrying
+		factory.setNetworkRecoveryInterval(3000);
+		
+		try {
+			// SSL with cert trust
+			ConnectionFactory sslFactory = factory.clone();
+			sslFactory.useSslProtocol("TLSv1.2");
+			conn = sslFactory.newConnection(recvPool);
+		} catch (Exception ex) {
+			try {
+				// SSL without cert trust
+				ConnectionFactory sslFactory = factory.clone();
+				sslFactory.useSslProtocol();
+				conn = sslFactory.newConnection(recvPool);
+			} catch (Exception ex2) {
+				try {
+					// Plaintext
+					conn = factory.newConnection(recvPool);
+				} catch (Exception ex3) {
+					ServiceLocator.getService(IExceptionHandler.class).silentException(ex3);
+					throw new RuntimeException("Cannot create RabbitMQ connection.", ex3);
+				}
+			}
+		}
+		
+		// Create a new channel. One per plugin using this library is usually enough
+		try {
+			channel = conn.createChannel();
+			channel.addShutdownListener(onChannelShutdown);
+			channel.exchangeDeclare(exchangeName, "direct", true);
+			channel.txSelect();
+		} catch (Exception ex) {
+			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			throw new RuntimeException("Cannot create RabbitMQ connection.", ex);
+		}
+		
+		conn.addShutdownListener(onShutdown);
 	}
 }
