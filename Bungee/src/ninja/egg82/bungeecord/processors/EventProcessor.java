@@ -461,10 +461,10 @@ public class EventProcessor implements Listener, Closeable {
 	//plugin events
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPluginMessageHighest(PluginMessageEvent e) {
-		if (ServiceLocator.getService(EnhancedBungeeMessageHandler.class) != null) {
+		if (ServiceLocator.hasService(EnhancedBungeeMessageHandler.class)) {
 			ServiceLocator.getService(EnhancedBungeeMessageHandler.class).onPluginMessage(e);
 		}
-		if (ServiceLocator.getService(NativeBungeeMessageHandler.class) != null) {
+		if (ServiceLocator.hasService(NativeBungeeMessageHandler.class)) {
 			ServiceLocator.getService(NativeBungeeMessageHandler.class).onPluginMessage(e);
 		}
 		onAnyEvent(EventPriority.HIGHEST, e, e.getClass());

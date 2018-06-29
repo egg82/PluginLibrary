@@ -75,10 +75,6 @@ public class CoreEventHandler {
 	public <T extends Event> void onAnyEvent(T event, Class<? extends Event> clazz) {
 		String key = clazz.getName();
 		
-		/*if (EventUtil.isDuplicate(key, event)) {
-			return;
-		}*/
-		
 		IConcurrentDeque<IAsyncEventHandler<? extends Event>> run = initializedEvents.get(key);
 		IConcurrentDeque<Class<? extends IAsyncEventHandler<? extends Event>>> c = events.get(key);
 		

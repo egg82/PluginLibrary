@@ -1,8 +1,8 @@
 package ninja.egg82.plugin.handlers.events.async;
 
-import ninja.egg82.patterns.AsyncCommand;
+import ninja.egg82.patterns.Command;
 
-public abstract class HighestAsyncEventHandler<T> extends AsyncCommand implements IAsyncEventHandler<T> {
+public abstract class HighestAsyncEventHandler<T> extends Command implements IAsyncEventHandler<T> {
 	//vars
 	protected T event = null;
 	
