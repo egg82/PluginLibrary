@@ -69,7 +69,7 @@ public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implement
 		uuid = UUID.randomUUID();
 		
 		spawnPacket = packetHelper.spawn(id, uuid, type, loc);
-		teleportSpawnPacket = packetHelper.teleport(id, loc, (BlockUtil.getTopWalkableBlock(loc).getY() == loc.getY()) ? false : true);
+		teleportSpawnPacket = packetHelper.teleport(id, loc, (BlockUtil.getHighestSolidBlock(loc).add(0.0d, 1.0d, 0.0d).getY() == loc.getY()) ? false : true);
 		destroyPacket = packetHelper.destroy(id);
 	}
 	
@@ -151,7 +151,7 @@ public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implement
 			throw new IllegalArgumentException("loc cannot be null.");
 		}
 		
-		PacketContainer movePacket = packetHelper.move(id, currentLocation, loc, (BlockUtil.getTopWalkableBlock(loc).getY() == loc.getY()) ? false : true);
+		PacketContainer movePacket = packetHelper.move(id, currentLocation, loc, (BlockUtil.getHighestSolidBlock(loc).add(0.0d, 1.0d, 0.0d).getY() == loc.getY()) ? false : true);
 		
 		currentLocation = LocationUtil.makeEqualXYZ(loc, currentLocation);
 		
@@ -164,7 +164,7 @@ public class ProtocolLibFakeLivingEntity extends ProtocolLibFakeEntity implement
 			throw new IllegalArgumentException("loc cannot be null.");
 		}
 		
-		PacketContainer teleportPacket = packetHelper.teleport(id, loc, (BlockUtil.getTopWalkableBlock(loc).getY() == loc.getY()) ? false : true);
+		PacketContainer teleportPacket = packetHelper.teleport(id, loc, (BlockUtil.getHighestSolidBlock(loc).add(0.0d, 1.0d, 0.0d).getY() == loc.getY()) ? false : true);
 		
 		currentLocation = loc.clone();
 		

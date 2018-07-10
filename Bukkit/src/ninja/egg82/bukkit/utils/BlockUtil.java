@@ -44,69 +44,109 @@ public final class BlockUtil {
 	}
 	
 	//public
-	public static Location getTopAirBlock(Location l) {
+	public static Location getNearestAirBlock(Location l, int maxRadius) {
+		if (l == null) {
+			throw new IllegalArgumentException("l cannot be null.");
+		}
+		if (maxRadius < 1) {
+			maxRadius = 1;
+		}
+		
+		if (!Bukkit.isPrimaryThread() && !l.getWorld().isChunkLoaded(l.getBlockX() >> 4, l.getBlockZ() >> 4)) {
+			// If we're not on the server thread and the chunk isn't loaded, don't even bother trying
+			return LocationUtil.toBlockLocation(l);
+		}
+		
+		// We don't want to modify the original Location, and we want nice block locations
+		l = LocationUtil.toBlockLocation(l);
+		
+		if (l.getBlock().getType() == Material.AIR) {
+			// Got lucky, the current block is air
+			return l;
+		}
+		
+		Location closest = null;
+		// Move in X or Z last
+		for (int x = maxRadius * -1; x < maxRadius; x++) {
+			// Move in X or Z second-to-last
+			for (int z = maxRadius * -1; z < maxRadius; z++) {
+				// Move in Y first
+				for (int y = maxRadius * -1; y < maxRadius; y++) {
+					// Need a new loc each time so we don't screw up the math
+					Location l2 = l.clone().add(x, y, z);
+					if (l2.getBlock().getType() == Material.AIR && (closest == null || l2.distanceSquared(l) < closest.distanceSquared(l))) {
+						// Found an air block!
+						closest = l2;
+					}
+				}
+			}
+		}
+		
+		return (closest != null) ? closest : l;
+	}
+	public static Location getLowestAirBlock(Location l) {
 		if (l == null) {
 			throw new IllegalArgumentException("l cannot be null.");
 		}
 		
 		if (!Bukkit.isPrimaryThread() && !l.getWorld().isChunkLoaded(l.getBlockX() >> 4, l.getBlockZ() >> 4)) {
-			return l.clone();
+			// If we're not on the server thread and the chunk isn't loaded, don't even bother trying
+			return LocationUtil.toBlockLocation(l);
 		}
 		
-		l = l.clone();
-		l.setY(l.getBlockY());
+		// We don't want to modify the original Location, and we want nice block locations
+		l = LocationUtil.toBlockLocation(l);
 		
-		do {
-			while (l.getBlock().getType() != Material.AIR) {
-				l = l.add(0.0d, 1.0d, 0.0d);
+		if (l.getBlock().getType() == Material.AIR) {
+			// The block is air, so we scan downwards to find the last air block
+			// Stop at 0 so we don't get stuck in an infinite loop
+			while (l.getY() > 0 && l.getBlock().getType() == Material.AIR) {
+				// Apparently adding negatives is faster than subtracting (citation needed)
+				l.add(0.0d, -1.0d, 0.0d);
 			}
-			while (l.add(0.0d, 1.0d, 0.0d).getBlock().getType() != Material.AIR) {
-				
-			}
-			l.subtract(0.0d, 1.0d, 0.0d);
-		} while (l.getBlock().getType() != Material.AIR || l.add(0.0d, 1.0d, 0.0d).getBlock().getType() != Material.AIR);
-		
-		l.subtract(0.0d, 1.0d, 0.0d);
-		
-		while (l.subtract(0.0d, 1.0d, 0.0d).getBlock().getType() == Material.AIR) {
-			
+			// We don't care if 0 is the "lowest" air block because technically that's correct
+			// If the block isn't air, add 1 to it
+			return (l.getBlock().getType() == Material.AIR) ? l : l.add(0.0d, 1.0d, 0.0d);
 		}
 		
-		l.add(0.0d, 1.0d, 0.0d);
-		
+		// The block isn't air, so we need to scan upwards to find the first air block
+		while (l.getY() < l.getWorld().getMaxHeight() && l.getBlock().getType() != Material.AIR) {
+			l.add(0.0d, 1.0d, 0.0d);
+		}
+		// We don't care if maxHeight is the "lowest" air block because technically that's correct
 		return l;
 	}
-	public static Location getTopWalkableBlock(Location l) {
+	public static Location getHighestSolidBlock(Location l) {
 		if (l == null) {
 			throw new IllegalArgumentException("l cannot be null.");
 		}
 		
 		if (!Bukkit.isPrimaryThread() && !l.getWorld().isChunkLoaded(l.getBlockX() >> 4, l.getBlockZ() >> 4)) {
-			return l.clone();
+			// If we're not on the server thread and the chunk isn't loaded, don't even bother trying
+			return LocationUtil.toBlockLocation(l);
 		}
 		
-		l = l.clone();
-		l.setY(l.getBlockY());
+		// We don't want to modify the original Location, and we want nice block locations
+		l = LocationUtil.toBlockLocation(l);
 		
-		do {
-			while (l.getBlock().getType().isSolid()) {
-				l = l.add(0.0d, 1.0d, 0.0d);
+		if (!l.getBlock().getType().isSolid()) {
+			// The block isn't solid, so we scan downwards to find the last non-solid block
+			// Stop at 0 so we don't get stuck in an infinite loop
+			while (l.getY() > 0 && !l.getBlock().getType().isSolid()) {
+				// Apparently adding negatives is faster than subtracting (citation needed)
+				l.add(0.0d, -1.0d, 0.0d);
 			}
-			while (l.add(0.0d, 1.0d, 0.0d).getBlock().getType().isSolid()) {
-				
-			}
-			l.subtract(0.0d, 1.0d, 0.0d);
-		} while (l.getBlock().getType().isSolid() || l.add(0.0d, 1.0d, 0.0d).getBlock().getType().isSolid());
-		
-		l.subtract(0.0d, 1.0d, 0.0d);
-		
-		while (!l.subtract(0.0d, 1.0d, 0.0d).getBlock().getType().isSolid()) {
-			
+			// We don't care if 0 is the "highest" solid block because technically that's correct
+			return l;
 		}
 		
-		l.add(0.0d, 1.0d, 0.0d);
-		
-		return l;
+		// The block is solid, so we need to scan upwards to find the first non-solid block
+		while (l.getY() < l.getWorld().getMaxHeight() && l.getBlock().getType().isSolid()) {
+			l.add(0.0d, 1.0d, 0.0d);
+		}
+		// We don't care if maxHeight is the "highest" solid block because technically that's correct
+		// If the block isn't solid, subtract 1 from it
+		return (l.getBlock().getType().isSolid()) ? l : l.add(0.0d, -1.0d, 0.0d);
 	}
 	
 	public static BlockData getBlock(Location location) {
