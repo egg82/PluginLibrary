@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <artifactId>bukkit</artifactId>
-  <version>1.0.6</version>
+  <version>1.1.7</version>
   <name>egg82-bukkit</name>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -46,8 +46,8 @@
               <minimizeJar>true</minimizeJar>
               <relocations>
                 <relocation>
-                  <pattern>com.google</pattern>
-                  <shadedPattern>me.egg82.extern.com.google</shadedPattern>
+                  <pattern>com.google.gson</pattern>
+                  <shadedPattern>me.egg82.extern.com.google.gson</shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>it.unimi</pattern>
@@ -79,12 +79,16 @@
   </parent> -->
   <repositories>
     <repository>
-      <id>egg82-ninja</id>
-      <url>https://www.myget.org/F/egg82-java/maven/</url>
-    </repository>
-    <repository>
       <id>spigot-repo</id>
       <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+    </repository>
+    <repository>
+      <id>paper-repo</id>
+      <url>https://repo.destroystokyo.com/content/groups/public/</url>
+    </repository>
+    <repository>
+      <id>egg82-ninja</id>
+      <url>https://www.myget.org/F/egg82-java/maven/</url>
     </repository>
     <repository>
       <id>aikar</id>
@@ -92,6 +96,24 @@
     </repository>
   </repositories>
   <dependencies>
+    <!-- <dependency>
+      <groupId>org.bukkit</groupId>
+      <artifactId>bukkit</artifactId>
+      <version>1.8-R0.1-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency> -->
+    <dependency>
+      <groupId>com.destroystokyo.paper</groupId>
+      <artifactId>paper-api</artifactId>
+      <version>1.12.2-R0.1-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.bukkit</groupId>
+      <artifactId>bukkit</artifactId>
+      <version>1.13-pre5-R0.1-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>co.aikar</groupId>
       <artifactId>fastutil-lite</artifactId>
@@ -128,10 +150,27 @@
       <version>1.0.5</version>
     </dependency>
     <dependency>
-      <groupId>org.bukkit</groupId>
-      <artifactId>bukkit</artifactId>
-      <version>1.12.2-R0.1-SNAPSHOT</version>
+      <groupId>com.googlecode.json-simple</groupId>
+      <artifactId>json-simple</artifactId>
+      <version>1.1.1</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.7</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>25.1-jre</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.8.5</version>
     </dependency>
   </dependencies>
   <description>Library for easier development of Bukkit plugins</description>

@@ -20,6 +20,10 @@ import ninja.egg82.bukkit.core.BukkitSender;
 import ninja.egg82.bukkit.messaging.EnhancedBungeeMessageHandler;
 import ninja.egg82.bukkit.processors.CommandProcessor;
 import ninja.egg82.bukkit.processors.EventProcessor;
+import ninja.egg82.bukkit.reflection.skin.MojangSkinHelper;
+import ninja.egg82.bukkit.reflection.skin.PaperSkinHelper;
+import ninja.egg82.bukkit.reflection.uuid.MojangUUIDHelper;
+import ninja.egg82.bukkit.reflection.uuid.PaperUUIDHelper;
 import ninja.egg82.bukkit.services.ConfigRegistry;
 import ninja.egg82.bukkit.utils.VersionUtil;
 import ninja.egg82.exceptionHandlers.IExceptionHandler;
@@ -83,8 +87,20 @@ public abstract class BasePlugin extends JavaPlugin {
 		
 		consoleSender = getServer().getConsoleSender();
 		
+		reflect(gameVersion, "ninja.egg82.bukkit.reflection.material");
 		reflect(gameVersion, "ninja.egg82.bukkit.reflection.player");
 		reflect(gameVersion, "ninja.egg82.bukkit.reflection.entity");
+		reflect(gameVersion, "ninja.egg82.bukkit.reflection.block.serialization");
+		reflect(gameVersion, "com.rgaminecraft.pexc.reflection.skull");
+		
+		try {
+			Class.forName("com.destroystokyo.paper.profile.PlayerProfile");
+			ServiceLocator.provideService(PaperUUIDHelper.class);
+			ServiceLocator.provideService(PaperSkinHelper.class);
+		} catch (Exception ex) {
+			ServiceLocator.provideService(MojangUUIDHelper.class);
+			ServiceLocator.provideService(MojangSkinHelper.class);
+		}
 		
 		ServiceLocator.provideService(ConfigRegistry.class, false);
 		
@@ -201,7 +217,8 @@ public abstract class BasePlugin extends JavaPlugin {
 			FileUtil.write(path, toBytes(String.join(FileUtil.LINE_SEPARATOR, lines), Charset.forName("UTF-8")), 0L);
 			FileUtil.close(path);
 		} catch (Exception ex) {
-			
+			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			throw new RuntimeException("Could not write to server.properties", ex);
 		}
 	}
 	

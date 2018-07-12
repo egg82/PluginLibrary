@@ -16,6 +16,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableMap;
 
+@SuppressWarnings("deprecation")
 public final class EntityHelper_1_8 implements IEntityHelper {
 	//vars
 	
