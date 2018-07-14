@@ -325,7 +325,7 @@ public final class CommandUtil {
 		if (players.size() == 0) {
 			return new ArrayList<Entity>();
 		}
-		return new ArrayList<Entity>(Arrays.asList(players.get(MathUtil.fairRoundedRandom(0, players.size()))));
+		return new ArrayList<Entity>(Arrays.asList(players.get(MathUtil.fairRoundedRandom(0, players.size() - 1))));
 	}
 	
 	private static Map<String, String> getArguments(String symbol) {

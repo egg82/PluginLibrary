@@ -49,10 +49,11 @@ public class SerializationHelper_1_10 implements ISerializationHelper {
 			ex.printStackTrace();
 		}
 	}
+	@SuppressWarnings("deprecation")
 	public void fromCompressedBytes(BlockState newState, BukkitObjectInputStream in, boolean updatePhysics) throws IOException, ClassNotFoundException {
 		if (newState instanceof FlowerPot) {
 			FlowerPot flowerPot = (FlowerPot) newState;
-			flowerPot.setContents(new MaterialData(Material.valueOf(in.readUTF())));
+			flowerPot.setContents(new MaterialData(Material.valueOf(in.readUTF()), in.readByte()));
 			newState.update(true, updatePhysics);
 		} else if (newState instanceof Skull) {
 			Skull skull = (Skull) newState;
@@ -82,10 +83,13 @@ public class SerializationHelper_1_10 implements ISerializationHelper {
 		}
 		return stream.toByteArray();
 	}
+	@SuppressWarnings("deprecation")
 	public void toCompressedBytes(BlockState state, BukkitObjectOutputStream out) throws IOException {
 		if (state instanceof FlowerPot) {
 			FlowerPot flowerPot = (FlowerPot) state;
-			out.writeUTF(flowerPot.getContents().getItemType().name());
+			MaterialData data = flowerPot.getContents();
+			out.writeUTF(data.getItemType().name());
+			out.writeByte(data.getData());
 		} else if (state instanceof Skull) {
 			Skull skull = (Skull) state;
 			out.writeUTF(skull.getRotation().name());
