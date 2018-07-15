@@ -52,7 +52,7 @@ public final class PlayerHelper_1_9 implements IPlayerHelper {
 		player.showPlayer(ServiceLocator.getService(Plugin.class), playerToShow);
 	}
 	
-	public int getPing(Player player) {
+	public synchronized int getPing(Player player) {
 		int ping = -1;
 		
 		try {

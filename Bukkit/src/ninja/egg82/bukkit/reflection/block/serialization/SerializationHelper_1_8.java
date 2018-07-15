@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -45,19 +46,17 @@ public class SerializationHelper_1_8 implements ISerializationHelper {
 	
 	//public
 	public void fromCompressedBytes(Location loc, Material type, byte blockData, byte[] data, boolean updatePhysics) {
-		if (data == null) {
-			throw new IllegalArgumentException("data cannot be null.");
-		}
-		
 		loc.getBlock().setType(type, updatePhysics);
 		loc.getBlock().setData(blockData, updatePhysics);
 		BlockState newState = loc.getBlock().getState();
 		
-		try (ByteArrayInputStream stream = new ByteArrayInputStream(data); GZIPInputStream gzip = new GZIPInputStream(stream); BukkitObjectInputStream in = new BukkitObjectInputStream(gzip)) {
-			fromCompressedBytes(newState, in, updatePhysics);
-		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
-			ex.printStackTrace();
+		if (data != null) {
+			try (ByteArrayInputStream stream = new ByteArrayInputStream(data); GZIPInputStream gzip = new GZIPInputStream(stream); BukkitObjectInputStream in = new BukkitObjectInputStream(gzip)) {
+				fromCompressedBytes(newState, in, updatePhysics);
+			} catch (Exception ex) {
+				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				ex.printStackTrace();
+			}
 		}
 	}
 	public void fromCompressedBytes(BlockState newState, BukkitObjectInputStream in, boolean updatePhysics) throws IOException, ClassNotFoundException {
@@ -114,21 +113,37 @@ public class SerializationHelper_1_8 implements ISerializationHelper {
 		}
 	}
 	public byte[] toCompressedBytes(BlockState state) {
+		return toCompressedBytes(state, null, Deflater.DEFAULT_COMPRESSION);
+	}
+	public byte[] toCompressedBytes(BlockState state, ItemStack[] inventory) {
+		return toCompressedBytes(state, inventory, Deflater.DEFAULT_COMPRESSION);
+	}
+	public byte[] toCompressedBytes(BlockState state, int compressionLevel) {
+		return toCompressedBytes(state, null, compressionLevel);
+	}
+	public byte[] toCompressedBytes(BlockState state, ItemStack[] inventory, int compressionLevel) {
 		if (state == null) {
 			throw new IllegalArgumentException("state cannot be null.");
 		}
+		if (compressionLevel < -1) {
+			throw new IllegalArgumentException("compressionLevel must be between -1 and " + Deflater.BEST_COMPRESSION);
+		}
+		if (compressionLevel > Deflater.BEST_COMPRESSION) {
+			throw new IllegalArgumentException("compressionLevel must be between -1 and " + Deflater.BEST_COMPRESSION);
+		}
 		
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		try (GZIPOutputStream gzip = new GZIPOutputStream(stream); BukkitObjectOutputStream out = new BukkitObjectOutputStream(gzip)) {
-			toCompressedBytes(state, out);
+		boolean hasData = false;
+		try (GZIPOutputStream gzip = new GZIPOutputStream(stream) {{def.setLevel(compressionLevel);}}; BukkitObjectOutputStream out = new BukkitObjectOutputStream(gzip)) {
+			hasData = toCompressedBytes(state, inventory, out);
 		} catch (Exception ex) {
 			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 			ex.printStackTrace();
 			return null;
 		}
-		return stream.toByteArray();
+		return (hasData) ? stream.toByteArray() : null;
 	}
-	public void toCompressedBytes(BlockState state, BukkitObjectOutputStream out) throws IOException {
+	public boolean toCompressedBytes(BlockState state, ItemStack[] inventory, BukkitObjectOutputStream out) throws IOException {
 		if (state instanceof Banner) {
 			Banner banner = (Banner) state;
 			out.writeObject(banner.getBaseColor().getColor());
@@ -137,23 +152,28 @@ public class SerializationHelper_1_8 implements ISerializationHelper {
 			for (Pattern pattern : patterns) {
 				out.writeObject(pattern);
 			}
+			return true;
 		} else if (state instanceof CommandBlock) {
 			CommandBlock command = (CommandBlock) state;
 			out.writeUTF(command.getCommand());
 			out.writeUTF(command.getName());
+			return true;
 		} else if (state instanceof CreatureSpawner) {
 			CreatureSpawner spawner = (CreatureSpawner) state;
 			out.writeUTF(spawner.getSpawnedType().name());
 			out.writeInt(spawner.getDelay());
+			return true;
 		} else if (state instanceof Jukebox) {
 			Jukebox jukebox = (Jukebox) state;
 			out.writeUTF(jukebox.getPlaying().name());
+			return true;
 		} else if (state instanceof NoteBlock) {
 			NoteBlock noteBlock = (NoteBlock) state;
 			Note note = noteBlock.getNote();
 			out.writeInt(note.getOctave());
 			out.writeUTF(note.getTone().name());
 			out.writeBoolean(note.isSharped());
+			return true;
 		} else if (state instanceof Sign) {
 			Sign sign = (Sign) state;
 			String[] lines = sign.getLines();
@@ -161,6 +181,7 @@ public class SerializationHelper_1_8 implements ISerializationHelper {
 			for (String line : lines) {
 				out.writeUTF(line);
 			}
+			return true;
 		} else if (state instanceof Skull) {
 			Skull skull = (Skull) state;
 			out.writeUTF(skull.getRotation().name());
@@ -169,14 +190,17 @@ public class SerializationHelper_1_8 implements ISerializationHelper {
 			if (skull.hasOwner()) {
 				out.writeUTF(skull.getOwner());
 			}
+			return true;
 		} else if (state instanceof InventoryHolder) {
 			InventoryHolder inventoryHolder = (InventoryHolder) state;
-			ItemStack[] items = inventoryHolder.getInventory().getContents();
+			ItemStack[] items = (inventory != null) ? inventory : inventoryHolder.getInventory().getContents();
 			out.writeInt(items.length);
 			for (ItemStack i : items) {
 				out.writeObject(i);
 			}
+			return true;
 		}
+		return false;
 	}
 	
 	//private

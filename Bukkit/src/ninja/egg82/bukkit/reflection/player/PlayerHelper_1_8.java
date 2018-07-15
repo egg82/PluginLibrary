@@ -56,7 +56,7 @@ public final class PlayerHelper_1_8 implements IPlayerHelper {
 		player.showPlayer(playerToShow);
 	}
 	
-	public int getPing(Player player) {
+	public synchronized int getPing(Player player) {
 		int ping = -1;
 		
 		try {

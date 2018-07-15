@@ -7,6 +7,7 @@ import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
 import java.util.List;
+import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -44,11 +45,14 @@ public class ItemStackSerializationUtil {
 		return fromCompressedBytes(bytes);
 	}
 	public static String toBase64(ItemStack[] items) {
+		return toBase64(items, Deflater.DEFAULT_COMPRESSION);
+	}
+	public static String toBase64(ItemStack[] items, int compressionLevel) {
 		if (items == null) {
 			throw new IllegalArgumentException("items cannot be null.");
 		}
 		
-		return encoder.encodeToString(toCompressedBytes(items));
+		return encoder.encodeToString(toCompressedBytes(items, compressionLevel));
 	}
 	
 	public static ItemStack[] fromCompressedBytes(byte[] bytes) {
@@ -69,12 +73,21 @@ public class ItemStackSerializationUtil {
 		return retVal.toArray(new ItemStack[0]);
 	}
 	public static byte[] toCompressedBytes(ItemStack[] items) {
+		return toCompressedBytes(items, Deflater.DEFAULT_COMPRESSION);
+	}
+	public static byte[] toCompressedBytes(ItemStack[] items, int compressionLevel) {
 		if (items == null) {
 			throw new IllegalArgumentException("items cannot be null.");
 		}
+		if (compressionLevel < -1) {
+			throw new IllegalArgumentException("compressionLevel must be between -1 and " + Deflater.BEST_COMPRESSION);
+		}
+		if (compressionLevel > Deflater.BEST_COMPRESSION) {
+			throw new IllegalArgumentException("compressionLevel must be between -1 and " + Deflater.BEST_COMPRESSION);
+		}
 		
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		try (GZIPOutputStream gzip = new GZIPOutputStream(stream); BukkitObjectOutputStream out = new BukkitObjectOutputStream(gzip)) {
+		try (GZIPOutputStream gzip = new GZIPOutputStream(stream) {{def.setLevel(compressionLevel);}}; BukkitObjectOutputStream out = new BukkitObjectOutputStream(gzip)) {
 			out.writeInt(items.length);
 			for (ItemStack i : items) {
 				out.writeObject(i);
