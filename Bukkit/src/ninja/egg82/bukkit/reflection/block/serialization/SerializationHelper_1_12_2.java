@@ -9,6 +9,7 @@ import java.util.zip.GZIPOutputStream;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Structure;
 import org.bukkit.block.structure.Mirror;
@@ -33,7 +34,7 @@ public class SerializationHelper_1_12_2 implements ISerializationHelper {
 	
 	//public
 	@SuppressWarnings("deprecation")
-	public void fromCompressedBytes(Location loc, Material type, byte blockData, byte[] data, boolean updatePhysics) {
+	public Block fromCompressedBytes(Location loc, Material type, byte blockData, byte[] data, boolean updatePhysics) {
 		loc.getBlock().setType(type, updatePhysics);
 		loc.getBlock().setData(blockData, updatePhysics);
 		BlockState newState = loc.getBlock().getState();
@@ -46,6 +47,8 @@ public class SerializationHelper_1_12_2 implements ISerializationHelper {
 				ex.printStackTrace();
 			}
 		}
+		
+		return loc.getBlock();
 	}
 	public void fromCompressedBytes(BlockState newState, BukkitObjectInputStream in, boolean updatePhysics) throws IOException, ClassNotFoundException {
 		if (newState instanceof Structure) {

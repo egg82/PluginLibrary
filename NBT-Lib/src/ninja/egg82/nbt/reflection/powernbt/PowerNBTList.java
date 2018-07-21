@@ -1,16 +1,31 @@
-package ninja.egg82.nbt.core;
+package ninja.egg82.nbt.reflection.powernbt;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.bukkit.inventory.Inventory;
+
+import me.dpohvar.powernbt.PowerNBT;
 import me.dpohvar.powernbt.api.NBTCompound;
 import me.dpohvar.powernbt.api.NBTList;
+import me.dpohvar.powernbt.api.NBTManager;
+import ninja.egg82.nbt.core.INBTCompound;
+import ninja.egg82.nbt.core.INBTList;
+import ninja.egg82.nbt.utils.NBTReflectUtil;
+import ninja.egg82.nbt.utils.PowerNBTUtil;
 
 public class PowerNBTList implements INBTList {
 	//vars
+	private NBTManager manager = PowerNBT.getApi();
+	
 	private PowerNBTCompound parentCompound = null;
 	private PowerNBTList parentList = null;
 	private NBTList list = null;
@@ -24,6 +39,20 @@ public class PowerNBTList implements INBTList {
 		this.parentList = parent;
 		this.list = list;
 	}
+	public PowerNBTList(Inventory inventory) {
+		this.list = manager.read(inventory);
+	}
+	public PowerNBTList(byte[] serialized) throws IOException, ClassCastException {
+		try (ByteArrayInputStream stream = new ByteArrayInputStream(serialized)) {
+			this.list = (NBTList) manager.read(stream);
+		}
+	}
+	public PowerNBTList(InputStream stream) throws IOException, ClassCastException {
+		this.list = (NBTList) manager.read(stream);
+	}
+	public PowerNBTList(String fromString) throws ClassCastException {
+		this.list = (NBTList) manager.parseMojangson(fromString);
+	}
 	
 	//public
 	public int size() {
@@ -34,7 +63,7 @@ public class PowerNBTList implements INBTList {
 	}
 	
 	public boolean contains(Object o) {
-		return list.contains(tryUnwrap(o));
+		return list.contains(PowerNBTUtil.tryUnwrap(o));
 	}
 	public boolean containsAll(Collection<?> c) {
 		for (Object l : c) {
@@ -48,7 +77,7 @@ public class PowerNBTList implements INBTList {
 	public Object[] toArray() {
 		Object[] retVal = list.toArray();
 		for (int i = 0; i < retVal.length; i++) {
-			retVal[i] = tryWrap(retVal[i]);
+			retVal[i] = PowerNBTUtil.tryWrap(this, retVal[i]);
 		}
 		return retVal;
 	}
@@ -56,24 +85,24 @@ public class PowerNBTList implements INBTList {
 	public <T> T[] toArray(T[] a) {
 		T[] retVal = list.toArray(a);
 		for (int i = 0; i < retVal.length; i++) {
-			retVal[i] = (T) tryWrap(retVal[i]);
+			retVal[i] = (T) PowerNBTUtil.tryWrap(this, retVal[i]);
 		}
 		return retVal;
 	}
 	
 	public void add(int index, Object element) {
-		list.add(index, tryUnwrap(element));
+		list.add(index, PowerNBTUtil.tryUnwrap(element));
 		writeCompound();
 	}
 	public boolean add(Object e) {
-		boolean retVal = list.add(tryUnwrap(e));
+		boolean retVal = list.add(PowerNBTUtil.tryUnwrap(e));
 		if (retVal) {
 			writeCompound();
 		}
 		return retVal;
 	}
 	public Object set(int index, Object element) {
-		Object retVal = list.set(index, tryUnwrap(element));
+		Object retVal = list.set(index, PowerNBTUtil.tryUnwrap(element));
 		writeCompound();
 		return retVal;
 	}
@@ -99,14 +128,14 @@ public class PowerNBTList implements INBTList {
 	}
 	
 	public boolean remove(Object o) {
-		boolean retVal = list.remove(tryUnwrap(o));
+		boolean retVal = list.remove(PowerNBTUtil.tryUnwrap(o));
 		if (retVal) {
 			writeCompound();
 		}
 		return retVal;
 	}
 	public Object remove(int index) {
-		Object retVal = tryWrap(list.remove(index));
+		Object retVal = PowerNBTUtil.tryWrap(this, list.remove(index));
 		writeCompound();
 		return retVal;
 	}
@@ -126,7 +155,7 @@ public class PowerNBTList implements INBTList {
 		List<Object> c2 = Arrays.asList(c.toArray());
 		
 		for (ListIterator<Object> i = c2.listIterator(); i.hasNext(); i.next()) {
-			i.set(tryUnwrap(i));
+			i.set(PowerNBTUtil.tryUnwrap(i));
 		}
 		
 		boolean retVal = list.retainAll(c2);
@@ -144,14 +173,14 @@ public class PowerNBTList implements INBTList {
 	}
 	
 	public Object get(int index) {
-		return tryWrap(list.get(index));
+		return PowerNBTUtil.tryWrap(this, list.get(index));
 	}
 	
 	public int indexOf(Object o) {
-		return list.indexOf(tryUnwrap(o));
+		return list.indexOf(PowerNBTUtil.tryUnwrap(o));
 	}
 	public int lastIndexOf(Object o) {
-		return list.lastIndexOf(tryUnwrap(o));
+		return list.lastIndexOf(PowerNBTUtil.tryUnwrap(o));
 	}
 	
 	public Iterator<Object> iterator() {
@@ -217,11 +246,11 @@ public class PowerNBTList implements INBTList {
 	}
 	
 	public Object getObject(int index) {
-		return tryWrap(list.get(index));
+		return PowerNBTUtil.tryWrap(this, list.get(index));
 	}
 	@SuppressWarnings("unchecked")
 	public <T> T getObject(int index, Class<T> type) {
-		Object retVal = tryWrap(list.get(index));
+		Object retVal = PowerNBTUtil.tryWrap(this, list.get(index));
 		if (retVal != null) {
 			if (!NBTReflectUtil.doesExtend(type, retVal.getClass())) {
 				try {
@@ -244,6 +273,19 @@ public class PowerNBTList implements INBTList {
 		return list;
 	}
 	
+	public byte[] serialize() throws IOException {
+		try (ByteArrayOutputStream retVal = new ByteArrayOutputStream()) {
+			manager.write(retVal, list);
+			return retVal.toByteArray();
+		}
+	}
+	public void serialize(OutputStream stream) throws IOException {
+		manager.write(stream, list);
+	}
+	public String toString() {
+		return PowerNBTUtil.toMojangson(list);
+	}
+	
 	public boolean isValidList() {
 		return true;
 	}
@@ -251,32 +293,6 @@ public class PowerNBTList implements INBTList {
 	//private
 	private synchronized void writeCompound() {
 		getRoot().writeLast();
-	}
-	
-	private Object tryWrap(Object obj) {
-		if (obj == null) {
-			return null;
-		}
-		
-		if (NBTReflectUtil.doesExtend(NBTCompound.class, obj.getClass())) {
-			return new PowerNBTCompound(this, (NBTCompound) obj);
-		} else if (NBTReflectUtil.doesExtend(NBTList.class, obj.getClass())) {
-			return new PowerNBTList(this, (NBTList) obj);
-		}
-		return obj;
-	}
-	private Object tryUnwrap(Object obj) {
-		if (obj == null) {
-			return null;
-		}
-		
-		if (NBTReflectUtil.doesExtend(PowerNBTCompound.class, obj.getClass())) {
-			return ((PowerNBTCompound) obj).getSelf();
-		} else if (NBTReflectUtil.doesExtend(PowerNBTList.class, obj.getClass())) {
-			return ((PowerNBTList) obj).getSelf();
-		}
-		
-		return obj;
 	}
 }
 
@@ -296,13 +312,13 @@ class PowerNBTIterator implements ListIterator<Object> {
 		return iterator.hasNext();
 	}
 	public Object next() {
-		return tryWrap(iterator.next());
+		return PowerNBTUtil.tryWrap(parentList, iterator.next());
 	}
 	public boolean hasPrevious() {
 		return iterator.hasPrevious();
 	}
 	public Object previous() {
-		return tryWrap(iterator.previous());
+		return PowerNBTUtil.tryWrap(parentList, iterator.previous());
 	}
 	
 	public int nextIndex() {
@@ -313,7 +329,7 @@ class PowerNBTIterator implements ListIterator<Object> {
 	}
 	
 	public void add(Object o) {
-		iterator.add(tryUnwrap(o));
+		iterator.add(PowerNBTUtil.tryUnwrap(o));
 		writeCompound();
 	}
 	public void remove() {
@@ -321,7 +337,7 @@ class PowerNBTIterator implements ListIterator<Object> {
 		writeCompound();
 	}
 	public void set(Object o) {
-		iterator.set(tryUnwrap(o));
+		iterator.set(PowerNBTUtil.tryUnwrap(o));
 		writeCompound();
 	}
 	
@@ -332,32 +348,6 @@ class PowerNBTIterator implements ListIterator<Object> {
 	//private
 	private synchronized void writeCompound() {
 		getRoot().writeLast();
-	}
-	
-	private Object tryWrap(Object obj) {
-		if (obj == null) {
-			return null;
-		}
-		
-		if (NBTReflectUtil.doesExtend(NBTCompound.class, obj.getClass())) {
-			return new PowerNBTCompound(parentList, (NBTCompound) obj);
-		} else if (NBTReflectUtil.doesExtend(NBTList.class, obj.getClass())) {
-			return new PowerNBTList(parentList, (NBTList) obj);
-		}
-		return obj;
-	}
-	private Object tryUnwrap(Object obj) {
-		if (obj == null) {
-			return null;
-		}
-		
-		if (NBTReflectUtil.doesExtend(PowerNBTCompound.class, obj.getClass())) {
-			return ((PowerNBTCompound) obj).getSelf();
-		} else if (NBTReflectUtil.doesExtend(PowerNBTList.class, obj.getClass())) {
-			return ((PowerNBTList) obj).getSelf();
-		}
-		
-		return obj;
 	}
 }
 class PowerNBTSubList implements List<Object> {
@@ -380,7 +370,7 @@ class PowerNBTSubList implements List<Object> {
 	}
 	
 	public boolean contains(Object o) {
-		return list.contains(tryUnwrap(o));
+		return list.contains(PowerNBTUtil.tryUnwrap(o));
 	}
 	public boolean containsAll(Collection<?> c) {
 		for (Object l : c) {
@@ -394,7 +384,7 @@ class PowerNBTSubList implements List<Object> {
 	public Object[] toArray() {
 		Object[] retVal = list.toArray();
 		for (int i = 0; i < retVal.length; i++) {
-			retVal[i] = tryWrap(retVal[i]);
+			retVal[i] = PowerNBTUtil.tryWrap(parentList, retVal[i]);
 		}
 		return retVal;
 	}
@@ -402,24 +392,24 @@ class PowerNBTSubList implements List<Object> {
 	public <T> T[] toArray(T[] a) {
 		T[] retVal = list.toArray(a);
 		for (int i = 0; i < retVal.length; i++) {
-			retVal[i] = (T) tryWrap(retVal[i]);
+			retVal[i] = (T) PowerNBTUtil.tryWrap(parentList, retVal[i]);
 		}
 		return retVal;
 	}
 	
 	public void add(int index, Object element) {
-		list.add(index, tryUnwrap(element));
+		list.add(index, PowerNBTUtil.tryUnwrap(element));
 		writeCompound();
 	}
 	public boolean add(Object e) {
-		boolean retVal = list.add(tryUnwrap(e));
+		boolean retVal = list.add(PowerNBTUtil.tryUnwrap(e));
 		if (retVal) {
 			writeCompound();
 		}
 		return retVal;
 	}
 	public Object set(int index, Object element) {
-		Object retVal = list.set(index, tryUnwrap(element));
+		Object retVal = list.set(index, PowerNBTUtil.tryUnwrap(element));
 		writeCompound();
 		return retVal;
 	}
@@ -445,14 +435,14 @@ class PowerNBTSubList implements List<Object> {
 	}
 	
 	public boolean remove(Object o) {
-		boolean retVal = list.remove(tryUnwrap(o));
+		boolean retVal = list.remove(PowerNBTUtil.tryUnwrap(o));
 		if (retVal) {
 			writeCompound();
 		}
 		return retVal;
 	}
 	public Object remove(int index) {
-		Object retVal = tryWrap(list.remove(index));
+		Object retVal = PowerNBTUtil.tryWrap(parentList, list.remove(index));
 		writeCompound();
 		return retVal;
 	}
@@ -472,7 +462,7 @@ class PowerNBTSubList implements List<Object> {
 		List<Object> c2 = Arrays.asList(c.toArray());
 		
 		for (ListIterator<Object> i = c2.listIterator(); i.hasNext(); i.next()) {
-			i.set(tryUnwrap(i));
+			i.set(PowerNBTUtil.tryUnwrap(i));
 		}
 		
 		boolean retVal = list.retainAll(c2);
@@ -490,14 +480,14 @@ class PowerNBTSubList implements List<Object> {
 	}
 	
 	public Object get(int index) {
-		return tryWrap(list.get(index));
+		return PowerNBTUtil.tryWrap(parentList, list.get(index));
 	}
 	
 	public int indexOf(Object o) {
-		return list.indexOf(tryUnwrap(o));
+		return list.indexOf(PowerNBTUtil.tryUnwrap(o));
 	}
 	public int lastIndexOf(Object o) {
-		return list.lastIndexOf(tryUnwrap(o));
+		return list.lastIndexOf(PowerNBTUtil.tryUnwrap(o));
 	}
 	
 	public Iterator<Object> iterator() {
@@ -521,31 +511,5 @@ class PowerNBTSubList implements List<Object> {
 	//private
 	private synchronized void writeCompound() {
 		getRoot().writeLast();
-	}
-	
-	private Object tryWrap(Object obj) {
-		if (obj == null) {
-			return null;
-		}
-		
-		if (NBTReflectUtil.doesExtend(NBTCompound.class, obj.getClass())) {
-			return new PowerNBTCompound(parentList, (NBTCompound) obj);
-		} else if (NBTReflectUtil.doesExtend(NBTList.class, obj.getClass())) {
-			return new PowerNBTList(parentList, (NBTList) obj);
-		}
-		return obj;
-	}
-	private Object tryUnwrap(Object obj) {
-		if (obj == null) {
-			return null;
-		}
-		
-		if (NBTReflectUtil.doesExtend(PowerNBTCompound.class, obj.getClass())) {
-			return ((PowerNBTCompound) obj).getSelf();
-		} else if (NBTReflectUtil.doesExtend(PowerNBTList.class, obj.getClass())) {
-			return ((PowerNBTList) obj).getSelf();
-		}
-		
-		return obj;
 	}
 }

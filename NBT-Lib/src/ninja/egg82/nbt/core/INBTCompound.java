@@ -1,5 +1,8 @@
 package ninja.egg82.nbt.core;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 public interface INBTCompound {
 	//functions
 	boolean hasTag(String name);
@@ -38,7 +41,8 @@ public interface INBTCompound {
 	INBTList addList(String name);
 	INBTList getList(String name);
 	
-	byte[] serialize();
+	byte[] serialize() throws IOException;
+	void serialize(OutputStream stream) throws IOException;
 	String toString();
 	
 	boolean isValidCompound();

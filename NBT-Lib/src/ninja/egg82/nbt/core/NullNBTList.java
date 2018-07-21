@@ -1,5 +1,7 @@
 package ninja.egg82.nbt.core;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -124,6 +126,16 @@ public class NullNBTList implements INBTList {
 	}
 	public <T> T getObject(int index, Class<T> type) {
 		return null;
+	}
+	
+	public byte[] serialize() throws IOException {
+		return new byte[0];
+	}
+	public void serialize(OutputStream stream) throws IOException {
+		
+	}
+	public String toString() {
+		return "[]";
 	}
 	
 	public boolean isValidList() {

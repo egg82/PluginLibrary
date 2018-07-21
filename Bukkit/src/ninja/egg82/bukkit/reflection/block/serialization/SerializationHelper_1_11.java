@@ -13,6 +13,7 @@ import org.bukkit.Color;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Comparator;
 import org.bukkit.block.DaylightDetector;
@@ -38,7 +39,7 @@ public class SerializationHelper_1_11 implements ISerializationHelper {
 	}
 	
 	//public
-	public void fromCompressedBytes(Location loc, Material type, byte blockData, byte[] data, boolean updatePhysics) {
+	public Block fromCompressedBytes(Location loc, Material type, byte blockData, byte[] data, boolean updatePhysics) {
 		loc.getBlock().setType(type, updatePhysics);
 		loc.getBlock().setData(blockData, updatePhysics);
 		BlockState newState = loc.getBlock().getState();
@@ -51,6 +52,8 @@ public class SerializationHelper_1_11 implements ISerializationHelper {
 				ex.printStackTrace();
 			}
 		}
+		
+		return loc.getBlock();
 	}
 	public void fromCompressedBytes(BlockState newState, BukkitObjectInputStream in, boolean updatePhysics) throws IOException, ClassNotFoundException {
 		if (newState instanceof Comparator) {
@@ -59,10 +62,7 @@ public class SerializationHelper_1_11 implements ISerializationHelper {
 			// Do nothing
 		} else if (newState instanceof EnchantingTable) {
 			EnchantingTable enchantingTable = (EnchantingTable) newState;
-			boolean hasCustomName = in.readBoolean();
-			if (hasCustomName) {
-				enchantingTable.setCustomName(in.readUTF());
-			}
+			enchantingTable.setCustomName(in.readUTF());
 			newState.update(true, updatePhysics);
 		} else if (newState instanceof EnderChest) {
 			// Do nothing
@@ -128,10 +128,10 @@ public class SerializationHelper_1_11 implements ISerializationHelper {
 			return false;
 		} else if (state instanceof EnchantingTable) {
 			EnchantingTable enchantingTable = (EnchantingTable) state;
-			out.writeBoolean((enchantingTable.getCustomName() != null) ? true : false);
-			if (enchantingTable.getCustomName() != null) {
-				out.writeUTF(enchantingTable.getCustomName());
+			if (enchantingTable.getCustomName() == null) {
+				return false;
 			}
+			out.writeUTF(enchantingTable.getCustomName());
 			return true;
 		} else if (state instanceof EnderChest) {
 			// Do nothing

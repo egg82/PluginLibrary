@@ -1,5 +1,8 @@
 package ninja.egg82.nbt.core;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 public class NullNBTCompound implements INBTCompound {
 	//vars
 	
@@ -105,8 +108,11 @@ public class NullNBTCompound implements INBTCompound {
 		return new NullNBTList();
 	}
 	
-	public byte[] serialize() {
+	public byte[] serialize() throws IOException {
 		return new byte[0];
+	}
+	public void serialize(OutputStream stream) throws IOException {
+		
 	}
 	public String toString() {
 		return "{}";

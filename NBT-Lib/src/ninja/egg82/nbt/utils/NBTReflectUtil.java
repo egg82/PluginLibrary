@@ -1,4 +1,4 @@
-package ninja.egg82.nbt.core;
+package ninja.egg82.nbt.utils;
 
 public class NBTReflectUtil {
 	//vars

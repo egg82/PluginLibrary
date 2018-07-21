@@ -11,15 +11,15 @@ import org.bukkit.inventory.ItemStack;
 
 import ninja.egg82.nbt.core.INBTCompound;
 import ninja.egg82.nbt.core.INBTList;
-import ninja.egg82.nbt.reflection.powernbt.PowerNBTCompound;
-import ninja.egg82.nbt.reflection.powernbt.PowerNBTList;
+import ninja.egg82.nbt.reflection.protocollib.ProtocolLibNBTCompound;
+import ninja.egg82.nbt.reflection.protocollib.ProtocolLibNBTList;
 import ninja.egg82.nbt.utils.NBTFileUtil;
 
-public class PowerNBTHelper implements INBTHelper {
+public class ProtocolLibNBTHelper implements INBTHelper {
 	//vars
 	
 	//constructor
-	public PowerNBTHelper() {
+	public ProtocolLibNBTHelper() {
 		
 	}
 	
@@ -29,21 +29,21 @@ public class PowerNBTHelper implements INBTHelper {
 			throw new IllegalArgumentException("stack cannot be null.");
 		}
 		
-		return new PowerNBTCompound(stack);
+		return new ProtocolLibNBTCompound(stack);
 	}
 	public INBTCompound getCompound(Entity entity) {
 		if (entity == null) {
 			throw new IllegalArgumentException("entity cannot be null.");
 		}
 		
-		return new PowerNBTCompound(entity);
+		return new ProtocolLibNBTCompound(entity);
 	}
 	public INBTCompound getCompound(Block block) {
 		if (block == null) {
 			throw new IllegalArgumentException("block cannot be null.");
 		}
 		
-		return new PowerNBTCompound(block);
+		return new ProtocolLibNBTCompound(block);
 	}
 	public INBTCompound getCompound(File file) {
 		if (file == null) {
@@ -59,41 +59,41 @@ public class PowerNBTHelper implements INBTHelper {
 			throw new IllegalArgumentException("file is not a file.");
 		}
 		
-		return new PowerNBTCompound(file);
+		return new ProtocolLibNBTCompound(file);
 	}
 	public INBTCompound getCompound(byte[] serialized) throws IOException, ClassCastException {
 		if (serialized == null) {
 			throw new IllegalArgumentException("serialized cannot be null.");
 		}
 		
-		return new PowerNBTCompound(serialized);
+		return new ProtocolLibNBTCompound(serialized);
 	}
 	public INBTCompound getCompound(InputStream stream) throws IOException, ClassCastException {
 		if (stream == null) {
 			throw new IllegalArgumentException("stream cannot be null.");
 		}
 		
-		return new PowerNBTCompound(stream);
+		return new ProtocolLibNBTCompound(stream);
 	}
 	public INBTCompound getCompound(String fromString) throws ClassCastException {
 		if (fromString == null) {
 			throw new IllegalArgumentException("fromString cannot be null.");
 		}
 		
-		return new PowerNBTCompound(fromString);
+		return new ProtocolLibNBTCompound(fromString);
 	}
 	
 	public INBTList getList(Inventory inventory) {
-		return new PowerNBTList(inventory);
+		return new ProtocolLibNBTList(inventory);
 	}
 	public INBTList getList(byte[] serialized) throws IOException, ClassCastException {
-		return new PowerNBTList(serialized);
+		return new ProtocolLibNBTList(serialized);
 	}
 	public INBTList getList(InputStream stream) throws IOException, ClassCastException {
-		return new PowerNBTList(stream);
+		return new ProtocolLibNBTList(stream);
 	}
 	public INBTList getList(String fromString) throws ClassCastException {
-		return new PowerNBTList(fromString);
+		return new ProtocolLibNBTList(fromString);
 	}
 	
 	public boolean isValidLibrary() {

@@ -17,6 +17,7 @@ import org.bukkit.Note;
 import org.bukkit.Note.Tone;
 import org.bukkit.SkullType;
 import org.bukkit.block.Banner;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CommandBlock;
@@ -45,7 +46,7 @@ public class SerializationHelper_1_8 implements ISerializationHelper {
 	}
 	
 	//public
-	public void fromCompressedBytes(Location loc, Material type, byte blockData, byte[] data, boolean updatePhysics) {
+	public Block fromCompressedBytes(Location loc, Material type, byte blockData, byte[] data, boolean updatePhysics) {
 		loc.getBlock().setType(type, updatePhysics);
 		loc.getBlock().setData(blockData, updatePhysics);
 		BlockState newState = loc.getBlock().getState();
@@ -58,6 +59,8 @@ public class SerializationHelper_1_8 implements ISerializationHelper {
 				ex.printStackTrace();
 			}
 		}
+		
+		return loc.getBlock();
 	}
 	public void fromCompressedBytes(BlockState newState, BukkitObjectInputStream in, boolean updatePhysics) throws IOException, ClassNotFoundException {
 		if (newState instanceof Banner) {
@@ -155,6 +158,9 @@ public class SerializationHelper_1_8 implements ISerializationHelper {
 			return true;
 		} else if (state instanceof CommandBlock) {
 			CommandBlock command = (CommandBlock) state;
+			if (command.getCommand().isEmpty() && (command.getName().equals("@"))) {
+				return false;
+			}
 			out.writeUTF(command.getCommand());
 			out.writeUTF(command.getName());
 			return true;
@@ -165,6 +171,9 @@ public class SerializationHelper_1_8 implements ISerializationHelper {
 			return true;
 		} else if (state instanceof Jukebox) {
 			Jukebox jukebox = (Jukebox) state;
+			if (!jukebox.isPlaying()) {
+				return false;
+			}
 			out.writeUTF(jukebox.getPlaying().name());
 			return true;
 		} else if (state instanceof NoteBlock) {
@@ -177,6 +186,9 @@ public class SerializationHelper_1_8 implements ISerializationHelper {
 		} else if (state instanceof Sign) {
 			Sign sign = (Sign) state;
 			String[] lines = sign.getLines();
+			if (lines.length == 0) {
+				return false;
+			}
 			out.writeInt(lines.length);
 			for (String line : lines) {
 				out.writeUTF(line);
@@ -194,6 +206,9 @@ public class SerializationHelper_1_8 implements ISerializationHelper {
 		} else if (state instanceof InventoryHolder) {
 			InventoryHolder inventoryHolder = (InventoryHolder) state;
 			ItemStack[] items = (inventory != null) ? inventory : inventoryHolder.getInventory().getContents();
+			if (items.length == 0) {
+				return false;
+			}
 			out.writeInt(items.length);
 			for (ItemStack i : items) {
 				out.writeObject(i);

@@ -1,9 +1,11 @@
-package ninja.egg82.nbt.core;
+package ninja.egg82.nbt.reflection.powernbt;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.Arrays;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -11,9 +13,10 @@ import org.bukkit.inventory.ItemStack;
 
 import me.dpohvar.powernbt.PowerNBT;
 import me.dpohvar.powernbt.api.NBTCompound;
-import me.dpohvar.powernbt.api.NBTCompound.NBTEntrySet;
-import me.dpohvar.powernbt.api.NBTList;
-import me.dpohvar.powernbt.api.NBTList.NBTIterator;
+import ninja.egg82.nbt.core.INBTCompound;
+import ninja.egg82.nbt.core.INBTList;
+import ninja.egg82.nbt.utils.NBTReflectUtil;
+import ninja.egg82.nbt.utils.PowerNBTUtil;
 import me.dpohvar.powernbt.api.NBTManager;
 
 public class PowerNBTCompound implements INBTCompound {
@@ -51,16 +54,15 @@ public class PowerNBTCompound implements INBTCompound {
 		this.parentList = parent;
 		this.compound = compound;
 	}
-	public PowerNBTCompound(byte[] serialized) {
-		ByteArrayInputStream stream = new ByteArrayInputStream(serialized);
-		
-		try {
+	public PowerNBTCompound(byte[] serialized) throws IOException, ClassCastException {
+		try (ByteArrayInputStream stream = new ByteArrayInputStream(serialized)) {
 			this.compound = (NBTCompound) manager.read(stream);
-		} catch (Exception ex) {
-			throw new RuntimeException("Cannot convert serialized data to NBT compound.", ex);
 		}
 	}
-	public PowerNBTCompound(String fromString) {
+	public PowerNBTCompound(InputStream stream) throws IOException, ClassCastException {
+		this.compound = (NBTCompound) manager.read(stream);
+	}
+	public PowerNBTCompound(String fromString) throws ClassCastException {
 		this.compound = (NBTCompound) manager.parseMojangson(fromString);
 	}
 	
@@ -253,7 +255,7 @@ public class PowerNBTCompound implements INBTCompound {
 		}
 		
 		NBTCompound compound = readCompound();
-		compound.put(name, tryUnwrap(data));
+		compound.put(name, PowerNBTUtil.tryUnwrap(data));
 		writeCompound(compound);
 	}
 	public Object getObject(String name) {
@@ -261,7 +263,7 @@ public class PowerNBTCompound implements INBTCompound {
 			throw new IllegalArgumentException("name cannot be null.");
 		}
 		
-		return tryWrap(readCompound().get(name));
+		return PowerNBTUtil.tryWrap(this, readCompound().get(name));
 	}
 	@SuppressWarnings("unchecked")
 	public <T> T getObject(String name, Class<T> type) {
@@ -321,19 +323,17 @@ public class PowerNBTCompound implements INBTCompound {
 		return new PowerNBTList(this, readCompound().getList(name));
 	}
 	
-	public byte[] serialize() {
-		ByteArrayOutputStream retVal = new ByteArrayOutputStream();
-		
-		try {
+	public byte[] serialize() throws IOException {
+		try (ByteArrayOutputStream retVal = new ByteArrayOutputStream()) {
 			manager.write(retVal, readCompound());
-		} catch (Exception ex) {
-			return new byte[0];
+			return retVal.toByteArray();
 		}
-		
-		return retVal.toByteArray();
+	}
+	public void serialize(OutputStream stream) throws IOException {
+		manager.write(stream, readCompound());
 	}
 	public String toString() {
-		return toMojangson(readCompound());
+		return PowerNBTUtil.toMojangson(readCompound());
 	}
 	
 	public boolean isValidCompound() {
@@ -414,90 +414,5 @@ public class PowerNBTCompound implements INBTCompound {
 		} catch (Exception ex) {
 			
 		}
-	}
-	
-	private Object tryWrap(Object obj) {
-		if (obj == null) {
-			return null;
-		}
-		
-		if (NBTReflectUtil.doesExtend(NBTCompound.class, obj.getClass())) {
-			return new PowerNBTCompound(this, (NBTCompound) obj);
-		} else if (NBTReflectUtil.doesExtend(NBTList.class, obj.getClass())) {
-			return new PowerNBTList(this, (NBTList) obj);
-		}
-		return obj;
-	}
-	private Object tryUnwrap(Object obj) {
-		if (obj == null) {
-			return null;
-		}
-		
-		if (NBTReflectUtil.doesExtend(PowerNBTCompound.class, obj.getClass())) {
-			return ((PowerNBTCompound) obj).getSelf();
-		} else if (NBTReflectUtil.doesExtend(PowerNBTList.class, obj.getClass())) {
-			return ((PowerNBTList) obj).getSelf();
-		}
-		
-		return obj;
-	}
-	
-	private String toMojangson(NBTCompound compound) {
-		StringBuilder sb = new StringBuilder().append('{');
-		
-		for (NBTEntrySet.NBTIterator i = compound.entrySet().iterator(); i.hasNext();) {
-			NBTEntrySet.NBTIterator.NBTEntry kvp = i.next();
-			Object v = kvp.getValue();
-			
-			sb.append(kvp.getKey()).append(':');
-			if (v instanceof byte[]) {
-				sb.append(Arrays.toString((byte[]) v).replaceAll("\\s+", ""));
-			} else if (v instanceof int[]) {
-				sb.append(Arrays.toString((int[]) v).replaceAll("\\s+", ""));
-			} else if (v instanceof NBTCompound) {
-				sb.append(toMojangson((NBTCompound) v));
-			} else if (v instanceof NBTList) {
-				sb.append(toMojangson((NBTList) v));
-			} else if (v instanceof String) {
-				sb.append("\"" + v + "\"");
-			} else {
-				sb.append(v);
-			}
-			
-			if (i.hasNext()) {
-				sb.append(',');
-			}
-		}
-		
-		sb.append('}');
-		return sb.toString();
-	}
-	private String toMojangson(NBTList list) {
-		StringBuilder sb = new StringBuilder().append('[');
-		
-		for (NBTIterator i = list.iterator(); i.hasNext();) {
-			Object v = i.next();
-			
-			if (v instanceof byte[]) {
-				sb.append(Arrays.toString((byte[]) v).replaceAll("\\s+", ""));
-			} else if (v instanceof int[]) {
-				sb.append(Arrays.toString((int[]) v).replaceAll("\\s+", ""));
-			} else if (v instanceof NBTCompound) {
-				sb.append(toMojangson((NBTCompound) v));
-			} else if (v instanceof NBTList) {
-				sb.append(toMojangson((NBTList) v));
-			} else if (v instanceof String) {
-				sb.append("\"" + v + "\"");
-			} else {
-				sb.append(v);
-			}
-			
-			if (i.hasNext()) {
-				sb.append(',');
-			}
-		}
-		
-		sb.append(']');
-		return sb.toString();
 	}
 }

@@ -1,5 +1,7 @@
 package ninja.egg82.nbt.core;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 
 public interface INBTList extends List<Object> {
@@ -16,6 +18,10 @@ public interface INBTList extends List<Object> {
 	
 	Object getObject(int index);
 	<T> T getObject(int index, Class<T> type);
+	
+	byte[] serialize() throws IOException;
+	void serialize(OutputStream stream) throws IOException;
+	String toString();
 	
 	boolean isValidList();
 }
