@@ -9,6 +9,7 @@ import com.google.common.reflect.TypeToken;
 
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.ConfigurationOptions;
+import ninja.leaping.configurate.ValueType;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 
 public abstract class AbstractConfiguration implements ConfigurationNode {
@@ -174,6 +175,12 @@ public abstract class AbstractConfiguration implements ConfigurationNode {
 	 */
 	public boolean isVirtual() {
 		return root.isVirtual();
+	}
+	public ValueType getValueType() {
+		return root.getValueType();
+	}
+	public ConfigurationNode copy() {
+		return root.copy();
 	}
 	
 	//private

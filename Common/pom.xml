@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <artifactId>plugin-common</artifactId>
-  <version>1.0.7</version>
+  <version>1.0.8</version>
   <name>egg82-plugin-common</name>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -64,12 +64,16 @@
       <id>egg82-ninja</id>
       <url>https://www.myget.org/F/egg82-java/maven/</url>
     </repository>
+    <repository>
+      <id>sponge</id>
+      <url>https://repo.spongepowered.org/maven/</url>
+    </repository>
   </repositories>
   <dependencies>
     <dependency>
-      <groupId>ninja.leaping.configurate</groupId>
+      <groupId>org.spongepowered</groupId>
       <artifactId>configurate-core</artifactId>
-      <version>3.3</version>
+      <version>3.5</version>
     </dependency>
     <dependency>
       <groupId>ninja.egg82.lib</groupId>

@@ -10,10 +10,11 @@ import com.google.common.reflect.TypeToken;
 
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.ConfigurationOptions;
+import ninja.leaping.configurate.ValueType;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 
-public class AbstractCommentedConfiguration implements CommentedConfigurationNode {
+public abstract class AbstractCommentedConfiguration implements CommentedConfigurationNode {
 	//vars
 	private CommentedConfigurationNode root = null;
 	
@@ -188,6 +189,18 @@ public class AbstractCommentedConfiguration implements CommentedConfigurationNod
 	 */
 	public CommentedConfigurationNode setComment(String comment) {
 		return root.setComment(comment);
+	}
+	/**
+	 * {@inheritDoc}
+	 */
+	public ValueType getValueType() {
+		return root.getValueType();
+	}
+	/**
+	 * {@inheritDoc}
+	 */
+	public CommentedConfigurationNode copy() {
+		return root.copy();
 	}
 	
 	//private
