@@ -24,7 +24,6 @@ import ninja.egg82.bukkit.reflection.skin.MojangSkinHelper;
 import ninja.egg82.bukkit.reflection.skin.PaperSkinHelper;
 import ninja.egg82.bukkit.reflection.uuid.MojangUUIDHelper;
 import ninja.egg82.bukkit.reflection.uuid.PaperUUIDHelper;
-import ninja.egg82.bukkit.services.ConfigRegistry;
 import ninja.egg82.bukkit.utils.VersionUtil;
 import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.exceptionHandlers.NullExceptionHandler;
@@ -102,8 +101,6 @@ public abstract class BasePlugin extends JavaPlugin {
 			ServiceLocator.provideService(MojangSkinHelper.class);
 		}
 		
-		ServiceLocator.provideService(ConfigRegistry.class, false);
-		
 		ServiceLocator.provideService(commandProcessor);
 	}
 	
@@ -138,7 +135,7 @@ public abstract class BasePlugin extends JavaPlugin {
 		}
 		
 		if (consoleSender != null) {
-			consoleSender.sendMessage(ChatColor.GRAY + "[INFO] " + ChatColor.RESET + message);
+			consoleSender.sendMessage(ChatColor.GRAY + "[INFO] " + ChatColor.WHITE + "[" + getName() + "] " + ChatColor.RESET + message);
 		} else {
 			logger.info(message);
 		}
@@ -149,7 +146,7 @@ public abstract class BasePlugin extends JavaPlugin {
 		}
 		
 		if (consoleSender != null) {
-			consoleSender.sendMessage(ChatColor.YELLOW + "[WARN] " + ChatColor.RESET + message);
+			consoleSender.sendMessage(ChatColor.YELLOW + "[WARN] " + ChatColor.WHITE + "[" + getName() + "] " + ChatColor.RESET + message);
 		} else {
 			logger.warning(message);
 		}
@@ -160,7 +157,7 @@ public abstract class BasePlugin extends JavaPlugin {
 		}
 		
 		if (consoleSender != null) {
-			consoleSender.sendMessage(ChatColor.RED + "[ERROR] " + ChatColor.RESET + message);
+			consoleSender.sendMessage(ChatColor.RED + "[ERROR] " + ChatColor.WHITE + "[" + getName() + "] " + ChatColor.RESET + message);
 		} else {
 			logger.severe(message);
 		}

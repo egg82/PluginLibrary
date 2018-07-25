@@ -64,7 +64,7 @@ public class RabbitMessageHandler implements IMessageHandler {
 	// Args used for declaring new queues, or "channels"
 	private Map<String, Object> queueArgs = new HashMap<String, Object>();
 	// The name of the direct exchange to use
-	private String exchangeName = "ninja-egg82-plugin-broadcast";
+	private String exchangeName = "ninja:egg82:plugin:broadcast";
 	// This server's sender ID, for replying directly to the server
 	private volatile String senderId = null;
 	// Properties used for sending messages
@@ -172,7 +172,7 @@ public class RabbitMessageHandler implements IMessageHandler {
 		
 		try {
 			// Delete the queue and unbind everything on it
-			channel.queueDeleteNoWait(senderId + "-" + pluginName + "-" + channelName, true, false);
+			channel.queueDeleteNoWait(senderId + ":" + pluginName + ":" + channelName, true, false);
 		} catch (Exception ex) {
 			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 			throw new RuntimeException("Cannot destroy channel.", ex);
@@ -200,7 +200,7 @@ public class RabbitMessageHandler implements IMessageHandler {
 		}
 		
 		// Grab a new data object
-		RabbitMessageQueueData messageData = new RabbitMessageQueueData(channelName, channelName + "-" + senderId, data);
+		RabbitMessageQueueData messageData = new RabbitMessageQueueData(channelName, channelName + ":" + senderId, data);
 		// Add the new data to the send queue, tossing the oldest messages if needed
 		while (!backlog.offerLast(messageData) && !backlog.isEmpty()) {
 			backlog.pollFirst();
@@ -227,7 +227,7 @@ public class RabbitMessageHandler implements IMessageHandler {
 		}
 		
 		// Grab a new data object
-		RabbitMessageQueueData messageData = new RabbitMessageQueueData(channelName, channelName + "-proxy", data);
+		RabbitMessageQueueData messageData = new RabbitMessageQueueData(channelName, channelName + ":proxy", data);
 		// Add the new data to the send queue, tossing the oldest messages if needed
 		while (!backlog.offerLast(messageData) && !backlog.isEmpty()) {
 			backlog.pollFirst();
@@ -254,7 +254,7 @@ public class RabbitMessageHandler implements IMessageHandler {
 		}
 		
 		// Grab a new data object
-		RabbitMessageQueueData messageData = new RabbitMessageQueueData(channelName, channelName + "-server", data);
+		RabbitMessageQueueData messageData = new RabbitMessageQueueData(channelName, channelName + ":server", data);
 		// Add the new data to the send queue, tossing the oldest messages if needed
 		while (!backlog.offerLast(messageData) && !backlog.isEmpty()) {
 			backlog.pollFirst();
@@ -451,15 +451,15 @@ public class RabbitMessageHandler implements IMessageHandler {
 		}
 		
 		// Queue name. Shows up on Rabbit's end
-		String queueName = senderId + "-" + pluginName + "-" + channelName;
+		String queueName = senderId + ":" + pluginName + ":" + channelName;
 		
 		try {
 			// Declare the queue
 			channel.queueDeclare(queueName, true, false, false, queueArgs);
 			// Bind the queue to accept all fanned broadcasts
-			channel.queueBind(queueName, exchangeName, channelName + "-" + ((thisType == SenderType.PROXY) ? "proxy" : "server"));
+			channel.queueBind(queueName, exchangeName, channelName + ":" + ((thisType == SenderType.PROXY) ? "proxy" : "server"));
 			// Bind the queue to accept messages directed at this server
-			channel.queueBind(queueName, exchangeName, channelName + "-" + senderId);
+			channel.queueBind(queueName, exchangeName, channelName + ":" + senderId);
 			// Add a consumer to the queue
 			channel.basicConsume(queueName, true, new DefaultConsumer(channel) {
 				public void handleDelivery(String consumerTag, Envelope envelope, BasicProperties properties, byte[] body) {
@@ -553,6 +553,7 @@ public class RabbitMessageHandler implements IMessageHandler {
 			throw cause;
 		}
 	};
+	@SuppressWarnings("resource")
 	private ShutdownListener onChannelShutdown = new ShutdownListener() {
 		public void shutdownCompleted(ShutdownSignalException cause) {
 			if (!connected.get()) {

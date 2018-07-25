@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <artifactId>bungee</artifactId>
-  <version>1.0.6</version>
+  <version>1.0.7</version>
   <name>egg82-bungee</name>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -37,37 +37,17 @@
                     <exclude>META-INF/*.RSA</exclude>
                     <exclude>**/*.html</exclude>
                     <exclude>**/*.txt</exclude>
-					<exclude>edu/umd/cs/findbugs/**</exclude>
+					<exclude>junit/**</exclude>
+                    <exclude>org/junit/**</exclude>
+					<exclude>org/hamcrest/**</exclude>
+                    <exclude>edu/umd/cs/findbugs/**</exclude>
+                    <exclude>org/checkerframework/**</exclude>
+                    <exclude>afu/**</exclude>
+                    <exclude>org/codehaus/mojo/animal_sniffer/**</exclude>
                   </excludes>
                 </filter>
               </filters>
               <minimizeJar>true</minimizeJar>
-              <relocations>
-                <relocation>
-                  <pattern>com.google</pattern>
-                  <shadedPattern>me.egg82.extern.com.google</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>javax.annotation</pattern>
-                  <shadedPattern>me.egg82.extern.javax.annotation</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>org.apache</pattern>
-                  <shadedPattern>me.egg82.extern.org.apache</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>org.checkerframework</pattern>
-                  <shadedPattern>me.egg82.extern.org.checkerframework</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>org.json</pattern>
-                  <shadedPattern>me.egg82.extern.org.json</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>org.slf4j</pattern>
-                  <shadedPattern>me.egg82.extern.org.slf4j</shadedPattern>
-                </relocation>
-              </relocations>
             </configuration>
           </execution>
         </executions>
@@ -93,27 +73,27 @@
     <dependency>
       <groupId>ninja.egg82.lib</groupId>
       <artifactId>extended-collections-lib</artifactId>
-      <version>1.0.3</version>
+      <version>1.0.4</version>
     </dependency>
     <dependency>
       <groupId>ninja.egg82.lib</groupId>
       <artifactId>service-lib</artifactId>
-      <version>1.0.1</version>
-    </dependency>
-    <dependency>
-      <groupId>ninja.egg82.lib</groupId>
-      <artifactId>util-lib</artifactId>
-      <version>1.1.1</version>
-    </dependency>
-    <dependency>
-      <groupId>ninja.egg82.lib</groupId>
-      <artifactId>reflect-lib</artifactId>
       <version>1.0.2</version>
     </dependency>
     <dependency>
       <groupId>ninja.egg82.lib</groupId>
+      <artifactId>util-lib</artifactId>
+      <version>1.1.2</version>
+    </dependency>
+    <dependency>
+      <groupId>ninja.egg82.lib</groupId>
+      <artifactId>reflect-lib</artifactId>
+      <version>1.0.3</version>
+    </dependency>
+    <dependency>
+      <groupId>ninja.egg82.lib</groupId>
       <artifactId>plugin-common</artifactId>
-      <version>1.0.6</version>
+      <version>1.0.7</version>
     </dependency>
     <dependency>
       <groupId>org.json</groupId>

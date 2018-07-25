@@ -45,6 +45,8 @@ public class NativeBungeeMessageHandler implements IMessageHandler {
 	private Plugin plugin = ServiceLocator.getService(Plugin.class);
 	// This server's sender ID, for replying directly to the server
 	private volatile String senderId = null;
+	// Name of the plugin for namespaced channels
+	private String pluginName = null;
 	
 	//constructor
 	public NativeBungeeMessageHandler(String pluginName, String senderId) {
@@ -56,6 +58,7 @@ public class NativeBungeeMessageHandler implements IMessageHandler {
 		}
 		
 		this.senderId = senderId;
+		this.pluginName = pluginName.toLowerCase();
 		
 		threadPool = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat(pluginName + "-NativeBungee-%d").build());
 		threadPool.scheduleWithFixedDelay(onBacklogThread, 150L, 150L, TimeUnit.MILLISECONDS);
@@ -100,7 +103,7 @@ public class NativeBungeeMessageHandler implements IMessageHandler {
 		
 		try {
 			// Register the channel
-			plugin.getProxy().registerChannel(channelName);
+			plugin.getProxy().registerChannel(pluginName + ":" + channelName);
 		} catch (Exception ex) {
 			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 			throw new RuntimeException("Cannot create channel.", ex);
@@ -120,7 +123,7 @@ public class NativeBungeeMessageHandler implements IMessageHandler {
 		
 		try {
 			// Unregister the channel
-			plugin.getProxy().unregisterChannel(channelName);
+			plugin.getProxy().unregisterChannel(pluginName + ":" + channelName);
 		} catch (Exception ex) {
 			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 			throw new RuntimeException("Cannot destroy channel.", ex);
@@ -186,7 +189,7 @@ public class NativeBungeeMessageHandler implements IMessageHandler {
 		}
 		
 		for (BungeeMessageSender sender : servers) {
-			sender.submit(channelName, data);
+			sender.submit(pluginName + ":" + channelName, data);
 		}
 		
 		// Submit a new send task
@@ -277,6 +280,9 @@ public class NativeBungeeMessageHandler implements IMessageHandler {
 	
 	public void onPluginMessage(PluginMessageEvent e) {
 		Exception lastEx = null;
+		
+		String channelName = parseChannelName(e.getTag());
+		
 		// Iterate handlers and fire them
 		for (Entry<Class<? extends AsyncMessageHandler>, Unit<AsyncMessageHandler>> kvp : handlers.entrySet()) {
 			AsyncMessageHandler c = null;
@@ -291,7 +297,7 @@ public class NativeBungeeMessageHandler implements IMessageHandler {
 			
 			c.setSender("");
 			c.setSenderType(SenderType.UNKNOWN);
-			c.setChannelName(e.getTag());
+			c.setChannelName(channelName);
 			c.setData(e.getData());
 			
 			try {
@@ -339,5 +345,12 @@ public class NativeBungeeMessageHandler implements IMessageHandler {
 		}
 		
 		return run;
+	}
+	private String parseChannelName(String channelName) {
+		int index = channelName.indexOf(':');
+		if (index > -1) {
+			channelName = channelName.substring(index + 1);
+		}
+		return channelName;
 	}
 }

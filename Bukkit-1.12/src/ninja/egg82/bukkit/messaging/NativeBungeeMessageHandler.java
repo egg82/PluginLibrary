@@ -1,9 +1,5 @@
 package ninja.egg82.bukkit.messaging;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,6 +7,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -23,7 +20,6 @@ import ninja.egg82.bukkit.enums.BukkitMessageHandlerType;
 import ninja.egg82.concurrent.DynamicConcurrentDeque;
 import ninja.egg82.concurrent.FixedConcurrentDeque;
 import ninja.egg82.concurrent.IConcurrentDeque;
-import ninja.egg82.core.CollectionUtil;
 import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.patterns.tuples.Unit;
@@ -31,10 +27,10 @@ import ninja.egg82.plugin.enums.MessageHandlerType;
 import ninja.egg82.plugin.enums.SenderType;
 import ninja.egg82.plugin.handlers.async.AsyncMessageHandler;
 import ninja.egg82.plugin.messaging.IMessageHandler;
-import ninja.egg82.plugin.utils.ChannelUtil;
+import ninja.egg82.utils.CollectionUtil;
 import ninja.egg82.utils.ReflectUtil;
 
-public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMessageListener {
+public class NativeBungeeMessageHandler implements IMessageHandler, PluginMessageListener {
 	//vars
 	
 	// Channel names
@@ -49,12 +45,14 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMess
 	private Plugin plugin = ServiceLocator.getService(Plugin.class);
 	// This server's sender ID, for replying directly to the server
 	private volatile String senderId = null;
+	// Name of the plugin for namespaced channels
+	private String pluginName = null;
 	
 	// Message backlog/queue - for storing messages in case of disconnect. We put this here instead of in the wrappers so one server doesn't screw over another if it has no players
 	private IConcurrentDeque<BukkitMessageQueueData> backlog = new FixedConcurrentDeque<BukkitMessageQueueData>(150);
 	
 	//constructor
-	public EnhancedBungeeMessageHandler(String pluginName, String senderId) {
+	public NativeBungeeMessageHandler(String pluginName, String senderId) {
 		if (pluginName == null) {
 			throw new IllegalArgumentException("pluginName cannot be null.");
 		}
@@ -63,8 +61,9 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMess
 		}
 		
 		this.senderId = senderId;
+		this.pluginName = pluginName.toLowerCase();
 		
-		threadPool = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat(pluginName + "-EnhancedBungee-%d").build());
+		threadPool = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat(pluginName + "-NativeBungee-%d").build());
 		threadPool.scheduleWithFixedDelay(onBacklogThread, 150L, 150L, TimeUnit.MILLISECONDS);
 	}
 	
@@ -92,10 +91,10 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMess
 		
 		try {
 			// Register the channel
-			if (!Bukkit.getMessenger().registerIncomingPluginChannel(plugin, channelName, this).isValid()) {
+			if (!Bukkit.getMessenger().registerIncomingPluginChannel(plugin, pluginName + ":" + channelName, this).isValid()) {
 				throw new Exception("Channel is not valid directly after registration.");
 			}
-			Bukkit.getMessenger().registerOutgoingPluginChannel(plugin, channelName);
+			Bukkit.getMessenger().registerOutgoingPluginChannel(plugin, pluginName + ":" + channelName);
 		} catch (Exception ex) {
 			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 			throw new RuntimeException("Cannot create channel.", ex);
@@ -115,8 +114,8 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMess
 		
 		try {
 			// Unregister the channel
-			Bukkit.getMessenger().unregisterOutgoingPluginChannel(plugin, channelName);
-			Bukkit.getMessenger().unregisterIncomingPluginChannel(plugin, channelName, this);
+			Bukkit.getMessenger().unregisterOutgoingPluginChannel(plugin, pluginName + ":" + channelName);
+			Bukkit.getMessenger().unregisterIncomingPluginChannel(plugin, pluginName + ":" + channelName, this);
 		} catch (Exception ex) {
 			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 			throw new RuntimeException("Cannot destroy channel.", ex);
@@ -124,39 +123,7 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMess
 	}
 	
 	public void sendToId(String senderId, String channelName, byte[] data) {
-		if (channelName == null) {
-			throw new IllegalArgumentException("channelName cannot be null.");
-		}
-		if (data == null) {
-			throw new IllegalArgumentException("data cannot be null.");
-		}
-		
-		if (!channelNames.contains(channelName)) {
-			// Channel doesn't exist, throw an exception
-			throw new RuntimeException("Channel \"" + channelName + "\" does not exist.");
-		}
-		
-		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		DataOutputStream out = new DataOutputStream(stream);
-		
-		try {
-			out.writeByte(SenderType.SERVER.getType());
-		} catch (Exception ex) {
-			throw new RuntimeException("Could not write headers.");
-		}
-		if (!ChannelUtil.writeAll(out, this.senderId, senderId, data)) {
-			throw new RuntimeException("Could not write headers.");
-		}
-		
-		// Grab a new data object
-		BukkitMessageQueueData messageData = new BukkitMessageQueueData(channelName, stream.toByteArray());
-		// Add the new data to the send queue, tossing the oldest messages if needed
-		while (!backlog.offerLast(messageData) && !backlog.isEmpty()) {
-			backlog.pollFirst();
-		}
-		
-		// Submit a new send task
-		threadPool.submit(onSendThread);
+		throw new NotImplementedException("Native messaging cannot send to specific senders.");
 	}
 	public void broadcastToProxies(String channelName, byte[] data) {
 		if (channelName == null) {
@@ -171,20 +138,8 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMess
 			throw new RuntimeException("Channel \"" + channelName + "\" does not exist.");
 		}
 		
-		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		DataOutputStream out = new DataOutputStream(stream);
-		
-		try {
-			out.writeByte(SenderType.SERVER.getType());
-		} catch (Exception ex) {
-			throw new RuntimeException("Could not write headers.");
-		}
-		if (!ChannelUtil.writeAll(out, senderId, "bungee", data)) {
-			throw new RuntimeException("Could not write headers.");
-		}
-		
 		// Grab a new data object
-		BukkitMessageQueueData messageData = new BukkitMessageQueueData(channelName, stream.toByteArray());
+		BukkitMessageQueueData messageData = new BukkitMessageQueueData(pluginName + ":" + channelName, data);
 		// Add the new data to the send queue, tossing the oldest messages if needed
 		while (!backlog.offerLast(messageData) && !backlog.isEmpty()) {
 			backlog.pollFirst();
@@ -194,39 +149,7 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMess
 		threadPool.submit(onSendThread);
 	}
 	public void broadcastToServers(String channelName, byte[] data) {
-		if (channelName == null) {
-			throw new IllegalArgumentException("channelName cannot be null.");
-		}
-		if (data == null) {
-			throw new IllegalArgumentException("data cannot be null.");
-		}
-		
-		if (!channelNames.contains(channelName)) {
-			// Channel doesn't exist, throw an exception
-			throw new RuntimeException("Channel \"" + channelName + "\" does not exist.");
-		}
-		
-		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		DataOutputStream out = new DataOutputStream(stream);
-		
-		try {
-			out.writeByte(SenderType.SERVER.getType());
-		} catch (Exception ex) {
-			throw new RuntimeException("Could not write headers.");
-		}
-		if (!ChannelUtil.writeAll(out, senderId, "bukkit", data)) {
-			throw new RuntimeException("Could not write headers.");
-		}
-		
-		// Grab a new data object
-		BukkitMessageQueueData messageData = new BukkitMessageQueueData(channelName, stream.toByteArray());
-		// Add the new data to the send queue, tossing the oldest messages if needed
-		while (!backlog.offerLast(messageData) && !backlog.isEmpty()) {
-			backlog.pollFirst();
-		}
-		
-		// Submit a new send task
-		threadPool.submit(onSendThread);
+		throw new NotImplementedException("Native messaging cannot broadcast to servers.");
 	}
 	
 	public int addHandlersFromPackage(String packageName) {
@@ -306,43 +229,13 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMess
 	}
 	
 	public void onPluginMessageReceived(String channelName, Player player, byte[] message) {
-		// Message sender
-		String sender = "";
-		// The sender type. Bukkit or Bungee?
-		SenderType senderType = SenderType.UNKNOWN;
-		// The tag - or who this message is meant to be for
-		String tag = "server";
-		// And finally the data
-		byte[] data = message;
-		
-		// Make sure we can read everything
-		if (message.length >= 5) {
-			// Read headers
-			ByteArrayInputStream stream = new ByteArrayInputStream(message);
-			DataInputStream in = new DataInputStream(stream);
-			
-			try {
-				senderType = SenderType.fromType(in.readByte());
-				sender = in.readUTF();
-				tag = in.readUTF();
-				data = new byte[in.available()];
-				in.read(data);
-			} catch (Exception ex) {
-				
-			}
-		}
-		
-		if (!tag.equals("server") && !tag.equals(senderId)) {
-			// Message isn't directed at us. Skip it
-			return;
-		}
+		channelName = parseChannelName(channelName);
 		
 		Exception lastEx = null;
 		// Iterate handlers and fire them
 		for (Entry<Class<? extends AsyncMessageHandler>, Unit<AsyncMessageHandler>> kvp : handlers.entrySet()) {
 			AsyncMessageHandler c = null;
 			
-			// Lazy initialize
 			if (kvp.getValue().getType() == null) {
 				c = createHandler(kvp.getKey());
 				kvp.getValue().setType(c);
@@ -350,10 +243,10 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMess
 				c = kvp.getValue().getType();
 			}
 			
-			c.setSender(sender);
-			c.setSenderType(senderType);
+			c.setSender("");
+			c.setSenderType(SenderType.UNKNOWN);
 			c.setChannelName(channelName);
-			c.setData(data);
+			c.setData(message);
 			
 			try {
 				c.start();
@@ -368,7 +261,7 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMess
 	}
 	
 	public MessageHandlerType getType() {
-		return BukkitMessageHandlerType.ENHANCED_BUNGEE;
+		return BukkitMessageHandlerType.NATIVE_BUNGEE;
 	}
 	
 	//private
@@ -455,5 +348,12 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler, PluginMess
 		}
 		
 		return run;
+	}
+	private String parseChannelName(String channelName) {
+		int index = channelName.indexOf(':');
+		if (index > -1) {
+			channelName = channelName.substring(index + 1);
+		}
+		return channelName;
 	}
 }

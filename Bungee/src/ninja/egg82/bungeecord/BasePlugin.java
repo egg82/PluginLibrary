@@ -22,7 +22,6 @@ import ninja.egg82.bungeecord.processors.EventProcessor;
 import ninja.egg82.bungeecord.messaging.EnhancedBungeeMessageHandler;
 import ninja.egg82.bungeecord.reflection.redisBungee.NullRedisBungeeHelper;
 import ninja.egg82.bungeecord.reflection.redisBungee.RedisBungeeHelper;
-import ninja.egg82.bungeecord.services.ConfigRegistry;
 import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.exceptionHandlers.NullExceptionHandler;
 import ninja.egg82.patterns.ServiceLocator;
@@ -69,7 +68,6 @@ public abstract class BasePlugin extends Plugin {
 		
 		consoleSender = getProxy().getConsole();
 		
-		ServiceLocator.provideService(ConfigRegistry.class, false);
 		ServiceLocator.provideService(CommandProcessor.class, false);
 	}
 	
@@ -96,7 +94,7 @@ public abstract class BasePlugin extends Plugin {
 		}
 		
 		if (consoleSender != null) {
-			consoleSender.sendMessage(new TextComponent(ChatColor.GRAY + "[INFO] " + ChatColor.RESET + message));
+			consoleSender.sendMessage(new TextComponent(ChatColor.GRAY + "[INFO] " + ChatColor.WHITE + "[" + getDescription().getName() + "] " + ChatColor.RESET + message));
 		} else {
 			logger.info(message);
 		}
@@ -107,7 +105,7 @@ public abstract class BasePlugin extends Plugin {
 		}
 		
 		if (consoleSender != null) {
-			consoleSender.sendMessage(new TextComponent(ChatColor.YELLOW + "[WARN] " + ChatColor.RESET + message));
+			consoleSender.sendMessage(new TextComponent(ChatColor.YELLOW + "[WARN] " + ChatColor.WHITE + "[" + getDescription().getName() + "] " + ChatColor.RESET + message));
 		} else {
 			logger.warning(message);
 		}
@@ -118,7 +116,7 @@ public abstract class BasePlugin extends Plugin {
 		}
 		
 		if (consoleSender != null) {
-			consoleSender.sendMessage(new TextComponent(ChatColor.RED + "[ERROR] " + ChatColor.RESET + message));
+			consoleSender.sendMessage(new TextComponent(ChatColor.RED + "[ERROR] " + ChatColor.WHITE + "[" + getDescription().getName() + "] " + ChatColor.RESET + message));
 		} else {
 			logger.severe(message);
 		}

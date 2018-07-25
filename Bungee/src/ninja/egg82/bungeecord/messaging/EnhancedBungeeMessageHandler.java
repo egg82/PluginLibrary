@@ -48,6 +48,8 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler {
 	private Plugin plugin = ServiceLocator.getService(Plugin.class);
 	// This server's sender ID, for replying directly to the server
 	private volatile String senderId = null;
+	// Name of the plugin for namespaced channels
+	private String pluginName = null;
 	
 	//constructor
 	public EnhancedBungeeMessageHandler(String pluginName, String senderId) {
@@ -59,6 +61,7 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler {
 		}
 		
 		this.senderId = senderId;
+		this.pluginName = pluginName.toLowerCase();
 		
 		threadPool = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat(pluginName + "-EnhancedBungee-%d").build());
 		threadPool.scheduleWithFixedDelay(onBacklogThread, 150L, 150L, TimeUnit.MILLISECONDS);
@@ -103,7 +106,7 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler {
 		
 		try {
 			// Register the channel
-			plugin.getProxy().registerChannel(channelName);
+			plugin.getProxy().registerChannel(pluginName + ":" + channelName);
 		} catch (Exception ex) {
 			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 			throw new RuntimeException("Cannot create channel.", ex);
@@ -123,7 +126,7 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler {
 		
 		try {
 			// Unregister the channel
-			plugin.getProxy().unregisterChannel(channelName);
+			plugin.getProxy().unregisterChannel(pluginName + ":" + channelName);
 		} catch (Exception ex) {
 			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 			throw new RuntimeException("Cannot destroy channel.", ex);
@@ -158,7 +161,7 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler {
 		byte[] message = stream.toByteArray();
 		
 		for (BungeeMessageSender sender : servers) {
-			sender.submit(channelName, message);
+			sender.submit(pluginName + ":" + channelName, message);
 		}
 		
 		// Submit a new send task
@@ -234,7 +237,7 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler {
 		byte[] message = stream.toByteArray();
 		
 		for (BungeeMessageSender sender : servers) {
-			sender.submit(channelName, message);
+			sender.submit(pluginName + ":" + channelName, message);
 		}
 		
 		// Submit a new send task
@@ -350,6 +353,8 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler {
 			}
 		}
 		
+		String channelName = parseChannelName(e.getTag());
+		
 		if (tag.equals("proxy") || tag.equals(senderId)) {
 			// Message is directed at us
 			Exception lastEx = null;
@@ -367,7 +372,7 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler {
 				
 				c.setSender(sender);
 				c.setSenderType(senderType);
-				c.setChannelName(e.getTag());
+				c.setChannelName(channelName);
 				c.setData(data);
 				
 				try {
@@ -424,5 +429,12 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler {
 		}
 		
 		return run;
+	}
+	private String parseChannelName(String channelName) {
+		int index = channelName.indexOf(':');
+		if (index > -1) {
+			channelName = channelName.substring(index + 1);
+		}
+		return channelName;
 	}
 }

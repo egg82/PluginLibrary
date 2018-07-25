@@ -11,7 +11,8 @@
   <modules>
     <module>Common</module>
 	<module>Bungee</module>
-	<module>Bukkit</module>
+	<module>Bukkit-1.12</module>
+	<module>Bukkit-1.13</module>
 	
     <module>Permissions-Lib</module>
 	<module>Eco-Lib</module>
