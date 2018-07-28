@@ -6,8 +6,6 @@ import ninja.egg82.bukkit.core.PlayerInfoContainer;
 
 public interface IUUIDHelper {
 	//functions
-	PlayerInfoContainer getPlayer(UUID uuid);
-	boolean isCached(UUID uuid);
-	PlayerInfoContainer getPlayer(String name);
-	boolean isCached(String name);
+	PlayerInfoContainer getPlayer(UUID playerUuid, boolean expensive);
+	PlayerInfoContainer getPlayer(String playerName, boolean expensive);
 }

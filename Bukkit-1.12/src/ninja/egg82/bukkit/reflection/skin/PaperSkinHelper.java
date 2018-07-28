@@ -32,7 +32,7 @@ import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.patterns.registries.ExpiringRegistry;
 import ninja.egg82.patterns.registries.IRegistry;
-import ninja.egg82.utils.FileUtil;
+import ninja.egg82.plugin.utils.DirectoryUtil;
 import ninja.egg82.utils.ThreadUtil;
 import ninja.egg82.utils.TimeUtil;
 
@@ -106,7 +106,7 @@ public class PaperSkinHelper implements ISkinHelper {
 		File skinFile = getSkinFile(playerUuid);
 		
 		// Lookup from file cache
-		if (FileUtil.pathExists(skinFile) && FileUtil.pathIsFile(skinFile)) {
+		if (skinFile.exists()) {
 			try (FileReader reader = new FileReader(skinFile)) {
 				retVal = gson.fromJson(reader, Skin.class);
 			} catch (Exception ex) {
@@ -229,6 +229,13 @@ public class PaperSkinHelper implements ISkinHelper {
 	
 	private void writeToFileCache(Skin skin, UUID playerUuid) {
 		File skinFile = getSkinFile(playerUuid);
+		if (skinFile.exists()) {
+			if (skinFile.isDirectory()) {
+				DirectoryUtil.delete(skinFile);
+			} else {
+				skinFile.delete();
+			}
+		}
 		
 		try (FileWriter writer = new FileWriter(skinFile, false)) {
 			gson.toJson(skin, writer);
@@ -239,15 +246,26 @@ public class PaperSkinHelper implements ISkinHelper {
 	}
 	private File getSkinFile(UUID playerUuid) {
 		// playerdata directory, where skins are stored
-		File skinDir = new File(ServiceLocator.getService(Plugin.class).getDataFolder(), "playerdata");
-		try {
-			// Create the directory if needed
-			FileUtil.createDirectory(skinDir);
-		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+		File skinDir = new File(ServiceLocator.getService(Plugin.class).getDataFolder(), "SkinData");
+		if (skinDir.exists() && !skinDir.isDirectory()) {
+			skinDir.delete();
 		}
 		
-		return new File(skinDir, playerUuid.toString() + ".json");
+		if (!skinDir.exists()) {
+			try {
+				// Create the directory if needed
+				skinDir.mkdirs();
+			} catch (Exception ex) {
+				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			}
+		}
+		
+		File retVal = new File(skinDir, playerUuid.toString() + ".json");
+		if (retVal.exists() && retVal.isDirectory()) {
+			DirectoryUtil.delete(retVal);
+		}
+		
+		return retVal;
 	}
 	
 	private Material getSkull() {
