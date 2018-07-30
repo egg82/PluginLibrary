@@ -20,13 +20,13 @@ import org.json.simple.JSONObject;
 import com.google.gson.Gson;
 
 import ninja.egg82.bukkit.core.PlayerInfoContainer;
-import ninja.egg82.bukkit.utils.JSONUtil;
 import ninja.egg82.enums.ExpirationPolicy;
 import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.patterns.registries.ExpiringRegistry;
 import ninja.egg82.patterns.registries.IRegistry;
 import ninja.egg82.plugin.utils.DirectoryUtil;
+import ninja.egg82.plugin.utils.JSONUtil;
 import ninja.egg82.utils.ThreadUtil;
 import ninja.egg82.utils.TimeUtil;
 

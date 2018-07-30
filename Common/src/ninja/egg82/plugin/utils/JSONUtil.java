@@ -1,4 +1,4 @@
-package ninja.egg82.bukkit.utils;
+package ninja.egg82.plugin.utils;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
