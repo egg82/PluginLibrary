@@ -32,10 +32,11 @@ public class TaskUtil {
 						ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 						throw ex;
 					}
-				}}).getTaskId();
+				}
+			}).getTaskId();
 		}
 		
-		return Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(ServiceLocator.getService(Plugin.class), new Runnable() {
+		return Bukkit.getServer().getScheduler().runTaskLater(ServiceLocator.getService(Plugin.class), new Runnable() {
 			public void run() {
 				try {
 					task.run();
@@ -43,12 +44,12 @@ public class TaskUtil {
 					ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 					throw ex;
 				}
-			}}, delay);
+			}
+		}, delay).getTaskId();
 	}
 	public static int runAsync(Runnable task) {
 		return runAsync(task, 0L);
 	}
-	@SuppressWarnings("deprecation")
 	public static int runAsync(Runnable task, long delay) {
 		if (task == null) {
 			throw new IllegalArgumentException("task cannot be null.");
@@ -63,10 +64,11 @@ public class TaskUtil {
 						ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 						throw ex;
 					}
-				}}).getTaskId();
+				}
+			}).getTaskId();
 		}
 		
-		return Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(ServiceLocator.getService(Plugin.class), new Runnable() {
+		return Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(ServiceLocator.getService(Plugin.class), new Runnable() {
 			public void run() {
 				try {
 					task.run();
@@ -74,7 +76,8 @@ public class TaskUtil {
 					ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
 					throw ex;
 				}
-			}}, delay);
+			}
+		}, delay).getTaskId();
 	}
 	
 	public static void cancelTask(int id) {

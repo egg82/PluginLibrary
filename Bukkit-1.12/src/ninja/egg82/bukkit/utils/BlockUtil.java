@@ -242,6 +242,26 @@ public final class BlockUtil {
 			}
 		}
 	}
+	public static void clearBlock(Location location, Material clearMaterial, boolean updatePhysics) {
+		if (location == null) {
+			throw new IllegalArgumentException("location cannot be null.");
+		}
+		
+		clearBlock(location.getBlock(), clearMaterial, updatePhysics);
+	}
+	public static void clearBlock(Block block, Material clearMaterial, boolean updatePhysics) {
+		if (block == null) {
+			throw new IllegalArgumentException("block cannot be null.");
+		}
+		if (clearMaterial == null) {
+			clearMaterial = Material.AIR;
+		}
+		
+		BlockState state = block.getState();
+		clearInventory(state);
+		state.setType(clearMaterial);
+		state.update(true, updatePhysics);
+	}
 	public static void clearBlocks(Location center, Material clearMaterial, int xRadius, int yRadius, int zRadius, boolean updatePhysics) {
 		if (center == null) {
 			throw new IllegalArgumentException("center cannot be null.");

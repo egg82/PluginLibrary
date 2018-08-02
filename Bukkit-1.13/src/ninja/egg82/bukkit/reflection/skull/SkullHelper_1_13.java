@@ -9,13 +9,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
-import ninja.egg82.bukkit.utils.CommandUtil;
-
-public class SkullHelper_1_12_1 implements ISkullHelper {
+public class SkullHelper_1_13 implements ISkullHelper {
 	//vars
 	
 	//constructor
-	public SkullHelper_1_12_1() {
+	public SkullHelper_1_13() {
 		
 	}
 	
@@ -24,30 +22,31 @@ public class SkullHelper_1_12_1 implements ISkullHelper {
 		if (owner == null) {
 			throw new IllegalArgumentException("owner cannot be null.");
 		}
-		return createSkull(CommandUtil.getOfflinePlayerByUuid(owner));
+		return createSkull(Bukkit.getOfflinePlayer(owner));
 	}
+	@SuppressWarnings("deprecation")
 	public ItemStack createSkull(String owner) {
 		if (owner == null) {
 			throw new IllegalArgumentException("owner cannot be null.");
 		}
-		return createSkull(CommandUtil.getOfflinePlayerByName(owner));
+		return createSkull(Bukkit.getOfflinePlayer(owner));
 	}
 	public ItemStack createSkull(Player owner) {
 		if (owner == null) {
 			throw new IllegalArgumentException("owner cannot be null.");
 		}
-		return createSkull(CommandUtil.getOfflinePlayerByUuid(owner.getUniqueId()));
+		return createSkull(Bukkit.getPlayer(owner.getUniqueId()));
 	}
 	public ItemStack createSkull(OfflinePlayer owner) {
 		if (owner == null) {
 			throw new IllegalArgumentException("owner cannot be null.");
 		}
 		
-		ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1);
+		ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
         skull.setDurability((short) 3);
 		SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
 		if (skullMeta == null) {
-			skullMeta = (SkullMeta) Bukkit.getItemFactory().getItemMeta(Material.SKULL_ITEM);
+			skullMeta = (SkullMeta) Bukkit.getItemFactory().getItemMeta(Material.PLAYER_HEAD);
 		}
         skullMeta.setDisplayName(owner.getName());
         skullMeta.setOwningPlayer(owner);
@@ -57,11 +56,28 @@ public class SkullHelper_1_12_1 implements ISkullHelper {
 	}
 	
 	public ItemStack createSkull(short data) {
-		ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1);
+		ItemStack skull = null;
+		
+		if (data == 0) {
+			skull = new ItemStack(Material.SKELETON_SKULL, 1);
+		} else if (data == 1) {
+			skull = new ItemStack(Material.WITHER_SKELETON_SKULL, 1);
+		} else if (data == 2) {
+			skull = new ItemStack(Material.ZOMBIE_HEAD, 1);
+		} else if (data == 3) {
+			skull = new ItemStack(Material.PLAYER_HEAD, 1);
+		} else if (data == 4) {
+			skull = new ItemStack(Material.CREEPER_HEAD, 1);
+		} else if (data == 5) {
+			skull = new ItemStack(Material.DRAGON_HEAD, 1);
+		} else {
+			skull = new ItemStack(Material.SKELETON_SKULL, 1);
+		}
+		
         skull.setDurability(data);
 		SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
 		if (skullMeta == null) {
-			skullMeta = (SkullMeta) Bukkit.getItemFactory().getItemMeta(Material.SKULL_ITEM);
+			skullMeta = (SkullMeta) Bukkit.getItemFactory().getItemMeta(skull.getType());
 		}
         skull.setItemMeta(skullMeta);
         

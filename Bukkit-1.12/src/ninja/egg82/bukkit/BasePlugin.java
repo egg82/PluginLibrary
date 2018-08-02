@@ -90,7 +90,7 @@ public abstract class BasePlugin extends JavaPlugin {
 		reflect(gameVersion, "ninja.egg82.bukkit.reflection.player");
 		reflect(gameVersion, "ninja.egg82.bukkit.reflection.entity");
 		reflect(gameVersion, "ninja.egg82.bukkit.reflection.block.serialization");
-		reflect(gameVersion, "com.rgaminecraft.pexc.reflection.skull");
+		reflect(gameVersion, "ninja.egg82.bukkit.reflection.skull");
 		
 		try {
 			Class.forName("com.destroystokyo.paper.profile.PlayerProfile");
@@ -174,10 +174,10 @@ public abstract class BasePlugin extends JavaPlugin {
 	}
 	
 	//private
-	private void reflect(String version, String pkg) {
+	protected void reflect(String version, String pkg) {
 		reflect(version, pkg, true);
 	}
-	private void reflect(String version, String pkg, boolean lazyInitialize) {
+	protected void reflect(String version, String pkg, boolean lazyInitialize) {
 		Class<Object> bestMatch = VersionUtil.getBestMatch(Object.class, version, pkg, false);
 		
 		if (bestMatch != null) {

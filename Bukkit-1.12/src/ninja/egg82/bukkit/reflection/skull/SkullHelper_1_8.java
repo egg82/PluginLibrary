@@ -2,19 +2,17 @@ package ninja.egg82.bukkit.reflection.skull;
 
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
-import ninja.egg82.bukkit.reflection.material.IMaterialHelper;
 import ninja.egg82.bukkit.utils.CommandUtil;
-import ninja.egg82.patterns.ServiceLocator;
 
 public class SkullHelper_1_8 implements ISkullHelper {
 	//vars
-	private Material skull = getSkull();
 	
 	//constructor
 	public SkullHelper_1_8() {
@@ -46,11 +44,26 @@ public class SkullHelper_1_8 implements ISkullHelper {
 			throw new IllegalArgumentException("owner cannot be null.");
 		}
 		
-		ItemStack skull = new ItemStack(this.skull, 1);
+		ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1);
         skull.setDurability((short) 3);
 		SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
+		if (skullMeta == null) {
+			skullMeta = (SkullMeta) Bukkit.getItemFactory().getItemMeta(Material.SKULL_ITEM);
+		}
         skullMeta.setDisplayName(owner.getName());
         skullMeta.setOwner(owner.getName());
+        skull.setItemMeta(skullMeta);
+        
+        return skull;
+	}
+	
+	public ItemStack createSkull(short data) {
+		ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1);
+        skull.setDurability(data);
+		SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
+		if (skullMeta == null) {
+			skullMeta = (SkullMeta) Bukkit.getItemFactory().getItemMeta(Material.SKULL_ITEM);
+		}
         skull.setItemMeta(skullMeta);
         
         return skull;
@@ -73,9 +86,5 @@ public class SkullHelper_1_8 implements ISkullHelper {
 	}
 	
 	//private
-	private Material getSkull() {
-		IMaterialHelper materialHelper = ServiceLocator.getService(IMaterialHelper.class);
-		Material retVal = materialHelper.getByName("PLAYER_HEAD");
-		return (retVal != null) ? retVal : materialHelper.getByName("SKULL_ITEM");
-	}
+	
 }

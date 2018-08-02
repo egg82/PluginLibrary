@@ -189,6 +189,15 @@ public class LocationUtil {
 		
 		double angle = loc.getYaw();
 		
+		while (angle < 0.0d) {
+			angle += 360.0d;
+		}
+		while (angle > 360.0d) {
+			angle -= 360.0d;
+		}
+		
+		angle = angle * Math.PI / 180.0d;
+		
 		for (int i = 0; i < numPoints; i++) {
 			double newAngle = angle + piSlice * i;
 			retVal[i] = new Location(loc.getWorld(), loc.getX() + radius * Math.cos(newAngle), loc.getY(), loc.getZ() + radius * Math.sin(newAngle));
