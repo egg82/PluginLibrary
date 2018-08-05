@@ -15,7 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 
-import ninja.egg82.exceptionHandlers.IExceptionHandler;
+import ninja.egg82.analytics.exceptions.IExceptionHandler;
 import ninja.egg82.patterns.ServiceLocator;
 
 public class ItemStackSerializationUtil {
@@ -38,7 +38,10 @@ public class ItemStackSerializationUtil {
 		try {
 			bytes = decoder.decode(encoded);
 		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+			if (handler != null) {
+				handler.sendException(ex);
+			}
 			throw new RuntimeException("Could not get ItemStack array from Base64 string.", ex);
 		}
 		
@@ -67,7 +70,10 @@ public class ItemStackSerializationUtil {
 				retVal.add((ItemStack) in.readObject());
 			}
 		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+			if (handler != null) {
+				handler.sendException(ex);
+			}
 			throw new RuntimeException("Could not get ItemStack array compressed bytes.", ex);
 		}
 		return retVal.toArray(new ItemStack[0]);
@@ -93,7 +99,10 @@ public class ItemStackSerializationUtil {
 				out.writeObject(i);
 			}
 		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+			if (handler != null) {
+				handler.sendException(ex);
+			}
 			throw new RuntimeException("Could not get compressed bytes form ItemStack array.", ex);
 		}
 		

@@ -16,6 +16,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import ninja.egg82.analytics.exceptions.IExceptionHandler;
+import ninja.egg82.analytics.exceptions.NullExceptionHandler;
 import ninja.egg82.bukkit.core.BukkitSender;
 import ninja.egg82.bukkit.messaging.EnhancedBungeeMessageHandler;
 import ninja.egg82.bukkit.processors.CommandProcessor;
@@ -25,8 +27,6 @@ import ninja.egg82.bukkit.reflection.skin.PaperSkinHelper;
 import ninja.egg82.bukkit.reflection.uuid.MojangUUIDHelper;
 import ninja.egg82.bukkit.reflection.uuid.PaperUUIDHelper;
 import ninja.egg82.bukkit.utils.VersionUtil;
-import ninja.egg82.exceptionHandlers.IExceptionHandler;
-import ninja.egg82.exceptionHandlers.NullExceptionHandler;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.utils.IPUtil;
 import ninja.egg82.utils.FileUtil;
@@ -60,7 +60,10 @@ public abstract class BasePlugin extends JavaPlugin {
 		}
 		
 		ServiceLocator.provideService(NullExceptionHandler.class);
-		logger.addHandler((Handler) ServiceLocator.getService(IExceptionHandler.class));
+		IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+		if (handler != null && handler instanceof Handler) {
+			logger.addHandler((Handler) handler);
+		}
 		
 		ThreadUtil.rename(getName());
 		ServiceLocator.provideService(new EnhancedBungeeMessageHandler(getName(), serverId));
@@ -214,7 +217,10 @@ public abstract class BasePlugin extends JavaPlugin {
 			FileUtil.write(path, toBytes(String.join(FileUtil.LINE_SEPARATOR, lines), Charset.forName("UTF-8")), 0L);
 			FileUtil.close(path);
 		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+			if (handler != null) {
+				handler.sendException(ex);
+			}
 			throw new RuntimeException("Could not write to server.properties", ex);
 		}
 	}

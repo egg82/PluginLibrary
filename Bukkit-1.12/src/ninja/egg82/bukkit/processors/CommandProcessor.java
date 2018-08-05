@@ -9,10 +9,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
+import ninja.egg82.analytics.exceptions.IExceptionHandler;
 import ninja.egg82.concurrent.DynamicConcurrentDeque;
 import ninja.egg82.concurrent.IConcurrentDeque;
 import ninja.egg82.core.CollectionUtil;
-import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.core.sender.Sender;
 import ninja.egg82.plugin.handlers.CommandHandler;
@@ -190,7 +190,10 @@ public final class CommandProcessor {
 			try {
 				c.start();
 			} catch (Exception ex) {
-				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+				if (handler != null) {
+					handler.sendException(ex);
+				}
 				lastEx = ex;
 			}
 		}
@@ -209,7 +212,10 @@ public final class CommandProcessor {
 				try {
 					c.undo();
 				} catch (Exception ex) {
-					ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+					IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+					if (handler != null) {
+						handler.sendException(ex);
+					}
 					lastEx = ex;
 				}
 			}
@@ -237,7 +243,10 @@ public final class CommandProcessor {
 			try {
 				complete = c.tabComplete();
 			} catch (Exception ex) {
-				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+				if (handler != null) {
+					handler.sendException(ex);
+				}
 				throw ex;
 			}
 			if (complete != null) {
@@ -284,7 +293,10 @@ public final class CommandProcessor {
 				try {
 					run.add(e.newInstance());
 				} catch (Exception ex) {
-					ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+					IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+					if (handler != null) {
+						handler.sendException(ex);
+					}
 					throw new RuntimeException("Cannot initialize command.", ex);
 				}
 			}

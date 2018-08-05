@@ -2,7 +2,7 @@ package ninja.egg82.plugin.utils;
 
 import java.io.DataOutput;
 
-import ninja.egg82.exceptionHandlers.IExceptionHandler;
+import ninja.egg82.analytics.exceptions.IExceptionHandler;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.messaging.IMessageHandler;
 
@@ -93,11 +93,17 @@ public class ChannelUtil {
 				} else if (obj instanceof String) {
 					out.writeUTF((String) obj);
 				} else {
-					ServiceLocator.getService(IExceptionHandler.class).silentException(new Exception("Provided type of " + obj.getClass().getName() + " is not recognized."));
+					IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+					if (handler != null) {
+						handler.sendException(new RuntimeException("Provided type of " + obj.getClass().getName() + " is not recognized."));
+					}
 					return false;
 				}
 			} catch (Exception ex) {
-				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+				if (handler != null) {
+					handler.sendException(ex);
+				}
 				return false;
 			}
 		}

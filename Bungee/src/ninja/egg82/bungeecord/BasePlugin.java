@@ -19,11 +19,11 @@ import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 import ninja.egg82.bungeecord.processors.CommandProcessor;
 import ninja.egg82.bungeecord.processors.EventProcessor;
+import ninja.egg82.analytics.exceptions.IExceptionHandler;
+import ninja.egg82.analytics.exceptions.NullExceptionHandler;
 import ninja.egg82.bungeecord.messaging.EnhancedBungeeMessageHandler;
 import ninja.egg82.bungeecord.reflection.redisBungee.NullRedisBungeeHelper;
 import ninja.egg82.bungeecord.reflection.redisBungee.RedisBungeeHelper;
-import ninja.egg82.exceptionHandlers.IExceptionHandler;
-import ninja.egg82.exceptionHandlers.NullExceptionHandler;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.utils.FileUtil;
 import ninja.egg82.utils.ThreadUtil;
@@ -62,7 +62,10 @@ public abstract class BasePlugin extends Plugin {
 		
 		logger = getLogger();
 		ServiceLocator.provideService(logger);
-		logger.addHandler((Handler) ServiceLocator.getService(IExceptionHandler.class));
+		IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+		if (handler != null && handler instanceof Handler) {
+			logger.addHandler((Handler) handler);
+		}
 		
 		ServiceLocator.provideService(getClass().getClassLoader());
 		
@@ -185,7 +188,11 @@ public abstract class BasePlugin extends Plugin {
 			FileUtil.write(path, toBytes(String.join(FileUtil.LINE_SEPARATOR, lines), Charset.forName("UTF-8")), 0L);
 			FileUtil.close(path);
 		} catch (Exception ex) {
-			
+			IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+			if (handler != null) {
+				handler.sendException(ex);
+			}
+			throw new RuntimeException("Could not write to config.yml", ex);
 		}
 	}
 	

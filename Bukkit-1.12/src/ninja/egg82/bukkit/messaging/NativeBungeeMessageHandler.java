@@ -15,12 +15,12 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
+import ninja.egg82.analytics.exceptions.IExceptionHandler;
 import ninja.egg82.bukkit.core.messaging.BukkitMessageQueueData;
 import ninja.egg82.bukkit.enums.BukkitMessageHandlerType;
 import ninja.egg82.concurrent.DynamicConcurrentDeque;
 import ninja.egg82.concurrent.FixedConcurrentDeque;
 import ninja.egg82.concurrent.IConcurrentDeque;
-import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.patterns.tuples.Unit;
 import ninja.egg82.plugin.enums.MessageHandlerType;
@@ -96,7 +96,10 @@ public class NativeBungeeMessageHandler implements IMessageHandler, PluginMessag
 			}
 			Bukkit.getMessenger().registerOutgoingPluginChannel(plugin, pluginName + ":" + channelName);
 		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+			if (handler != null) {
+				handler.sendException(ex);
+			}
 			throw new RuntimeException("Cannot create channel.", ex);
 		}
 		
@@ -117,7 +120,10 @@ public class NativeBungeeMessageHandler implements IMessageHandler, PluginMessag
 			Bukkit.getMessenger().unregisterOutgoingPluginChannel(plugin, pluginName + ":" + channelName);
 			Bukkit.getMessenger().unregisterIncomingPluginChannel(plugin, pluginName + ":" + channelName, this);
 		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+			if (handler != null) {
+				handler.sendException(ex);
+			}
 			throw new RuntimeException("Cannot destroy channel.", ex);
 		}
 	}
@@ -251,7 +257,10 @@ public class NativeBungeeMessageHandler implements IMessageHandler, PluginMessag
 			try {
 				c.start();
 			} catch (Exception ex) {
-				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+				if (handler != null) {
+					handler.sendException(ex);
+				}
 				lastEx = ex;
 			}
 		}
@@ -343,7 +352,10 @@ public class NativeBungeeMessageHandler implements IMessageHandler, PluginMessag
 		try {
 			run = c.newInstance();
 		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+			if (handler != null) {
+				handler.sendException(ex);
+			}
 			throw new RuntimeException("Cannot initialize message handler.", ex);
 		}
 		

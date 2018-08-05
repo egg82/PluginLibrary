@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 import ninja.egg82.patterns.ServiceLocator;
@@ -20,31 +19,6 @@ public final class PlayerHelper_1_9 implements IPlayerHelper {
 	}
 	
 	//public
-	public ItemStack getItemInMainHand(Player player) {
-		if (player == null) {
-			throw new IllegalArgumentException("player cannot be null.");
-		}
-		return player.getInventory().getItemInMainHand();
-	}
-	public ItemStack getItemInOffHand(Player player) {
-		if (player == null) {
-			throw new IllegalArgumentException("player cannot be null.");
-		}
-		return player.getInventory().getItemInOffHand();
-	}
-	public void setItemInMainHand(Player player, ItemStack item) {
-		if (player == null) {
-			throw new IllegalArgumentException("player cannot be null.");
-		}
-		player.getInventory().setItemInMainHand(item);
-	}
-	public void setItemInOffHand(Player player, ItemStack item) {
-		if (player == null) {
-			throw new IllegalArgumentException("player cannot be null.");
-		}
-		player.getInventory().setItemInOffHand(item);
-	}
-	
 	public void hidePlayer(Player player, Player playerToHide) {
 		player.hidePlayer(ServiceLocator.getService(Plugin.class), playerToHide);
 	}

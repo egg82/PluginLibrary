@@ -131,7 +131,7 @@ public class LocationUtil {
 		return 337.5d + 180.0d;
 	}
 	
-	public static Location getLocationInFront(Location loc, double distance) {
+	public static Location getLocationInFront(Location loc, double distance, boolean includeY) {
 		double angle = loc.getYaw();
 		
 		angle += 90.0d;
@@ -144,10 +144,11 @@ public class LocationUtil {
 		}
 		
 		angle = angle * Math.PI / 180.0d;
+		double sin = Math.sin(angle);
 		
-		return new Location(loc.getWorld(), loc.getX() + distance * Math.cos(angle), loc.getY(), loc.getZ() + distance * Math.sin(angle));
+		return new Location(loc.getWorld(), loc.getX() + distance * Math.cos(angle), (includeY) ? loc.getY() + distance * sin * sin : loc.getY(), loc.getZ() + distance * sin);
 	}
-	public static Location getLocationBehind(Location loc, double distance) {
+	public static Location getLocationBehind(Location loc, double distance, boolean includeY) {
 		double angle = loc.getYaw();
 		
 		angle += 270.0d;
@@ -160,10 +161,11 @@ public class LocationUtil {
 		}
 		
 		angle = angle * Math.PI / 180.0d;
+		double sin = Math.sin(angle);
 		
-		return new Location(loc.getWorld(), loc.getX() + distance * Math.cos(angle), loc.getY(), loc.getZ() + distance * Math.sin(angle));
+		return new Location(loc.getWorld(), loc.getX() + distance * Math.cos(angle), (includeY) ? loc.getY() + distance * sin * sin : loc.getY(), loc.getZ() + distance * sin);
 	}
-	public static Location getLocationAtAngle(Location center, double distance, double dregreeOffsetFromFacingDirection) {
+	public static Location getLocationAtAngle(Location center, double distance, double dregreeOffsetFromFacingDirection, boolean includeY) {
 		double angle = center.getYaw();
 		
 		angle += 90.0d + dregreeOffsetFromFacingDirection;
@@ -176,12 +178,14 @@ public class LocationUtil {
 		}
 		
 		angle = angle * Math.PI / 180.0d;
+		double sin = Math.sin(angle);
 		
-		return new Location(center.getWorld(), center.getX() + distance * Math.cos(angle), center.getY(), center.getZ() + distance * Math.sin(angle));
+		return new Location(center.getWorld(), center.getX() + distance * Math.cos(angle), (includeY) ? center.getY() + distance * sin * sin : center.getY(), center.getZ() + distance * sin);
 	}
-	public static Location getRandomPointAround(Location loc, double radius) {
+	public static Location getRandomPointAround(Location loc, double radius, boolean includeY) {
 		double angle = Math.random() * Math.PI * 2.0d;
-		return new Location(loc.getWorld(), loc.getX() + radius * Math.cos(angle), loc.getY(), loc.getZ() + radius * Math.sin(angle));
+		double sin = Math.sin(angle);
+		return new Location(loc.getWorld(), loc.getX() + radius * Math.cos(angle), (includeY) ? loc.getY() + radius * sin * sin : loc.getY(), loc.getZ() + radius * sin);
 	}
 	public static Location[] getHalfCircleAround(Location loc, double radius, int numPoints) {
 		Location[] retVal = new Location[numPoints];

@@ -3,7 +3,7 @@ package ninja.egg82.bukkit.handlers;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
-import ninja.egg82.exceptionHandlers.IExceptionHandler;
+import ninja.egg82.analytics.exceptions.IExceptionHandler;
 import ninja.egg82.patterns.Command;
 import ninja.egg82.patterns.ServiceLocator;
 
@@ -56,7 +56,10 @@ public abstract class TickHandler extends Command {
 				try {
 					start();
 				} catch (Exception ex) {
-					ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+					IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+					if (handler != null) {
+						handler.sendException(ex);
+					}
 					throw ex;
 				}
 			}

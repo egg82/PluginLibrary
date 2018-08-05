@@ -16,11 +16,11 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.plugin.Plugin;
+import ninja.egg82.analytics.exceptions.IExceptionHandler;
 import ninja.egg82.bungeecord.core.BungeeMessageSender;
 import ninja.egg82.bungeecord.enums.BungeeMessageHandlerType;
 import ninja.egg82.concurrent.DynamicConcurrentDeque;
 import ninja.egg82.concurrent.IConcurrentDeque;
-import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.patterns.tuples.Unit;
 import ninja.egg82.plugin.enums.MessageHandlerType;
@@ -108,7 +108,10 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler {
 			// Register the channel
 			plugin.getProxy().registerChannel(pluginName + ":" + channelName);
 		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+			if (handler != null) {
+				handler.sendException(ex);
+			}
 			throw new RuntimeException("Cannot create channel.", ex);
 		}
 		
@@ -128,7 +131,10 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler {
 			// Unregister the channel
 			plugin.getProxy().unregisterChannel(pluginName + ":" + channelName);
 		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+			if (handler != null) {
+				handler.sendException(ex);
+			}
 			throw new RuntimeException("Cannot destroy channel.", ex);
 		}
 	}
@@ -201,7 +207,10 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler {
 			try {
 				c.start();
 			} catch (Exception ex) {
-				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+				if (handler != null) {
+					handler.sendException(ex);
+				}
 				lastEx = ex;
 			}
 		}
@@ -378,7 +387,10 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler {
 				try {
 					c.start();
 				} catch (Exception ex) {
-					ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+					IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+					if (handler != null) {
+						handler.sendException(ex);
+					}
 					lastEx = ex;
 				}
 			}
@@ -424,7 +436,10 @@ public class EnhancedBungeeMessageHandler implements IMessageHandler {
 		try {
 			run = c.newInstance();
 		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+			if (handler != null) {
+				handler.sendException(ex);
+			}
 			throw new RuntimeException("Cannot initialize message handler.", ex);
 		}
 		

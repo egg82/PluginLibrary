@@ -13,10 +13,10 @@ import com.google.common.collect.Iterables;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
+import ninja.egg82.analytics.exceptions.IExceptionHandler;
 import ninja.egg82.bungeecord.core.BungeeCommand;
 import ninja.egg82.concurrent.DynamicConcurrentDeque;
 import ninja.egg82.concurrent.IConcurrentDeque;
-import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.handlers.async.AsyncCommandHandler;
 import ninja.egg82.utils.CollectionUtil;
@@ -208,7 +208,10 @@ public final class CommandProcessor {
 			try {
 				c.execute(sender, args);
 			} catch (Exception ex) {
-				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+				if (handler != null) {
+					handler.sendException(ex);
+				}
 				lastEx = ex;
 			}
 		}
@@ -223,7 +226,10 @@ public final class CommandProcessor {
 				try {
 					c.undo(sender, args);
 				} catch (Exception ex) {
-					ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+					IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+					if (handler != null) {
+						handler.sendException(ex);
+					}
 					lastEx = ex;
 				}
 			}
@@ -251,7 +257,10 @@ public final class CommandProcessor {
 			try {
 				complete = c.onTabComplete(sender, args);
 			} catch (Exception ex) {
-				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+				if (handler != null) {
+					handler.sendException(ex);
+				}
 				throw ex;
 			}
 			if (complete != null) {

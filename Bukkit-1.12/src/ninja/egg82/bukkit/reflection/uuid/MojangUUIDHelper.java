@@ -19,9 +19,9 @@ import org.json.simple.JSONObject;
 
 import com.google.gson.Gson;
 
+import ninja.egg82.analytics.exceptions.IExceptionHandler;
 import ninja.egg82.bukkit.core.PlayerInfoContainer;
 import ninja.egg82.enums.ExpirationPolicy;
-import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.patterns.registries.ExpiringRegistry;
 import ninja.egg82.patterns.registries.IRegistry;
@@ -73,7 +73,10 @@ public class MojangUUIDHelper implements IUUIDHelper {
 			try (FileReader reader = new FileReader(infoFile)) {
 				retVal = gson.fromJson(reader, PlayerInfoContainer.class);
 			} catch (Exception ex) {
-				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+				if (handler != null) {
+					handler.sendException(ex);
+				}
 			}
 			
 			if (retVal != null) {
@@ -137,7 +140,10 @@ public class MojangUUIDHelper implements IUUIDHelper {
 			try (FileReader reader = new FileReader(infoFile)) {
 				retVal = gson.fromJson(reader, PlayerInfoContainer.class);
 			} catch (Exception ex) {
-				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+				if (handler != null) {
+					handler.sendException(ex);
+				}
 			}
 			
 			if (retVal != null) {
@@ -181,7 +187,10 @@ public class MojangUUIDHelper implements IUUIDHelper {
 		try {
 			conn = getConnection("https://api.mojang.com/user/profiles/" + playerUuid.toString().replace("-", "") + "/names");
 		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+			if (handler != null) {
+				handler.sendException(ex);
+			}
 			return null;
 		}
 		
@@ -210,7 +219,10 @@ public class MojangUUIDHelper implements IUUIDHelper {
 				}
 			}
 		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+			if (handler != null) {
+				handler.sendException(ex);
+			}
 		}
 		
 		return retVal;
@@ -223,7 +235,10 @@ public class MojangUUIDHelper implements IUUIDHelper {
 		try {
 			conn = getConnection("https://api.mojang.com/users/profiles/minecraft/" + playerName);
 		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+			if (handler != null) {
+				handler.sendException(ex);
+			}
 			return null;
 		}
 		
@@ -252,7 +267,10 @@ public class MojangUUIDHelper implements IUUIDHelper {
 				}
 			}
 		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+			if (handler != null) {
+				handler.sendException(ex);
+			}
 		}
 		
 		return retVal;
@@ -277,7 +295,10 @@ public class MojangUUIDHelper implements IUUIDHelper {
 			gson.toJson(info, writer);
 			writer.flush();
 		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+			if (handler != null) {
+				handler.sendException(ex);
+			}
 		}
 		
 		// Name
@@ -294,7 +315,10 @@ public class MojangUUIDHelper implements IUUIDHelper {
 			gson.toJson(info, writer);
 			writer.flush();
 		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+			if (handler != null) {
+				handler.sendException(ex);
+			}
 		}
 	}
 	private File getInfoFile(UUID playerUuid) {
@@ -309,7 +333,10 @@ public class MojangUUIDHelper implements IUUIDHelper {
 				// Create the directory if needed
 				uuidDir.mkdirs();
 			} catch (Exception ex) {
-				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+				if (handler != null) {
+					handler.sendException(ex);
+				}
 			}
 		}
 		
@@ -332,7 +359,10 @@ public class MojangUUIDHelper implements IUUIDHelper {
 				// Create the directory if needed
 				nameDir.mkdirs();
 			} catch (Exception ex) {
-				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+				if (handler != null) {
+					handler.sendException(ex);
+				}
 			}
 		}
 		

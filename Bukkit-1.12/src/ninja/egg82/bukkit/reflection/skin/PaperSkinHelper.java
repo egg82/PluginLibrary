@@ -21,6 +21,7 @@ import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
 import com.google.gson.Gson;
 
+import ninja.egg82.analytics.exceptions.IExceptionHandler;
 import ninja.egg82.bukkit.mineskin.MineskinClient;
 import ninja.egg82.bukkit.mineskin.data.Skin;
 import ninja.egg82.bukkit.mineskin.data.SkinCallback;
@@ -28,7 +29,6 @@ import ninja.egg82.bukkit.mineskin.data.SkinData;
 import ninja.egg82.bukkit.mineskin.data.Texture;
 import ninja.egg82.bukkit.reflection.material.IMaterialHelper;
 import ninja.egg82.enums.ExpirationPolicy;
-import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.patterns.registries.ExpiringRegistry;
 import ninja.egg82.patterns.registries.IRegistry;
@@ -110,7 +110,10 @@ public class PaperSkinHelper implements ISkinHelper {
 			try (FileReader reader = new FileReader(skinFile)) {
 				retVal = gson.fromJson(reader, Skin.class);
 			} catch (Exception ex) {
-				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+				if (handler != null) {
+					handler.sendException(ex);
+				}
 			}
 			
 			if (retVal != null) {
@@ -165,7 +168,10 @@ public class PaperSkinHelper implements ISkinHelper {
 			}
 			public void error(String message) {
 				RuntimeException ex = new RuntimeException(message);
-				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+				if (handler != null) {
+					handler.sendException(ex);
+				}
 				latch.countDown();
 				throw ex;
 			}
@@ -176,7 +182,10 @@ public class PaperSkinHelper implements ISkinHelper {
 				}
 				
 				RuntimeException ex2 = new RuntimeException("Could not fetch skin.", ex);
-				ServiceLocator.getService(IExceptionHandler.class).silentException(ex2);
+				IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+				if (handler != null) {
+					handler.sendException(ex2);
+				}
 				latch.countDown();
 				throw ex2;
 			}
@@ -184,7 +193,10 @@ public class PaperSkinHelper implements ISkinHelper {
 		try {
 			latch.await();
 		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+			if (handler != null) {
+				handler.sendException(ex);
+			}
 		}
 		
 		if (retVal.get() != null) {
@@ -241,7 +253,10 @@ public class PaperSkinHelper implements ISkinHelper {
 			gson.toJson(skin, writer);
 			writer.flush();
 		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+			if (handler != null) {
+				handler.sendException(ex);
+			}
 		}
 	}
 	private File getSkinFile(UUID playerUuid) {
@@ -256,7 +271,10 @@ public class PaperSkinHelper implements ISkinHelper {
 				// Create the directory if needed
 				skinDir.mkdirs();
 			} catch (Exception ex) {
-				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+				if (handler != null) {
+					handler.sendException(ex);
+				}
 			}
 		}
 		

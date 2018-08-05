@@ -20,11 +20,11 @@ import com.rabbitmq.client.ShutdownListener;
 import com.rabbitmq.client.ShutdownSignalException;
 import com.rabbitmq.client.AMQP.BasicProperties;
 
+import ninja.egg82.analytics.exceptions.IExceptionHandler;
 import ninja.egg82.concurrent.DynamicConcurrentDeque;
 import ninja.egg82.concurrent.FixedConcurrentDeque;
 import ninja.egg82.concurrent.IConcurrentDeque;
 import ninja.egg82.core.CollectionUtil;
-import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.patterns.tuples.Unit;
 import ninja.egg82.plugin.core.messaging.RabbitMessageQueueData;
@@ -174,7 +174,10 @@ public class RabbitMessageHandler implements IMessageHandler {
 			// Delete the queue and unbind everything on it
 			channel.queueDeleteNoWait(senderId + ":" + pluginName + ":" + channelName, true, false);
 		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+			if (handler != null) {
+				handler.sendException(ex);
+			}
 			throw new RuntimeException("Cannot destroy channel.", ex);
 		}
 	}
@@ -482,7 +485,10 @@ public class RabbitMessageHandler implements IMessageHandler {
 								kvp.getValue().setType(c);
 							} catch (Exception ex) {
 								// Send the exception off to the current available handler handler and store it
-								ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+								IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+								if (handler != null) {
+									handler.sendException(ex);
+								}
 								lastEx = ex;
 								continue;
 							}
@@ -501,7 +507,10 @@ public class RabbitMessageHandler implements IMessageHandler {
 							c.start();
 						} catch (Exception ex) {
 							// Send the exception off to the current available handler handler and store it
-							ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+							IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+							if (handler != null) {
+								handler.sendException(ex);
+							}
 							lastEx = ex;
 						}
 					}
@@ -513,7 +522,10 @@ public class RabbitMessageHandler implements IMessageHandler {
 				}
 			});
 		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+			if (handler != null) {
+				handler.sendException(ex);
+			}
 			throw new RuntimeException("Cannot create channel.", ex);
 		}
 		
@@ -549,7 +561,10 @@ public class RabbitMessageHandler implements IMessageHandler {
 			connect();
 			
 			// Something bad happened. Log it and throw it
-			ServiceLocator.getService(IExceptionHandler.class).silentException(cause);
+			IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+			if (handler != null) {
+				handler.sendException(cause);
+			}
 			throw cause;
 		}
 	};
@@ -580,7 +595,10 @@ public class RabbitMessageHandler implements IMessageHandler {
 			}
 			
 			// Whoa. Something bad happened. Log it and throw it
-			ServiceLocator.getService(IExceptionHandler.class).silentException(cause);
+			IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+			if (handler != null) {
+				handler.sendException(cause);
+			}
 			throw cause;
 		}
 	};
@@ -628,7 +646,10 @@ public class RabbitMessageHandler implements IMessageHandler {
 					// Plaintext
 					conn = factory.newConnection(recvPool);
 				} catch (Exception ex3) {
-					ServiceLocator.getService(IExceptionHandler.class).silentException(ex3);
+					IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+					if (handler != null) {
+						handler.sendException(ex3);
+					}
 					throw new RuntimeException("Cannot create RabbitMQ connection.", ex3);
 				}
 			}
@@ -641,7 +662,10 @@ public class RabbitMessageHandler implements IMessageHandler {
 			channel.exchangeDeclare(exchangeName, "direct", true);
 			channel.txSelect();
 		} catch (Exception ex) {
-			ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+			IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+			if (handler != null) {
+				handler.sendException(ex);
+			}
 			throw new RuntimeException("Cannot create RabbitMQ connection.", ex);
 		}
 		

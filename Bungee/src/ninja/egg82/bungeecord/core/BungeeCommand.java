@@ -3,7 +3,7 @@ package ninja.egg82.bungeecord.core;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
-import ninja.egg82.exceptionHandlers.IExceptionHandler;
+import ninja.egg82.analytics.exceptions.IExceptionHandler;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.handlers.async.AsyncCommandHandler;
 
@@ -61,7 +61,10 @@ public class BungeeCommand extends Command implements TabExecutor {
 			try {
 				initializedCommand = command.newInstance();
 			} catch (Exception ex) {
-				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+				if (handler != null) {
+					handler.sendException(ex);
+				}
 				throw new RuntimeException(ex);
 			}
 		}

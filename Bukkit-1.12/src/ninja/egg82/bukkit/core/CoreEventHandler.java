@@ -5,9 +5,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.event.Event;
 
+import ninja.egg82.analytics.exceptions.IExceptionHandler;
 import ninja.egg82.concurrent.DynamicConcurrentDeque;
 import ninja.egg82.concurrent.IConcurrentDeque;
-import ninja.egg82.exceptionHandlers.IExceptionHandler;
 import ninja.egg82.patterns.ServiceLocator;
 import ninja.egg82.plugin.handlers.events.IEventHandler;
 import ninja.egg82.utils.CollectionUtil;
@@ -96,7 +96,10 @@ public class CoreEventHandler {
 					// We would prefer the command to fail here, hence the cast
 					run.add(e.newInstance());
 				} catch (Exception ex) {
-					ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+					IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+					if (handler != null) {
+						handler.sendException(ex);
+					}
 					lastEx = ex;
 				}
 			}
@@ -109,7 +112,10 @@ public class CoreEventHandler {
 			try {
 				e.start();
 			} catch (Exception ex) {
-				ServiceLocator.getService(IExceptionHandler.class).silentException(ex);
+				IExceptionHandler handler = ServiceLocator.getService(IExceptionHandler.class);
+				if (handler != null) {
+					handler.sendException(ex);
+				}
 				lastEx = ex;
 			}
 		}

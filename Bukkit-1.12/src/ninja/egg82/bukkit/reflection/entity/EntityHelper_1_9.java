@@ -11,10 +11,13 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDamageEvent.DamageModifier;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemStack;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
@@ -83,6 +86,59 @@ public class EntityHelper_1_9 implements IEntityHelper {
 		Bukkit.getPluginManager().callEvent(damageEvent);
 		damageEvent.getEntity().setLastDamageCause(damageEvent);
 		to.damage(damage, from);
+	}
+	
+	public ItemStack getItemInMainHand(Entity entity) {
+		if (entity == null) {
+			return null;
+		}
+		if (!(entity instanceof LivingEntity)) {
+			return null;
+		}
+		
+		EntityEquipment equipment = ((LivingEntity) entity).getEquipment();
+		
+		return equipment.getItemInMainHand();
+	}
+	public void setItemInMainHand(Entity entity, ItemStack item) {
+		if (entity == null) {
+			throw new IllegalArgumentException("entity cannot be null.");
+		}
+		if (item == null) {
+			throw new IllegalArgumentException("item cannot be null.");
+		}
+		if (!(entity instanceof LivingEntity)) {
+			throw new IllegalArgumentException("entity cannot have items equipped.");
+		}
+		
+		EntityEquipment equipment = ((LivingEntity) entity).getEquipment();
+		equipment.setItemInMainHand(item);
+	}
+	public ItemStack getItemInOffHand(Entity entity) {
+		if (entity == null) {
+			return null;
+		}
+		if (!(entity instanceof LivingEntity)) {
+			return null;
+		}
+		
+		EntityEquipment equipment = ((LivingEntity) entity).getEquipment();
+		
+		return equipment.getItemInOffHand();
+	}
+	public void setItemInOffHand(Entity entity, ItemStack item) {
+		if (entity == null) {
+			throw new IllegalArgumentException("entity cannot be null.");
+		}
+		if (item == null) {
+			throw new IllegalArgumentException("item cannot be null.");
+		}
+		if (!(entity instanceof LivingEntity)) {
+			throw new IllegalArgumentException("entity cannot have items equipped.");
+		}
+		
+		EntityEquipment equipment = ((LivingEntity) entity).getEquipment();
+		equipment.setItemInOffHand(item);
 	}
 	
 	//private
