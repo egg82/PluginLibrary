@@ -125,6 +125,7 @@ public final class BlockUtil {
 			while (l.getY() > 0 && type == Material.AIR) {
 				// Apparently adding negatives is faster than subtracting (citation needed)
 				l.add(0.0d, -1.0d, 0.0d);
+				type = l.getBlock().getType();
 			}
 			// We don't care if 0 is the "lowest" air block because technically that's correct
 			// If the block isn't air, add 1 to it
@@ -134,6 +135,7 @@ public final class BlockUtil {
 		// The block isn't air, so we need to scan upwards to find the first air block
 		while (l.getY() < l.getWorld().getMaxHeight() && type != Material.AIR) {
 			l.add(0.0d, 1.0d, 0.0d);
+			type = l.getBlock().getType();
 		}
 		// We don't care if maxHeight is the "lowest" air block because technically that's correct
 		return l;
@@ -159,6 +161,7 @@ public final class BlockUtil {
 			while (l.getY() > 0 && !type.isSolid()) {
 				// Apparently adding negatives is faster than subtracting (citation needed)
 				l.add(0.0d, -1.0d, 0.0d);
+				type = l.getBlock().getType();
 			}
 			// We don't care if 0 is the "highest" solid block because technically that's correct
 			return l;
@@ -167,6 +170,7 @@ public final class BlockUtil {
 		// The block is solid, so we need to scan upwards to find the first non-solid block
 		while (l.getY() < l.getWorld().getMaxHeight() && type.isSolid()) {
 			l.add(0.0d, 1.0d, 0.0d);
+			type = l.getBlock().getType();
 		}
 		// We don't care if maxHeight is the "highest" solid block because technically that's correct
 		// If the block isn't solid, subtract 1 from it
