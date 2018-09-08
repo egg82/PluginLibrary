@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <artifactId>bukkit-1.12</artifactId>
-  <version>1.1.17</version>
+  <version>1.1.18</version>
   <name>egg82-bukkit-1.12</name>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -123,7 +123,7 @@
     <dependency>
       <groupId>ninja.egg82.lib</groupId>
       <artifactId>plugin-common</artifactId>
-      <version>1.1.10</version>
+      <version>1.1.11</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
