@@ -7,13 +7,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public interface ISkullHelper {
-	//functions
-	ItemStack createSkull(UUID owner);
-	ItemStack createSkull(String owner);
-	ItemStack createSkull(Player owner);
-	ItemStack createSkull(OfflinePlayer owner);
-	
-	ItemStack createSkull(short data);
-	
-	OfflinePlayer getOwner(ItemStack stack);
+    // functions
+    ItemStack createSkull(UUID owner);
+
+    ItemStack createSkull(String owner);
+
+    ItemStack createSkull(Player owner);
+
+    ItemStack createSkull(OfflinePlayer owner);
+
+    ItemStack createSkull(short data);
+
+    OfflinePlayer getOwner(ItemStack stack);
 }

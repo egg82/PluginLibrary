@@ -10,8 +10,8 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 
-import ninja.egg82.bukkit.utils.VersionUtil;
 import ninja.egg82.patterns.ServiceLocator;
+import ninja.egg82.plugin.utils.VersionUtil;
 import ninja.egg82.protocol.commands.ProtocolEventCommand;
 import ninja.egg82.utils.CollectionUtil;
 import ninja.egg82.utils.ReflectUtil;
