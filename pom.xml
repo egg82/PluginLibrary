@@ -10,17 +10,17 @@
   </build>
   <modules>
     <module>Common</module>
-	<module>Bungee</module>
-	<module>Velocity</module>
-	<module>Bukkit-1.12</module>
-	<module>Bukkit-1.13</module>
-	<module>Sponge</module>
-	
+    <module>Bungee</module>
+    <module>Velocity</module>
+    <module>Bukkit-1.12</module>
+    <module>Bukkit-1.13</module>
+    <module>Sponge</module>
+    
     <module>Permissions-Lib</module>
-	<module>Eco-Lib</module>
+    <module>Eco-Lib</module>
     <module>Disguise-Lib</module>
-	<module>NBT-Lib</module>
-	<module>Protocol-Lib</module>
+    <module>NBT-Lib</module>
+    <module>Protocol-Lib</module>
   </modules>
   <description>Library for Bukkit/Spigot plugins</description>
   <url>https://www.egg82.ninja</url>

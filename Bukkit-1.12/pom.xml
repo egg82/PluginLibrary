@@ -37,9 +37,9 @@
                     <exclude>META-INF/*.RSA</exclude>
                     <exclude>**/*.html</exclude>
                     <exclude>**/*.txt</exclude>
-					<exclude>junit/**</exclude>
+                    <exclude>junit/**</exclude>
                     <exclude>org/junit/**</exclude>
-					<exclude>org/hamcrest/**</exclude>
+                    <exclude>org/hamcrest/**</exclude>
                     <exclude>edu/umd/cs/findbugs/**</exclude>
                     <exclude>org/checkerframework/**</exclude>
                     <exclude>afu/**</exclude>

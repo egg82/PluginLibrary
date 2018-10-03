@@ -91,13 +91,13 @@ public abstract class BasePlugin {
                     writeProperties();
                 }
 
-                String name = container.getDescription().getName().orElse(null);
+                String name = container.getDescription().getName().get();
                 if (name == null) {
                     throw new RuntimeException("Plugin name cannot null.");
                 }
                 BasePlugin.pluginName = name;
 
-                String version = container.getDescription().getVersion().orElse(null);
+                String version = container.getDescription().getVersion().get();
                 if (version == null) {
                     throw new RuntimeException("Plugin version cannot null.");
                 }
@@ -234,7 +234,7 @@ public abstract class BasePlugin {
     }
 
     private String getId() {
-        File propertiesFile = new File(container.getDescription().getSource().orElse(null).toAbsolutePath().getParent().getParent().toFile(), "velocity-extra.toml");
+        File propertiesFile = new File(container.getDescription().getSource().get().toAbsolutePath().getParent().getParent().toFile(), "velocity-extra.toml");
         String path = propertiesFile.getAbsolutePath();
 
         if (!FileUtil.pathExists(path) || !FileUtil.pathIsFile(path)) {
@@ -259,7 +259,7 @@ public abstract class BasePlugin {
         return null;
     }
     private void writeProperties() {
-        File propertiesFile = new File(container.getDescription().getSource().orElse(null).toAbsolutePath().getParent().getParent().toFile(), "velocity-extra.toml");
+        File propertiesFile = new File(container.getDescription().getSource().get().toAbsolutePath().getParent().getParent().toFile(), "velocity-extra.toml");
         String path = propertiesFile.getAbsolutePath();
 
         if (FileUtil.pathExists(path) && !FileUtil.pathIsFile(path)) {
